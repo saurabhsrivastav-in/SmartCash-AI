@@ -1,16 +1,4 @@
-# Core Web Framework
 streamlit
-
-# Data Manipulation & Analytics (Sprint 1, 4, 8)
 pandas
-numpy
-
-# AI & Matching Logic (Sprint 2, 5, 10)
 fuzzywuzzy
 python-Levenshtein
-
-# Cryptography for Audit & Security (Sprint 9, 11)
-cryptography
-
-# Utilities
-requests
