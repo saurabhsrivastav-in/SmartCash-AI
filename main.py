@@ -82,7 +82,7 @@ invoices, bank_feed = load_data()
 engine = get_engine()
 
 # --- 5. SIDEBAR NAVIGATION & CONTROLS ---
-# Professional Treasury Icon (Safe CDN)
+# Using a reliable, high-uptime CDN icon for the vault/logo
 st.sidebar.markdown(
     """
     <div style="text-align: center;">
@@ -114,14 +114,14 @@ liquidity_haircut = np.clip(1 - (stress_level / 200), 0.55, 1.0)
 if menu == "Executive Dashboard":
     st.title("📊 Global Cash & Liquidity Position")
     
-    # Hero Visual for Premium Look
-    st.image("https://images.unsplash.com/photo-1611974717482-98252c00ed6f?q=80&w=2070&auto=format&fit=crop", 
-             caption="Real-time Global Liquidity Monitoring", 
+    # Premium Hero Image
+    st.image("https://images.unsplash.com/photo-1551288049-bbbda546697a?auto=format&fit=crop&q=80&w=2070", 
+             caption="Real-time Institutional Liquidity Flow", 
              use_container_width=True)
     
     st.divider()
     
-    # KPIs with Real-time Stress Impact
+    # KPIs
     base_dso = calculate_dso(invoices)
     current_dso = base_dso + stress_level
     
@@ -152,7 +152,6 @@ if menu == "Executive Dashboard":
         ))
         fig_waterfall.update_layout(template="plotly_dark", height=450, margin=dict(l=10, r=10, t=10, b=10))
         st.plotly_chart(fig_waterfall, use_container_width=True)
-        
 
     with c2:
         st.subheader("🔮 Predictive DSO Drift")
@@ -201,15 +200,21 @@ elif menu == "Analyst Workbench":
 # --- 8. VIEW: RISK & AUDIT ---
 elif menu == "Risk & Governance":
     st.title("🛡️ Institutional Risk Radar")
-    fig_sun = px.sunburst(invoices, path=['Currency', 'Customer', 'ESG_Score'], 
-                         values='Amount', template="plotly_dark", color='ESG_Score')
+    # Hierarchy: Currency -> Customer -> Score
+    fig_sun = px.sunburst(
+        invoices, 
+        path=['Currency', 'Customer', 'ESG_Score'], 
+        values='Amount', 
+        template="plotly_dark", 
+        color='ESG_Score',
+        color_discrete_map={'AA': '#238636', 'A': '#2ea043', 'B': '#d29922', 'C': '#f85149'}
+    )
     st.plotly_chart(fig_sun, use_container_width=True)
-    
 
 elif menu == "Audit Ledger":
     st.title("🔐 SOC2 Compliance Vault")
     st.dataframe(st.session_state.audit_engine.get_logs(), use_container_width=True)
 
-# Footer info
+# --- FOOTER ---
 st.sidebar.divider()
 st.sidebar.info(f"🟢 **Session Active**\n\n📅 **Date:** {datetime.now().strftime('%Y-%m-%d')}")
