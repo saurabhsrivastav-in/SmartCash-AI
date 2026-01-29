@@ -1,0 +1,52 @@
+# --- Python Specific ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# --- Environments ---
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# --- Streamlit Specific ---
+.streamlit/config.toml
+.streamlit/credentials.toml
+
+# --- Data & Logs ---
+*.log
+data/*.csv
+# If you want to keep your mock CSVs on GitHub, comment out the line above with a #
+
+# --- OS Specific ---
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+desktop.ini
+
+# --- IDE Specific ---
+.vscode/
+.idea/
+*.swp
+*.swo
