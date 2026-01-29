@@ -1,4 +1,16 @@
-streamlit
-pandas
-fuzzywuzzy
-python-Levenshtein
+# --- Data Handling ---
+pandas==2.2.0        # The "Excel" of Python
+numpy==1.26.0         # Vectorized math for amount matching
+
+# --- AI & Reconciliation Logic ---
+scikit-learn          # For vectorizing text/customer names
+thefuzz[speedup]      # Fuzzy string matching (crucial for "Tesla" vs "Tesla Inc")
+python-dateutil       # Advanced date parsing for due dates
+
+# --- LLM Integration (Optional but recommended) ---
+openai                # If using GPT-4 to explain reconciliation gaps
+python-dotenv         # To load your secret API keys from .env
+
+# --- Frontend/UI ---
+streamlit             # To build your dashboard instantly
+plotly                # For beautiful ESG risk charts
