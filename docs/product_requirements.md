@@ -2,8 +2,8 @@
 
 ## 1. Document Overview
 * **Product Name:** SmartCash AI
-* **Project Lead:** [Your Name]
-* **Version:** 1.0.0
+* **Project Lead:** Saurabh Srivastav
+* * **Version:** 1.0.0
 * **Objective:** To automate the cash application process by matching bank payments to open receivables using explainable AI.
 
 ---
