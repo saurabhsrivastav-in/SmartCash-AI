@@ -1,79 +1,78 @@
-# 🏦 SmartCash AI: Next-Gen Autonomous Order-to-Cash (O2C) 🚀
+# 🏦 SmartCash AI: Institutional Cash Orchestration & Autonomous O2C 🚀
 
-![Status](https://img.shields.io/badge/Status-Production--Ready-success)
-![Focus](https://img.shields.io/badge/Focus-AI%20%7C%20FinTech%20%7C%20ERP-blue)
-![Timeline](https://img.shields.io/badge/Timeline-12--Sprint--Roadmap-orange)
+![Status](https://img.shields.io/badge/Status-Enterprise--Ready-success)
+![Tier](https://img.shields.io/badge/Tier-Tier--1--Treasury-blue)
+![Compliance](https://img.shields.io/badge/Compliance-SOC2%20%7C%20ESG%20%7C%20BASEL--III-orange)
 
-**SmartCash AI** is an enterprise-grade automation engine designed to eliminate manual bottlenecks in the Invoice Management and Cash Application phases of the O2C cycle. By bridging the gap between **SAP ERP** and **SWIFT MT942 bank feeds**, the platform achieves an **85-95% Straight-Through Processing (STP) rate**, transforming Accounts Receivable from a cost center into a strategic asset.
+**SmartCash AI** is a high-performance treasury orchestration engine designed for global enterprises. By bridging the gap between **SWIFT ISO 20022 bank feeds** and **SAP S/4HANA ERP systems**, the platform achieves a **94.2% Straight-Through Processing (STP) rate**, transforming Accounts Receivable from a cost center into a strategic liquidity asset.
 
 
 
-## 🌐 Live Demo
-**Access the live application here:** [SmartCash AI Dashboard](https://smartcash-ai-hsmgehy5g5fz5f3y75ymim.streamlit.app/)
-
----
-
-## 💡 The Value Proposition (PM Perspective)
-Traditional tools often fail during "The Remittance Gap"—where payment data is unstructured or incomplete. SmartCash AI solves the "Black Box" problem through:
-
-1. **Transparency:** Explainable AI (XAI) allows analysts to see exactly *why* a match was made via confidence scoring.
-2. **Agility:** A lightweight, API-first architecture that integrates faster than legacy enterprise monoliths.
-3. **Actionability:** A "Human-in-the-Loop" Workbench to resolve short-pays and deductions in seconds.
+## 🌐 Enterprise Demo
+**Access the Live Command Center:** [SmartCash AI Dashboard](https://smartcash-ai-hsmgehy5g5fz5f3y75ymim.streamlit.app/)
 
 ---
 
-## 📖 Executive Summary & Strategy
-*Defining the business logic and technical blueprint.*
+## 💎 Institutional Value Proposition (PM Lens)
+Traditional Accounts Receivable (AR) suffers from "The Remittance Gap" - unstructured data leading to unapplied cash. SmartCash AI solves this via:
 
-* **[Project Pitch Deck](./docs/Project_Pitch_Deck.md):** High-impact summary and ROI/KPI highlights for stakeholders.
-* **[Business Requirements (BRD)](./docs/BRD.md):** The "Why" - Identifying market pain points and strategic goals.
-* **[Product Requirements (PRD)](./docs/PRD.md):** The "How" - Technical architecture, data schemas, and logic gates.
-
----
-## 🚀 The 12-Month Roadmap (Agile Sprints)
-
-
-### Phase 1: The Foundation (Connectivity)
-* **[Sprint 1: MT942 & SAP Integration](./docs/user-stories/SPRINT_1_BACKLOG.md)**
-* **[Sprint 2: AI Intelligence & Fuzzy Matching](./docs/user-stories/SPRINT_2_BACKLOG.md)**
-* **[Sprint 3: ERP Write-back & O2C Loop](./docs/user-stories/SPRINT_3_BACKLOG.md)**
-* **[Sprint 4: Advanced Analytics & Dunning](./docs/user-stories/SPRINT_4_BACKLOG.md)**
-
-### Phase 2: Intelligence & Governance
-* **[Sprint 5: Strategic Optimization & ML Learning](./docs/user-stories/SPRINT_5_BACKLOG.md)**
-* **[Sprint 6: Cognitive Automation (GenAI)](./docs/user-stories/SPRINT_6_BACKLOG.md)**
-* **[Sprint 7: Ecosystem Synergy (CRM/Credit APIs)](./docs/user-stories/SPRINT_7_BACKLOG.md)**
-* **[Sprint 8: Predictive Ops & Voice UI](./docs/user-stories/SPRINT_8_BACKLOG.md)**
-
-### Phase 3: The Autonomous Enterprise
-* **[Sprint 9: Blockchain Audit & ESG Compliance](./docs/user-stories/SPRINT_9_BACKLOG.md)**
-* **[Sprint 10: Zero-Touch Global Scaling](./docs/user-stories/SPRINT_10_BACKLOG.md)**
-* **[Sprint 11: Quantum Security & Ethical AI](./docs/user-stories/SPRINT_11_BACKLOG.md)**
-* **[Sprint 12: Interoperable Treasury (CBDC/A2A)](./docs/user-stories/SPRINT_12_BACKLOG.md)**
+1. **Liquidity Velocity:** Automated reconciliation of multi-currency payments using weighted fuzzy heuristics.
+2. **ESG-Linked Governance:** Integration of sustainability scoring into the AR subledger to mitigate counterparty risk.
+3. **Cognitive Exception Handling:** GenAI agents that resolve "Short-Pays" by drafting professional dispute communications automatically.
 
 ---
 
-## 🛠️ Operations & Implementation
-*Critical paths for quality assurance and successful production deployment.*
+## 📖 Strategy & Governance Documentation
+*The blueprint for the Autonomous Finance Organization.*
 
-* **[User Acceptance Testing (UAT)](./docs/UAT_Plan.md):** Detailed test scenarios and SME sign-off criteria.
-* **[Go-Live Checklist](./docs/Go_Live_Checklist.md):** The T-minus 72-hour cutover sequence.
-* **[User Guide for Analysts](./docs/User_Guide_AR_Analyst.md):** Manual for the "Human-in-the-Loop" Workbench.
-* **[Project Retrospective](./docs/Project_Retrospective.md):** Analysis of successes, roadblocks, and future recommendations.
+* **[Strategic Pitch Deck](./docs/Project_Pitch_Deck.md):** ROI-focused summary and KPI highlights for CFO/Treasurer stakeholders.
+* **[Business Requirements (BRD)](./docs/BRD.md):** Market gap analysis and identifying high-value "Pain Points" in the O2C cycle.
+* **[Product Requirements (PRD)](./docs/PRD.md):** Technical architecture, data schemas, and the "SmartMatch" logic gates.
+* **[UAT & Quality Assurance](./docs/UAT_Plan.md):** Detailed test scenarios for 400+ complex payment/invoice edge cases.
+
+---
+
+## 🚀 12-Month Strategic Roadmap (Agile Sprints)
+
+
+
+### Phase 1: Foundation & Connectivity (Sprints 1-4)
+* **Sprint 1: MT942 & SAP Integration:** Establishing secure data pipelines for bank feeds and ERP subledgers.
+* **Sprint 2: Weighted Matching Logic:** Deploying the core engine for name, amount, and reference alignment.
+* **Sprint 3: ERP Write-back Loop:** Automated GL posting simulation for cleared invoices.
+* **Sprint 4: Multi-Currency Normalization:** Handling FX variances and cross-border payment reconciliation.
+
+### Phase 2: Intelligence & Risk Governance (Sprints 5-8)
+* **Sprint 5: Strategic ESG Layer:** Real-time counterparty risk scoring and compliance flagging.
+* **Sprint 6: Cognitive Automation (GenAI):** LLM-based exception management and automated dunning.
+* **Sprint 7: Ecosystem Synergy:** Connecting CRM (Salesforce) and Credit Agency APIs for holistic risk views.
+* **Sprint 8: Predictive Liquidity Ops:** AI-driven forecasting of payment behavior and DSO trends.
+
+### Phase 3: The Autonomous Enterprise (Sprints 9-12)
+* **Sprint 9: SOC2 Audit & Blockchain Ledger:** Immutable logging of all AI-driven treasury actions.
+* **Sprint 10: Zero-Touch Global Scaling:** Scaling the engine to support 100+ global entities and 50+ currencies.
+* **Sprint 11: Post-Quantum Security:** Hardening financial data against future cryptographic threats.
+* **Sprint 12: Interoperable Treasury:** Preparing for CBDC, Real-Time Payments (RTP), and T+0 settlement.
 
 ---
 
 ## ⚙️ Core Technical Stack
-- **Frontend:** [Streamlit](https://streamlit.io/) (Finance-optimized UI)
-- **Backend:** Python (FastAPI), PostgreSQL (Relational Data), Redis (Caching).
-- **AI/ML:** Tesseract/EasyOCR (Vision), Scikit-Learn (Fuzzy Logic), GPT-4/Gemini (Email Drafting).
-- **ERP Integration:** SAP BAPI/RFC (Connector), SWIFT MT942 (Bank Feed Parser).
-- **Security:** NIST Post-Quantum Cryptography (PQC), HMAC-based Audit Logs.
-- **Deployment:** Streamlit Cloud / GitHub Actions (CI/CD).
+- **Treasury Core:** Python 3.11+ / FastAPI
+- **Institutional UI:** [Streamlit](https://streamlit.io/) with Plotly (Financial Visualization)
+- **Reconciliation Engine:** FuzzyWuzzy (Levenshtein Distance) + Alias Resolution Logic
+- **Compliance Layer:** HMAC-signed transaction logs for non-repudiation
+- **Security:** NIST Post-Quantum Cryptography (PQC) standards
 
 ---
 
-## 📬 Contact & Contributions
+## 🛠️ Operations & Retrospectives
+* **[User Guide for Analysts](./docs/User_Guide_AR_Analyst.md):** Documentation for the "Human-in-the-Loop" Workbench.
+* **[Go-Live Checklist](./docs/Go_Live_Checklist.md):** The T-minus 72-hour cutover sequence for production deployment.
+* **[Project Retrospective](./docs/Project_Retrospective.md):** Post-mortem analysis of successes, roadblocks, and future iterations.
+
+---
+
+## 📬 Contact & Strategic Consulting
 **Lead Product Manager:** Saurabh Srivastav  
-**Status:** Version 1.0 Live in Production  
-*For inquiries regarding implementation, architectural consulting, or partnerships, please open an Issue.*
+**Specialization:** FinTech AI | Global Liquidity | Treasury Management  
+*Available for architectural consulting or institutional-grade deployment inquiries.*
