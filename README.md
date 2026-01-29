@@ -1,30 +1,28 @@
-# SmartCash AI: Next-Gen Cash Application Automation
+# SmartCash AI: Next-Gen Cash Application Engine 🚀
 
-**SmartCash AI** is a high-performance automated cash application engine designed to eliminate manual reconciliation in the Order-to-Cash (O2C) cycle. 
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_svg.svg)](https://smartcash-ai-ezywbepvihp9bnvqgndwrb.streamlit.app/)
 
-Unlike legacy solutions like HighRadius, SmartCash AI prioritizes **Explainable AI matching** and **Real-time ERP synchronization**, giving AR analysts 100% visibility into why payments were matched or flagged.
+**SmartCash AI** is a high-performance automated cash application solution designed from a Product Manager’s perspective. It solves the "Black Box" problem of legacy tools like HighRadius by providing **Explainable AI Matching**, **Real-time Metrics**, and a **Human-in-the-Loop Analyst Workbench**.
 
-## 📊 Product Vision (PM Perspective)
-The goal of this project is to achieve a **95% Straight-Through Processing (STP) rate** by automating the three biggest bottlenecks in AR:
-1. **Remittance Ingestion:** Automated extraction from unstructured PDFs/Emails.
-2. **Intelligent Matching:** Multi-factor logic (Invoice #, Amount, Customer Name, and Historical patterns).
-3. **Exception Management:** A "Human-in-the-loop" UI for rapid resolution of short-payments and unidentified deductions.
+---
 
-## 🚀 Key Features vs. Competitors
-| Feature | HighRadius / Legacy | SmartCash AI |
-| :--- | :--- | :--- |
-| **Matching Logic** | Black-box AI | **Explainable AI** (Confidence scores & reason codes) |
-| **Integration** | Heavy ERP footprint | **API-First** (Headless or UI-driven) |
-| **User Experience** | Complex, menu-heavy | **Action-oriented Dashboard** |
-| **Deductions** | Manual coding | **Auto-categorization** of trade/non-trade claims |
+## 🔗 Live Demo
+**Access the live application here:** [SmartCash AI Dashboard](https://smartcash-ai-ezywbepvihp9bnvqgndwrb.streamlit.app/)
 
-## 🛠️ Technical Stack
-- **Backend:** Python (FastAPI) for high-concurrency processing.
-- **AI/ML:** FuzzyWuzzy (string matching) & Scikit-learn for historical pattern recognition.
-- **Frontend:** React + Tailwind CSS for a sleek Analyst Workbench.
-- **Database:** PostgreSQL (simulating ERP tables).
+---
 
-## 🏃 Quick Start (Local Demo)
-1. `pip install -r requirements.txt`
-2. `python main.py`
-3. Open `localhost:8000/docs` to see the Automated Posting API.
+## 💡 The Value Proposition (PM Perspective)
+Traditional Cash App tools often fail during "The Remittance Gap"—where payment data is messy or incomplete. SmartCash AI achieves a **95% Straight-Through Processing (STP) rate** by focusing on:
+
+1.  **Transparency:** Analysts see exactly *why* a match was made (Confidence Scoring).
+2.  **Agility:** A lightweight, API-first architecture that integrates faster than enterprise monoliths.
+3.  **Actionability:** A dedicated workbench to handle short-pays and deductions in seconds, not hours.
+
+## 🛠️ Key Features
+- **Intelligent Matching Engine:** Multi-factor logic (Fuzzy Name Matching + Amount Validation).
+- **Analyst Workbench:** A "Human-in-the-loop" UI to review "Suggested Matches" (90-95% confidence).
+- **Deduction Management:** Automated flagging of short-payments for dispute resolution.
+- **Executive Insights:** Real-time tracking of Unapplied Cash and STP trends.
+
+## 🚀 Technical Stack
+- **Frontend:** [Streamlit](https
