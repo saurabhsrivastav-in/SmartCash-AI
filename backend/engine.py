@@ -9,25 +9,49 @@ class SmartMatchingEngine:
         self.stp_threshold = 0.95
         self.manual_review_threshold = 0.70
         
-        # Entity Alias Registry (Master Data Management simulation)
+        # --- UPDATED: Entity Alias Registry (Institutional Master Data) ---
+        # Maps messy bank string variations to the canonical Master Data name
         self.alias_map = {
-            "tesla motors": "Tesla Inc",
-            "tesla gmbh": "Tesla Inc",
-            "google ireland": "Alphabet Inc",
+            # Tesla Variations
+            "tsla motors gmbh": "Tesla Inc",
+            "tesla giga-factory": "Tesla Inc",
+            "tsla-motors-us": "Tesla Inc",
+            "tesla inc /bnf/": "Tesla Inc",
+            "tsla-us-motors": "Tesla Inc",
+            
+            # Global Blue Variations
+            "global blue (remit)": "Global Blue SE",
+            "global-blue-fr": "Global Blue SE",
+            "globel blue intl": "Global Blue SE",
+            "gbl blue se": "Global Blue SE",
+            "global blue group": "Global Blue SE",
+            
+            # Tech Retail Variations
+            "techretail-europe": "Tech Retail Corp",
+            "tech retail (uk)": "Tech Retail Corp",
+            "tech retail corp.": "Tech Retail Corp",
+            "tech ret corp": "Tech Retail Corp",
+            "techretail-apac": "Tech Retail Corp",
+            
+            # Eco Energy Variations
+            "eco energy syst": "Eco Energy Systems",
+            "eco nrg na": "Eco Energy Systems",
+            "eco energy inc": "Eco Energy Systems",
+            "eco-nrg": "Eco Energy Systems",
+            
+            # Saurabh Soft Variations
+            "saurabh_software_ltd": "Saurabh Soft",
+            "saurabh soft solutions": "Saurabh Soft",
+            "saurabh_software_uk": "Saurabh Soft",
             "saurabh softwares": "Saurabh Soft"
         }
 
     def calculate_dso(self, invoice_df):
-        """
-        Metric Hook: Calculates Days Sales Outstanding (DSO).
-        Formula: (Accounts Receivable / Total Credit Sales) * Number of Days
-        """
+        """Metric Hook: Calculates Days Sales Outstanding (DSO)"""
         try:
-            total_ar = invoice_df['Amount'].sum()
-            # For demo purposes, we assume 'Amount' represents current AR
-            # and simulate a 365-day period with a 20% higher sales volume
-            annual_sales = total_ar * 1.2 
-            dso = (total_ar / annual_sales) * 365
+            total_ar = invoice_df[invoice_df['Status'] == 'Open']['Amount'].sum()
+            annual_sales = invoice_df['Amount'].sum()
+            dso = (total_ar / annual_sales) * 365 if annual_sales > 0 else 0
             return round(dso, 1)
         except Exception:
             return 0.0
@@ -35,7 +59,7 @@ class SmartMatchingEngine:
     def run_match(self, payment_amt, payer_name, currency, invoice_df):
         """
         Institutional-grade matching using a weighted decision matrix.
-        Includes a 'Partial Match' flag for amounts that align without clear IDs.
+        Weights: Amount/Currency (50%), Name Fuzzy Match (40%), Partial Logic (10%)
         """
         try:
             results = []
@@ -50,32 +74,35 @@ class SmartMatchingEngine:
                 amt_score = 0.0
                 is_exact_amt = False
                 
+                # Check for exact matches
                 if pay_amt == inv_amt and currency == inv['Currency']:
                     amt_score = 1.0
                     is_exact_amt = True
+                # Check for bank fee tolerance (Fixed $5 or 0.1%)
                 elif abs(pay_amt - inv_amt) <= max(5.0, 0.001 * inv_amt):
-                    amt_score = 0.8  # Probable match considering bank fees
+                    amt_score = 0.8 
                 
                 # --- 2. Entity Alias Resolution (Weight: 0.40) ---
                 clean_payer = str(payer_name).lower().strip()
+                # Resolve using alias_map; fallback to the original name if not found
                 resolved_payer = self.alias_map.get(clean_payer, clean_payer)
                 clean_customer = str(inv['Customer']).lower().strip()
                 
+                # Use token_set_ratio to handle word reordering (e.g., "Motors Tesla")
                 name_score = fuzz.token_set_ratio(resolved_payer, clean_customer) / 100
 
                 # --- 3. Partial Match & Strategic Logic (Weight: 0.10) ---
-                # NEW: If amount matches but name confidence is low, flag as Partial
                 partial_match_bonus = 0.0
                 status_note = ""
                 
+                # If amount is perfect but name is messy, force into manual review
                 if is_exact_amt and name_score < 0.5:
-                    partial_match_bonus = 0.7 # Force a 0.7 confidence for investigation
+                    partial_match_bonus = 0.7 
                     status_note = " (Partial Match: Amount Alignment)"
 
                 # --- 4. Weighted Confidence Calculation ---
                 total_confidence = (amt_score * 0.5) + (name_score * 0.4)
                 
-                # Override if Partial Match logic triggers
                 if partial_match_bonus > total_confidence:
                     total_confidence = partial_match_bonus
 
@@ -87,7 +114,7 @@ class SmartMatchingEngine:
                 else:
                     status = "EXCEPTION: Investigation Required"
 
-                if total_confidence > 0.40:  # Noise filter
+                if total_confidence > 0.40: 
                     results.append({
                         "Invoice_ID": inv['Invoice_ID'],
                         "Customer": inv['Customer'],
@@ -95,10 +122,9 @@ class SmartMatchingEngine:
                         "confidence": round(total_confidence, 2),
                         "status": status,
                         "esg_score": inv.get('ESG_Score', 'N/A'),
-                        "due_date": inv.get('Due_Date', 'N/A')
+                        "due_date": str(inv.get('Due_Date', 'N/A'))
                     })
 
-            # Rank by institutional confidence
             return sorted(results, key=lambda x: x['confidence'], reverse=True)
 
         except Exception as e:
