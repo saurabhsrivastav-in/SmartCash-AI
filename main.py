@@ -3,7 +3,7 @@ import sys
 from datetime import datetime
 
 # --- PATH CONFIGURATION ---
-# This ensures 'backend' can be imported regardless of execution context
+# Ensures 'backend' is discoverable in Streamlit Cloud environment
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 import streamlit as st
@@ -73,20 +73,27 @@ def get_engine():
     """Caches the engine to keep fuzzy matching snappy for the demo"""
     return SmartMatchingEngine()
 
-# Initialize session-based components
 if 'audit_engine' not in st.session_state:
     st.session_state.audit_engine = ComplianceGuard()
 if 'treasury' not in st.session_state:
     st.session_state.treasury = TreasuryManager()
 
-# Load Data and Engine
 invoices, bank_feed = load_data()
 engine = get_engine()
 
 # --- 5. SIDEBAR NAVIGATION & CONTROLS ---
-st.sidebar.image("https://img.icons8.com/fluency/96/shield-with-dollar.png", width=60)
+# Professional Treasury Icon (Safe CDN)
+st.sidebar.markdown(
+    """
+    <div style="text-align: center;">
+        <img src="https://cdn-icons-png.flaticon.com/512/2830/2830284.png" width="80">
+    </div>
+    """, 
+    unsafe_allow_html=True
+)
+
 st.sidebar.title("SmartCash AI")
-st.sidebar.markdown("**Institutional Treasury Hub**")
+st.sidebar.markdown("<p style='text-align: center; color: #8b949e;'>Institutional Treasury Hub</p>", unsafe_allow_html=True)
 st.sidebar.divider()
 
 menu = st.sidebar.radio(
@@ -101,12 +108,18 @@ stress_level = st.sidebar.slider(
     help="Simulates a global slowdown in credit payment cycles using Numpy."
 )
 
-# Numpy-calculated collection efficiency haircut for the waterfall
 liquidity_haircut = np.clip(1 - (stress_level / 200), 0.55, 1.0)
 
 # --- 6. VIEW: EXECUTIVE DASHBOARD ---
 if menu == "Executive Dashboard":
     st.title("📊 Global Cash & Liquidity Position")
+    
+    # Hero Visual for Premium Look
+    st.image("https://images.unsplash.com/photo-1611974717482-98252c00ed6f?q=80&w=2070&auto=format&fit=crop", 
+             caption="Real-time Global Liquidity Monitoring", 
+             use_container_width=True)
+    
+    st.divider()
     
     # KPIs with Real-time Stress Impact
     base_dso = calculate_dso(invoices)
