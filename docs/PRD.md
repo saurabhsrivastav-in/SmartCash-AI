@@ -40,7 +40,7 @@ The system must act as a data aggregator for the following sources:
 
 Matches are processed through a "Waterfall" logic:
 
-1. **Level 1: Exact Match:** `Bank_Amount == Invoice_Amount` AND `Bank_Ref == Invoice_ID`. (Status: **Auto-Post**)
+1. **Level 1: Exact Match:** `Bank_Amount = Invoice_Amount` AND `Bank_Ref = Invoice_ID`. (Status: **Auto-Post**)
 2. **Level 2: Fuzzy Match:** Customer name similarity >90% AND `Amount` matches. (Status: **Suggested**)
 3. **Level 3: Many-to-One:** One bank credit matches the sum of 2+ open invoices for the same customer. (Status: **Suggested**)
 4. **Level 4: Short-Pay Logic:** Match found but `Bank_Amount < Invoice_Amount`. (Status: **Exception - Action Required**)
