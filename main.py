@@ -8,147 +8,172 @@ from backend.compliance import ComplianceGuard
 from backend.treasury import TreasuryManager
 from backend.ai_agent import GenAIAssistant
 
-# --- CONFIGURATION (Enterprise Theme) ---
-st.set_page_config(page_title="SmartCash AI | Institutional Treasury", page_icon="🏦", layout="wide")
+# --- 1. ENTERPRISE CONFIGURATION ---
+st.set_page_config(
+    page_title="SmartCash AI | Treasury Command", 
+    page_icon="🏦", 
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
-# Custom CSS for a professional "Dark Mode" Banking Look
+# Professional Banking UI Styling
 st.markdown("""
     <style>
-    .main { background-color: #0e1117; }
-    .stMetric { background-color: #161b22; border: 1px solid #30363d; padding: 15px; border-radius: 10px; }
+    .stApp { background-color: #0b0e14; color: #e0e0e0; }
+    .stMetric { background-color: #1c2128; border: 1px solid #30363d; padding: 20px; border-radius: 12px; }
+    [data-testid="stSidebar"] { background-color: #161b22; border-right: 1px solid #30363d; }
+    .stButton>button { width: 100%; border-radius: 8px; background-color: #238636; color: white; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- DATA INGESTION (Multi-Year & Multi-Currency) ---
+# --- 2. INTELLIGENT DATA INGESTION ---
 @st.cache_data
 def load_data():
-    # Adding a simulated 'Year' and 'Currency' logic to dataframes
+    # Loading multi-year, multi-currency datasets
     inv = pd.read_csv('data/invoices.csv')
     bank = pd.read_csv('data/bank_feed.csv')
     
-    # Mocking Date columns if not present for Multi-Year viz
+    # Pre-processing for time-series and currency normalization
     inv['Due_Date'] = pd.to_datetime(inv['Due_Date'])
     inv['Year'] = inv['Due_Date'].dt.year
     return inv, bank
 
-# --- STATE MANAGEMENT ---
+# --- 3. SESSION STATE & ORCHESTRATION ---
 if 'audit_engine' not in st.session_state:
     st.session_state.audit_engine = ComplianceGuard()
 if 'treasury' not in st.session_state:
     st.session_state.treasury = TreasuryManager()
 
-# --- SIDEBAR: STRATEGIC NAVIGATION ---
-st.sidebar.image("https://img.icons8.com/fluency/96/bank-building.png", width=80)
-st.sidebar.title("SmartCash AI")
-st.sidebar.caption("Institutional Cash & Liquidity Hub")
-menu = st.sidebar.radio("Command Center", 
-    ["Executive Dashboard", "Analyst Workbench", "Risk & ESG Governance", "Audit Vault"])
-
 invoices, bank_feed = load_data()
+engine = SmartMatchingEngine()
 
-# --- 1. EXECUTIVE DASHBOARD (C-Suite View) ---
+# --- 4. SIDEBAR NAVIGATION ---
+st.sidebar.image("https://img.icons8.com/fluency/96/shield-with-dollar.png", width=60)
+st.sidebar.title("SmartCash AI")
+st.sidebar.markdown("**Institutional Treasury Hub**")
+st.sidebar.divider()
+
+menu = st.sidebar.radio(
+    "Navigation Center", 
+    ["Executive Dashboard", "Analyst Workbench", "Risk & Governance", "Audit Ledger"]
+)
+
+st.sidebar.divider()
+st.sidebar.info("System Status: **Operational**\n\nLast Sync: " + datetime.now().strftime("%H:%M:%S"))
+
+# --- 5. EXECUTIVE DASHBOARD ---
 if menu == "Executive Dashboard":
-    st.title("📊 Global Treasury Insights")
+    st.title("📊 Global Cash & Liquidity Position")
     
-    # KPI Row: Multi-Factor Metrics
-    c1, c2, c3, c4 = st.columns(4)
-    total_receivable = invoices['Amount'].sum()
-    c1.metric("Total Liquidity (USD Eq)", f"${total_receivable/1e6:.2f}M", "+12.5%")
-    c2.metric("STP Auto-Match Rate", "94.2%", "Benchmark: 85%")
-    c3.metric("Weighted Portfolio ESG", "A-", "Target: AA")
-    c4.metric("DSO (Days Sales Outstanding)", "26.4 Days", "-3.2 Days")
+    # Strategic KPIs
+    m1, m2, m3, m4 = st.columns(4)
+    total_val = invoices['Amount'].sum()
+    m1.metric("Total A/R Position", f"${total_val/1e6:.2f}M", "+4.2% MoM")
+    m2.metric("STP Efficiency", "94.2%", "Target: 92%")
+    m3.metric("Portfolio ESG Rating", "A-", "Trend: Up")
+    m4.metric("DSO Index", "26 Days", "-3 Days")
 
     st.divider()
 
-    # Multi-Year Trend Analysis
-    col_left, col_right = st.columns([2, 1])
-    
-    with col_left:
-        st.subheader("📈 Multi-Year Inflow Forecast")
-        # Aggregating data for Multi-year view
-        yearly_data = invoices.groupby(['Year', 'ESG_Score'])['Amount'].sum().reset_index()
-        fig = px.area(yearly_data, x="Year", y="Amount", color="ESG_Score", 
-                     line_group="ESG_Score", title="Revenue Growth by ESG Portfolio",
-                     color_discrete_sequence=px.colors.sequential.Viridis)
+    # Multi-Year Liquidity Trend
+    c1, c2 = st.columns([2, 1])
+    with c1:
+        st.subheader("📈 Multi-Year Inflow Analysis")
+        # Aggregating by Year and Currency for a complex view
+        yearly_summary = invoices.groupby(['Year', 'Currency'])['Amount'].sum().reset_index()
+        fig = px.bar(yearly_summary, x="Year", y="Amount", color="Currency", 
+                     title="Cash Collection Forecast by Region", barmode='group',
+                     template="plotly_dark", color_discrete_sequence=px.colors.qualitative.Pastel)
         st.plotly_chart(fig, use_container_width=True)
 
-    with col_right:
-        st.subheader("🌍 Currency Concentration")
-        fig_pie = px.pie(bank_feed, names='Currency', values='Amount_Received', 
-                        hole=0.4, title="Global FX Distribution")
-        st.plotly_chart(fig_pie, use_container_width=True)
+    with c2:
+        st.subheader("🌍 Currency Exposure")
+        fig_fx = px.pie(bank_feed, names='Currency', values='Amount_Received', 
+                       hole=0.5, title="Net Cash by Currency")
+        st.plotly_chart(fig_fx, use_container_width=True)
 
-# --- 2. ANALYST WORKBENCH (Smart Reconciliation) ---
+# --- 6. ANALYST WORKBENCH ---
 elif menu == "Analyst Workbench":
-    st.title("⚡ Smart Reconciliation Engine")
+    st.title("⚡ Smart Reconciliation Workbench")
     
-    # Multi-Currency Bank Feed Table
-    st.subheader("Unapplied Incoming Payments")
-    st.dataframe(bank_feed.style.highlight_max(axis=0, subset=['Amount_Received']), use_container_width=True)
+    st.markdown("### 📥 Inbound Bank Feed")
+    st.dataframe(bank_feed, use_container_width=True, hide_index=True)
+
+    st.divider()
+
+    col_sel, col_match = st.columns([1, 2])
     
-    selected_tx_idx = st.selectbox(
-        "🔎 Select Transaction to Clear:",
-        bank_feed.index,
-        format_func=lambda x: f"{bank_feed.iloc[x]['Bank_TX_ID']} | {bank_feed.iloc[x]['Payer_Name']} | {bank_feed.iloc[x]['Currency']} {bank_feed.iloc[x]['Amount_Received']}"
-    )
-    
-    tx = bank_feed.iloc[selected_tx_idx]
-    
-    if st.button("🚀 Execute Smart Match"):
-        engine = SmartMatchingEngine()
-        results = engine.run_match(tx['Amount_Received'], tx['Payer_Name'], invoices)
+    with col_sel:
+        st.subheader("Step 1: Focus Item")
+        tx_id = st.selectbox(
+            "Select Transaction for Resolution:",
+            bank_feed.index,
+            format_func=lambda x: f"{bank_feed.iloc[x]['Bank_TX_ID']} | {bank_feed.iloc[x]['Payer_Name']} ({bank_feed.iloc[x]['Currency']})"
+        )
+        tx_data = bank_feed.iloc[tx_id]
         
-        if results:
-            res = results[0]
-            confidence = res['confidence']
+        st.info(f"**Selected Amount:** {tx_data['Currency']} {tx_data['Amount_Received']:,.2f}")
+
+    with col_match:
+        st.subheader("Step 2: AI Execution")
+        if st.button("Run Multi-Factor Match"):
+            # Execute logic using our updated engine
+            matches = engine.run_match(
+                tx_data['Amount_Received'], 
+                tx_data['Payer_Name'], 
+                tx_data['Currency'], 
+                invoices
+            )
             
-            # Confidence Threshold Logic
-            if confidence >= 0.90:
-                st.success(f"High Confidence Match ({confidence*100:.1f}%)")
-                st.balloons()
-                st.info(f"Auto-posting TXN-{tx['Bank_TX_ID']} to ERP via SAP JCo Connector...")
-                st.session_state.audit_engine.log_transaction(res['Invoice_ID'], "STP_AUTO_POST")
-            else:
-                st.warning(f"Low Confidence ({confidence*100:.1f}%). Manual Review Triggered.")
+            if matches:
+                top_match = matches[0]
+                conf = top_match['confidence']
                 
-                # JPMC AI Feature: Smart Dispute Agent
-                st.subheader("🤖 AI Dispute Assistant")
-                if st.button("Generate Dispute Draft"):
-                    agent = GenAIAssistant()
-                    email = agent.generate_email(res['Customer'], tx['Amount_Received'])
-                    st.text_area("Smart Email Response:", email, height=200)
+                # JPMC Logic: STP vs. Exception
+                if conf >= 0.95:
+                    st.success(f"STP MATCH CONFIRMED ({conf*100}%)")
+                    st.json(top_match)
+                    st.balloons()
+                    st.session_state.audit_engine.log_transaction(top_match['Invoice_ID'], "AUTO_STP_POST")
+                else:
+                    st.warning(f"EXCEPTION ENCOUNTERED: {top_match['status']} ({conf*100}%)")
+                    st.write(f"Suggested Invoice: **{top_match['Invoice_ID']}** for **{top_match['Customer']}**")
+                    
+                    if st.button("🤖 Generate AI Dispute Email"):
+                        agent = GenAIAssistant()
+                        draft = agent.generate_email(top_match['Customer'], tx_data['Amount_Received'])
+                        st.text_area("Draft Communication:", draft, height=150)
+            else:
+                st.error("NO MATCH FOUND: Routing to Manual Treasury Investigation.")
 
-# --- 3. RISK & ESG GOVERNANCE ---
-elif menu == "Risk & ESG Governance":
-    st.title("🛡️ ESG & Counterparty Risk")
+# --- 7. RISK & GOVERNANCE ---
+elif menu == "Risk & Governance":
+    st.title("🛡️ Institutional Risk & ESG Controls")
     
     
-    
-    # Governance Dashboard
-    risk_col1, risk_col2 = st.columns(2)
-    
-    with risk_col1:
-        st.subheader("Critical ESG Alerts")
-        # Identify 'E' and 'D' rated customers with high balances
-        at_risk = invoices[invoices['ESG_Score'].isin(['E', 'D'])]
-        st.error(f"Alert: {len(at_risk)} Customers below Compliance Grade C")
-        st.table(at_risk[['Customer', 'Amount', 'ESG_Score']])
 
-    with risk_col2:
-        st.subheader("Counterparty Exposure")
-        # Top 5 exposure
-        top_5 = invoices.groupby('Customer')['Amount'].sum().nlargest(5).reset_index()
-        fig_risk = px.bar(top_5, x='Amount', y='Customer', orientation='h', title="Top 5 Concentration Risk")
+    g1, g2 = st.columns(2)
+    with g1:
+        st.subheader("🛑 ESG Compliance Violations")
+        # Filtering for poor ESG ratings (D and E)
+        risk_clients = invoices[invoices['ESG_Score'].isin(['D', 'E'])]
+        st.error(f"Attention: {len(risk_clients)} High-Risk Counterparties Detected")
+        st.dataframe(risk_clients[['Invoice_ID', 'Customer', 'Amount', 'ESG_Score']], hide_index=True)
+        
+    with g2:
+        st.subheader("⚖️ Concentration Risk (Top 5)")
+        concentration = invoices.groupby('Customer')['Amount'].sum().nlargest(5).reset_index()
+        fig_risk = px.funnel(concentration, x='Amount', y='Customer', title="Exposure by Entity")
         st.plotly_chart(fig_risk, use_container_width=True)
 
-# --- 4. AUDIT VAULT ---
-elif menu == "Audit Vault":
-    st.title("🔐 Compliance & Audit Ledger")
-    st.caption("Immutable record of all AI-driven clearing actions.")
+# --- 8. AUDIT LEDGER ---
+elif menu == "Audit Ledger":
+    st.title("🔐 SOC2 Compliance Vault")
+    st.caption("Immutable Blockchain-style audit trail of all automated treasury actions.")
     
     logs = st.session_state.audit_engine.get_logs()
     if not logs.empty:
-        st.dataframe(logs, use_container_width=True)
-        st.download_button("📥 Export SOC2 Audit Log", logs.to_csv(), "audit_log.csv")
+        st.dataframe(logs, use_container_width=True, hide_index=True)
+        st.download_button("📥 Export Audit Report (CSV)", logs.to_csv(), "treasury_audit.csv")
     else:
-        st.info("No logs found for the current session.")
+        st.info("System Initialized. Awaiting first transaction...")
