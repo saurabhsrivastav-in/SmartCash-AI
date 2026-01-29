@@ -1,5 +1,5 @@
 import pandas as pd
-from fuzzywuzzy import fuzz
+from thefuzz import fuzz
 import numpy as np
 from datetime import datetime
 
