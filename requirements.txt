@@ -1,23 +1,12 @@
-# --- Core Data Orchestration ---
-pandas==2.2.0             # High-performance data structures and analysis
-numpy==1.26.0              # Support for large, multi-dimensional arrays and math
-python-dateutil==2.8.2     # Robust parsing of inconsistent financial date formats
-scipy==1.12.0              # Advanced statistical forecasting and DSO trend analysis
-
-# --- AI & Heuristic Matching ---
-thefuzz[speedup]==0.20.0   # Fuzzy string matching for "Customer Name" normalization
-scikit-learn==1.4.0        # Machine learning tools for predictive matching scores
-openai==1.10.0             # Integration for GenAI remittance & email drafting
-
-# --- Security & Governance ---
-cryptography==42.0.0       # For PQC-ready encryption and secure data handling
-python-dotenv==1.0.0       # Management of sensitive API keys and SAP credentials
-
-# --- Frontend & Visualization ---
-streamlit==1.31.0          # Main UI framework for the Analyst Workbench
-plotly==5.18.0             # Interactive treasury, ESG risk, and trend visualizations
-st-annotated-text          # Custom UI components for highlighting matches
-
-# --- ERP & Connectivity ---
-requests==2.31.0           # API calls to SAP OData/Rest services
-# pyrfc                    # (Optional) Direct SAP RFC connection
+pandas==2.2.0
+numpy==1.26.0
+python-dateutil==2.8.2
+scipy==1.12.0
+thefuzz[speedup]==0.20.0
+scikit-learn==1.4.0
+openai==1.10.0
+cryptography==42.0.0
+python-dotenv==1.0.0
+streamlit==1.31.0
+plotly==5.18.0
+st-annotated-text
