@@ -19,267 +19,232 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- 2. ADVANCED DATA GENERATOR (Restoring 2026 Context) ---
+# --- 2. ADVANCED DATA GENERATOR ---
 @st.cache_data
 def load_institutional_data():
-    # Massive Invoice Dataset
     customers = ['Tesla', 'EcoEnergy', 'GlobalBlue', 'TechRetail', 'Quantum Dyn', 'Alpha Log', 'Nordic Oil', 'Sino Tech', 'Indo Power', 'Euro Mart']
     entities = ['1000 (US)', '2000 (EU)', '3000 (UK)']
     currencies = {'1000 (US)': 'USD', '2000 (EU)': 'EUR', '3000 (UK)': 'GBP'}
     ratings = ['AAA', 'AA', 'A', 'B', 'C', 'D']
     
-    data = []
-    for i in range(150): # Expanded for deep filtering
+    # 150 Invoices
+    inv_data = []
+    for i in range(150):
         ent = np.random.choice(entities)
-        rate = np.random.choice(ratings, p=[0.2, 0.2, 0.2, 0.2, 0.1, 0.1])
         amt = np.random.uniform(50000, 2000000)
-        due = datetime(2026, 1, 1) + timedelta(days=np.random.randint(0, 90))
-        data.append({
+        # Dates spreading from late 2025 into early 2026
+        due = datetime(2026, 1, 30) - timedelta(days=np.random.randint(-30, 100))
+        inv_data.append({
             'Invoice_ID': f"INV-{1000+i}",
             'Company_Code': ent,
             'Customer': np.random.choice(customers),
             'Amount': round(amt, 2),
+            'Amount_Remaining': round(amt, 2),
             'Currency': currencies[ent],
-            'ESG_Score': rate,
+            'ESG_Score': np.random.choice(ratings),
             'Due_Date': due.strftime('%Y-%m-%d'),
-            'Status': np.random.choice(['Open', 'Overdue'], p=[0.7, 0.3])
+            'Status': 'Overdue' if due < datetime(2026, 1, 30) else 'Open',
+            'Is_Disputed': False,
+            'Dispute_Reason': 'N/A',
+            'Internal_Notes': ''
         })
     
-    bank_feed = [
-        {'Bank_ID': 'TXN_991', 'Payer': 'Tesla', 'Amount_Received': 520000.00, 'Currency': 'USD', 'Date': '2026-01-28'},
-        {'Bank_ID': 'TXN_992', 'Payer': 'EcoEnergy', 'Amount_Received': 125000.00, 'Currency': 'USD', 'Date': '2026-01-29'},
-        {'Bank_ID': 'TXN_993', 'Payer': 'Unknown', 'Amount_Received': 89000.00, 'Currency': 'GBP', 'Date': '2026-01-30'}
-    ]
-    return pd.DataFrame(data), pd.DataFrame(bank_feed)
+    # 50 Bank Transactions
+    bank_data = []
+    for i in range(50):
+        ent = np.random.choice(entities)
+        payer = np.random.choice(customers) if np.random.random() < 0.8 else "Unidentified Payer"
+        bank_data.append({
+            'Bank_ID': f"TXN-{8000+i}",
+            'Customer': payer,
+            'Company_Code': ent,
+            'Date': (datetime(2026, 1, 15) + timedelta(days=np.random.randint(0, 15))).strftime('%Y-%m-%d'),
+            'Amount_Received': round(np.random.uniform(50000, 1500000), 2),
+            'Currency': currencies[ent]
+        })
+    return pd.DataFrame(inv_data), pd.DataFrame(bank_data)
 
-invoices, bank_feed = load_institutional_data()
+# --- 3. SESSION STATE MANAGEMENT ---
+if 'invoice_ledger' not in st.session_state:
+    inv_df, bank_df = load_institutional_data()
+    st.session_state.invoice_ledger = inv_df
+    st.session_state.bank_feed = bank_df
+    st.session_state.audit_log = []
+    st.session_state.current_match = None
 
-# --- 3. SESSION STATE & GOVERNANCE ---
-if 'audit_log' not in st.session_state: st.session_state.audit_log = []
-if 'matched_txns' not in st.session_state: st.session_state.matched_txns = []
+# Local references for ease of use
+df = st.session_state.invoice_ledger
+bank_feed = st.session_state.bank_feed
 
-# --- 4. SIDEBAR GLOBAL COMMAND ---
+# --- 4. GLOBAL HEADER: SEARCH & SMART CHAT ---
+st.title("🏦 SmartCash AI Treasury Command")
+col_search, col_chat = st.columns([1, 1])
+
+with col_search:
+    search_query = st.text_input("🔍 Global Search", placeholder="Search Invoice ID or Customer...")
+    if search_query:
+        matches = df[df['Invoice_ID'].str.contains(search_query, case=False) | df['Customer'].str.contains(search_query, case=False)]
+        if not matches.empty:
+            st.dataframe(matches[['Invoice_ID', 'Customer', 'Amount_Remaining', 'Status']], height=150)
+
+with col_chat:
+    chat_input = st.text_input("🤖 Smart Assistant", placeholder="e.g. 'Total in dispute?' or 'Top debtor?'")
+    if chat_input:
+        q = chat_input.lower()
+        if "dispute" in q:
+            val = df[df['Is_Disputed'] == True]['Amount_Remaining'].sum()
+            st.info(f"🚩 Current cash in dispute: ${val/1e6:.2f}M")
+        elif "most" in q or "debtor" in q:
+            top = df.sort_values('Amount_Remaining', ascending=False).iloc[0]
+            st.info(f"🎯 Top debtor is {top['Customer']} with ${top['Amount_Remaining']/1e6:.2f}M outstanding.")
+
+st.divider()
+
+# --- 5. SIDEBAR ---
 with st.sidebar:
-    st.image("https://cdn-icons-png.flaticon.com/512/2830/2830284.png", width=60)
-    st.title("SmartCash AI")
-    st.caption("Institutional Liquidity Management v2.4")
-    st.divider()
+    st.header("⚙️ Controls")
     menu = st.radio("Workspace", ["📈 Executive Dashboard", "🛡️ Risk Radar", "⚡ Analyst Workbench", "📜 Audit Ledger"])
-    
     st.divider()
-    st.subheader("🛠️ Global Parameters")
     latency = st.slider("Collection Latency (Days)", 0, 90, 15)
-    entity_filter = st.selectbox("Company Entity", ["Consolidated"] + list(invoices['Company_Code'].unique()))
+    entity_filter = st.selectbox("Company Entity", ["Consolidated"] + list(df['Company_Code'].unique()))
     
-    st.divider()
-    st.info("🟢 System Status: Secure\nVault Encryption: AES-256")
+    if entity_filter != "Consolidated":
+        df = df[df['Company_Code'] == entity_filter]
 
-# --- 5. DATA WIRING & CALCULATIONS ---
-df = invoices.copy()
-if entity_filter != "Consolidated":
-    df = df[df['Company_Code'] == entity_filter]
-
-# Interactive Metrics Logic
-esg_weights = {'AAA':100, 'AA':85, 'A':75, 'B':50, 'C':30, 'D':0}
-current_esg = df['ESG_Score'].map(esg_weights).mean()
-total_liquidity = (df['Amount'].sum() / 1e6) - (latency * 0.15)
-stp_rate = 94.2 - (latency * 0.05)
+# Calculations for metrics
+total_liquidity = (df['Amount_Remaining'].sum() / 1e6) - (latency * 0.12)
+current_esg_val = df['ESG_Score'].map({'AAA':100, 'AA':85, 'A':75, 'B':50, 'C':30, 'D':0}).mean()
 
 # --- 6. WORKSPACE ROUTING ---
 
-# --- TAB 1: EXECUTIVE DASHBOARD ---
 if menu == "📈 Executive Dashboard":
     m1, m2, m3, m4 = st.columns(4)
     m1.metric("Adjusted DSO", f"{34 + latency} Days", f"+{latency}d Drift")
-    m2.metric("Liquidity Pool", f"${total_liquidity:.2f}M", f"{-latency*0.15:.2f}M Latency")
-    m3.metric("ESG Health Index", f"{current_esg:.1f}", "Dynamic")
-    m4.metric("STP Reliability", f"{stp_rate:.1f}%", "-0.1% Var")
-
-    st.divider()
-
-    c1, c2 = st.columns([1, 2])
-    with c1:
-        # Confidence Gauge
-        age_score = max(0, 100 - (latency * 2))
-        fig_g = go.Figure(go.Indicator(mode="gauge+number", value=age_score, title={'text': "Data Confidence (%)"},
-            gauge={'bar':{'color':"#58a6ff"}, 'steps':[{'range':[0,40], 'color':"#f85149"}, {'range':[40,75], 'color':"#d29922"}]}))
-        fig_g.update_layout(height=280, template="plotly_dark", margin=dict(t=50, b=0))
-        st.plotly_chart(fig_g, use_container_width=True)
+    m2.metric("Liquidity Pool", f"${total_liquidity:.2f}M", "Real-time")
+    m3.metric("ESG Health", f"{current_esg_val:.1f}", "Portfolio")
     
-    with c2:
-        st.subheader("💹 Multi-Year Liquidity Forecast")
-        fig_f = go.Figure()
-        fig_f.add_trace(go.Scatter(x=['Jan','Feb','Mar','Apr'], y=[42, 48, 45, 52], name="2026 Proj", line=dict(color='#58a6ff', width=4)))
-        fig_f.add_trace(go.Scatter(x=['Jan','Feb','Mar','Apr'], y=[38, 40, 41, 44], name="2025 Act", line=dict(color='#30363d', dash='dot')))
-        fig_f.update_layout(template="plotly_dark", height=280, margin=dict(t=20, b=20))
-        st.plotly_chart(fig_f, use_container_width=True)
+    # Ageing Logic
+    today = datetime(2026, 1, 30)
+    df_overdue = df[df['Status'] == 'Overdue'].copy()
+    def get_bucket(d):
+        delta = (today - datetime.strptime(d, '%Y-%m-%d')).days
+        if delta <= 30: return "0-30 Days"
+        elif delta <= 60: return "31-60 Days"
+        elif delta <= 90: return "61-90 Days"
+        else: return "90+ Days"
+    
+    if not df_overdue.empty:
+        df_overdue['Bucket'] = df_overdue['Due_Date'].apply(get_bucket)
+        ageing_sum = df_overdue.groupby('Bucket')['Amount_Remaining'].sum().reindex(["0-30 Days", "31-60 Days", "61-90 Days", "90+ Days"], fill_value=0).reset_index()
+        m4.metric("90+ Day Risk", f"${ageing_sum.iloc[3]['Amount_Remaining']/1e6:.1f}M", "Critical", delta_color="inverse")
+    
+    st.subheader("⏳ AR Ageing Analysis")
+    fig_age = px.bar(ageing_sum, x='Bucket', y='Amount_Remaining', color='Bucket', 
+                     color_discrete_map={"0-30 Days":"#3fb950", "31-60 Days":"#d29922", "61-90 Days":"#db6d28", "90+ Days":"#f85149"})
+    st.plotly_chart(fig_age, use_container_width=True)
+
+    # Recovery Simulator
+    st.divider()
+    c_rec1, c_rec2 = st.columns([1, 2])
+    with c_rec1:
+        st.subheader("🔮 Recovery Simulator")
+        rec_toggle = st.toggle("Simulate 90+ Day Recovery")
+        if rec_toggle:
+            rate = st.slider("Success Rate (%)", 0, 100, 50)
+            potential = (ageing_sum.iloc[3]['Amount_Remaining'] * (rate/100))
+            st.success(f"Projected Inflow: ${potential/1e6:.2f}M")
+    with c_rec2:
+        # FX Advisor
+        st.subheader("💱 FX Hedging Advisor")
+        fx_toggle = st.toggle("Simulate Strong USD Impact")
+        if not df_overdue.empty:
+            top_fx = df_overdue.groupby('Currency')['Amount_Remaining'].sum().idxmax()
+            if fx_toggle and top_fx != 'USD':
+                st.error(f"Strategy: SELL {top_fx} / BUY USD immediately to protect {top_fx} receivables.")
+            else:
+                st.info(f"Strategy: Hold {top_fx}. No immediate hedging drift detected.")
 
     st.divider()
+    if st.button("📊 Generate Executive Board Deck"):
+        st.toast("Compiling charts and logic...")
+        st.download_button("📥 Download Report.pdf", data="Mock PDF Content", file_name="Treasury_Board_Deck.pdf")
 
-    st.subheader("🔥 Strategic Sensitivity & Stress Test")
-    t1, t2 = st.columns([1, 2])
-    with t1:
-        fx_toggle = st.toggle("Simulate FX Volatility")
-        fx_val = st.slider("USD Stronger (%)", 0, 15, 5) if fx_toggle else 0
-        hedge_ratio = st.slider("Hedge Coverage (%)", 0, 100, 50) if fx_toggle else 0
-        
-        if st.button("💾 Archive Scenario"):
-            st.session_state.audit_log.insert(0, {
-                "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M"),
-                "Entity": entity_filter, "Liquidity": f"${total_liquidity:.1f}M",
-                "ESG": f"{current_esg:.1f}", "Hedge": f"{hedge_ratio}%"
-            })
-            st.success("Scenario Vaulted.")
-
-    with t2:
-        # Scaled Heatmap
-        fx_steps = [-0.10, -0.05, -0.02, 0, 0.05]
-        h_steps = [0, 0.25, 0.5, 0.75, 1.0]
-        z = [[round(total_liquidity * f * (1-(h)), 2) for h in h_steps] for f in fx_steps]
-        fig_h = px.imshow(z, text_auto=True, color_continuous_scale='RdYlGn', aspect="auto",
-                          x=['0%','25%','50%','75%','100%'], y=['-10%','-5%','-2%','0%','+5%'],
-                          labels=dict(x="Hedge Ratio", y="FX Volatility", color="Impact $M"))
-        fig_h.update_layout(template="plotly_dark", height=400)
-        st.plotly_chart(fig_h, use_container_width=True)
-
-# --- TAB 2: RISK RADAR ---
 elif menu == "🛡️ Risk Radar":
-    st.subheader("🛡️ Institutional Risk Radar (ESG Weighted)")
-    risk_weights = {'AAA':0.05, 'AA':0.1, 'A':0.2, 'B':0.4, 'C':0.6, 'D':0.95}
-    df['Weighted_Risk'] = df['Amount'] * df['ESG_Score'].map(risk_weights)
+    # Smart Summary
+    disp_val = df[df['Is_Disputed'] == True]['Amount_Remaining'].sum()
+    coll_val = df[(df['Status'] == 'Overdue') & (df['Is_Disputed'] == False)]['Amount_Remaining'].sum()
     
-    # Restored Multi-Level Sunburst
-    fig_s = px.sunburst(df, path=['Company_Code', 'Currency', 'ESG_Score', 'Customer'], 
-                        values='Weighted_Risk', color='ESG_Score',
-                        color_discrete_map={'AAA':'#238636', 'AA':'#2ea043', 'B':'#d29922', 'D':'#f85149'})
-    fig_s.update_layout(height=600, template="plotly_dark")
-    st.plotly_chart(fig_s, use_container_width=True)
+    s1, s2, s3 = st.columns(3)
+    s1.metric("🚩 In Dispute", f"${disp_val/1e6:.2f}M", f"{len(df[df['Is_Disputed']])} Items")
+    s2.metric("✅ Collectible", f"${coll_val/1e6:.2f}M", "Actionable")
+    s3.metric("📈 Dispute Ratio", f"{(disp_val/(df['Amount_Remaining'].sum())*100):.1f}%", "Portfolio Friction")
 
     st.divider()
-    st.subheader("🔍 Smart Filter Exposure Ledger")
-    c1, c2, c3 = st.columns(3)
-    with c1: search = st.text_input("Customer Search")
-    with c2: rating_f = st.multiselect("Rating Filter", ['AAA','AA','A','B','C','D'], default=['AAA','AA','A','B','C','D'])
-    with c3: status_f = st.selectbox("Status Filter", ['All', 'Open', 'Overdue'])
-    
-    f_df = df[df['ESG_Score'].isin(rating_f)]
-    if search: f_df = f_df[f_df['Customer'].str.contains(search, case=False)]
-    if status_f != 'All': f_df = f_df[f_df['Status'] == status_f]
-    
-    st.dataframe(f_df[['Invoice_ID', 'Customer', 'Amount', 'Currency', 'ESG_Score', 'Status', 'Due_Date']], use_container_width=True)
+    # Ledger with Flags
+    st.subheader("🔍 Exposure Ledger")
+    display_df = df.copy()
+    display_df['Status'] = display_df.apply(lambda x: "🚩 DISPUTED" if x['Is_Disputed'] else x['Status'], axis=1)
+    st.dataframe(display_df[['Invoice_ID', 'Customer', 'Amount_Remaining', 'Currency', 'Status', 'Due_Date', 'Dispute_Reason']], use_container_width=True)
 
-# --- TAB 3: ANALYST WORKBENCH (High-Fidelity Dunning) ---
 elif menu == "⚡ Analyst Workbench":
-    st.subheader("⚡ Smart Matching & Dunning Automation")
-    
-    t1, t2 = st.tabs(["🧩 Automated Matching", "📩 Dunning Center"])
+    st.subheader("⚡ Smart Matching & Dispute Resolver")
+    t1, t2, t3 = st.tabs(["🧩 Automated Matching", "📩 Dunning Center", "🛠️ Dispute Resolver"])
     
     with t1:
-        # (Previous matching logic remains here)
-        st.write("**Inbound Bank Feed**")
-        selected_txn = st.selectbox("Select Transaction", bank_feed['Bank_ID'])
-        txn_row = bank_feed[bank_feed['Bank_ID'] == selected_txn].iloc[0]
-        if st.button("🔥 Run Matching Engine"):
-            match = df[df['Customer'] == txn_row['Payer']].head(1)
-            if not match.empty:
-                st.success(f"STP Match Found: {match['Invoice_ID'].values[0]} (99.8%)")
-    
-    with t2:
-        st.write("### 📬 Automated Debt Recovery")
+        bank_feed['display_label'] = bank_feed['Bank_ID'] + " | " + bank_feed['Customer'] + " | " + bank_feed['Company_Code'] + " | " + bank_feed['Date'] + " | $" + bank_feed['Amount_Received'].astype(str)
+        selected_bank = st.selectbox("Select Bank Transaction", bank_feed['display_label'])
+        txn = bank_feed[bank_feed['display_label'] == selected_bank].iloc[0]
         
-        # 1. Selection Logic
-        overdue_df = df[df['Status'] == 'Overdue']
-        if overdue_df.empty:
-            st.success("No overdue invoices found for this entity!")
-        else:
-            col_target, col_tone = st.columns(2)
-            with col_target:
-                target_cust = st.selectbox("Target Customer", overdue_df['Customer'].unique())
-                # Get specific data for the letter
-                cust_data = overdue_df[overdue_df['Customer'] == target_cust].iloc[0]
-            
-            with col_tone:
-                tone = st.select_slider("Escalation Level", 
-                                       options=["Friendly Reminder", "Formal Inquiry", "Urgent Notice", "Final Demand"])
+        if st.button("🔥 Run AI Matcher"):
+            matches = df[(df['Customer'] == txn['Customer']) & (df['Company_Code'] == txn['Company_Code'])]
+            if not matches.empty:
+                st.session_state.current_match = matches.iloc[0]
+                st.success(f"Match Found: {st.session_state.current_match['Invoice_ID']}")
+        
+        if st.session_state.current_match is not None:
+            m = st.session_state.current_match
+            col_a, col_b = st.columns(2)
+            with col_a:
+                partial = st.toggle("Partial Payment Mode")
+                pay_amt = st.number_input("Amount to Apply", value=float(txn['Amount_Received'])) if partial else float(m['Amount_Remaining'])
+            with col_b:
+                if st.button("📤 Post to ERP"):
+                    idx = st.session_state.invoice_ledger.index[st.session_state.invoice_ledger['Invoice_ID'] == m['Invoice_ID']][0]
+                    if partial and pay_amt < m['Amount_Remaining']:
+                        st.session_state.invoice_ledger.at[idx, 'Amount_Remaining'] -= pay_amt
+                        st.session_state.audit_log.insert(0, {"Action": "Partial Payment", "Inv": m['Invoice_ID'], "Amt": pay_amt})
+                    else:
+                        st.session_state.invoice_ledger.drop(idx, inplace=True)
+                        st.session_state.audit_log.insert(0, {"Action": "Full Clear", "Inv": m['Invoice_ID'], "Amt": pay_amt})
+                    st.session_state.current_match = None
+                    st.rerun()
+                
+                if st.button("🚩 Flag Dispute"):
+                    idx = st.session_state.invoice_ledger.index[st.session_state.invoice_ledger['Invoice_ID'] == m['Invoice_ID']][0]
+                    st.session_state.invoice_ledger.at[idx, 'Is_Disputed'] = True
+                    st.rerun()
 
-            st.divider()
+    with t2:
+        # Professional Dunning Template Logic
+        overdue_list = df[(df['Status'] == 'Overdue') & (df['Is_Disputed'] == False)]
+        if not overdue_list.empty:
+            cust = st.selectbox("Customer", overdue_list['Customer'].unique())
+            inv_row = overdue_list[overdue_list['Customer'] == cust].iloc[0]
+            st.text_area("Email Draft", f"Subject: Overdue Payment {inv_row['Invoice_ID']}\n\nDear {cust},\n\nOur records show an outstanding balance of {inv_row['Currency']} {inv_row['Amount_Remaining']:,.2f}...")
+        else: st.info("No actionable overdue items.")
 
-            # 2. Letter Generation Engine
-            # Mock banking data based on entity
-            bank_details = {
-                '1000 (US)': "Chase Manhattan | Acc: ****5501 | Routing: 021000021",
-                '2000 (EU)': "Deutsche Bank | IBAN: DE89 1007 0000 | BIC: DEUTDEBB",
-                '3000 (UK)': "Barclays PLC | Sort: 20-00-00 | Acc: 12345678"
-            }
-            
-            # Tone logic
-            subjects = {
-                "Friendly Reminder": f"Quick follow-up: Invoice {cust_data['Invoice_ID']} from {cust_data['Company_Code']}",
-                "Formal Inquiry": f"Overdue Payment Notice: {cust_data['Invoice_ID']} / {target_cust}",
-                "Urgent Notice": f"URGENT: Outstanding Balance for {target_cust} (Overdue)",
-                "Final Demand": f"FINAL NOTICE PRIOR TO LEGAL ACTION: {cust_data['Invoice_ID']}"
-            }
+    with t3:
+        disputed = df[df['Is_Disputed'] == True]
+        if not disputed.empty:
+            target = st.selectbox("Resolve Dispute", disputed['Invoice_ID'])
+            reason = st.selectbox("Reason Code", ["Damaged Goods", "Pricing Error", "Short Shipment"])
+            notes = st.text_area("Investigation Notes")
+            if st.button("✅ Save & Resolve"):
+                idx = st.session_state.invoice_ledger.index[st.session_state.invoice_ledger['Invoice_ID'] == target][0]
+                st.session_state.invoice_ledger.at[idx, 'Is_Disputed'] = False
+                st.session_state.invoice_ledger.at[idx, 'Dispute_Reason'] = reason
+                st.rerun()
+        else: st.success("No active disputes.")
 
-            bodies = {
-                "Friendly Reminder": "I hope this email finds you well. This is just a friendly note to remind you that we haven't yet received payment for the referenced invoice. We understand things get busy!",
-                "Formal Inquiry": "Our records indicate that the following invoice is now past its due date. We kindly request that you look into the status of this payment at your earliest convenience.",
-                "Urgent Notice": "Despite our previous reminders, your account remains significantly past due. Failure to settle this balance immediately may result in a temporary suspension of credit terms.",
-                "Final Demand": "This is a formal demand for payment. If the balance is not settled within 48 hours, we will be forced to escalate this matter to our legal department and third-party collection agencies."
-            }
-
-            # 3. Output Full Email
-            email_template = f"""
-**From:** Treasury Dept | {cust_data['Company_Code']} <treasury@smartcash-ai.com>
-**To:** Accounts Payable | {target_cust}
-**Subject:** {subjects[tone]}
-
----
-**Dear Accounts Payable Team,**
-
-{bodies[tone]}
-
-**Invoice Details:**
-* **Invoice ID:** {cust_data['Invoice_ID']}
-* **Original Amount:** {cust_data['Amount']:,.2f} {cust_data['Currency']}
-* **Due Date:** {cust_data['Due_Date']}
-* **Days Past Due:** {(datetime.now() - datetime.strptime(cust_data['Due_Date'], '%Y-%m-%d')).days} Days
-
-**Payment Instructions:**
-Please remit payment to the following {cust_data['Company_Code']} account:
-* **Bank:** {bank_details.get(cust_data['Company_Code'], "Contact Treasury for Details")}
-* **Reference:** {cust_data['Invoice_ID']}
-
-If payment has already been sent, please disregard this notice and provide a payment reference or remittance advice for our records.
-
-**Regards,**
-
-**SmartCash AI Automated Treasury**
-*On behalf of {cust_data['Company_Code']} Controller's Office*
-            """
-            
-            st.markdown(email_template)
-            
-            # Action Buttons
-            c_copy, c_log = st.columns(2)
-            with c_copy:
-                if st.button("📧 Send Email via API"):
-                    st.success(f"Email dispatched to {target_cust} AP Portal.")
-            with c_log:
-                if st.button("📝 Log Contact in Audit"):
-                    st.session_state.audit_log.insert(0, {
-                        "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M"),
-                        "Action": "Dunning Sent",
-                        "Target": target_cust,
-                        "Level": tone
-                    })
-                    st.info("Interaction logged.")
-                    
-# --- TAB 4: AUDIT LEDGER ---
 elif menu == "📜 Audit Ledger":
-    st.subheader("📜 SOC2 Audit Trail")
-    if st.session_state.audit_log:
-        audit_df = pd.DataFrame(st.session_state.audit_log)
-        st.dataframe(audit_df, use_container_width=True)
-        st.download_button("📥 Export Audit Trail", audit_df.to_csv(index=False), "treasury_audit.csv")
-    else:
-        st.warning("No data logs recorded in the current session.")
+    st.table(st.session_state.audit_log)
