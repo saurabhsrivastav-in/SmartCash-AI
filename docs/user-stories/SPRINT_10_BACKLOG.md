@@ -1,67 +1,67 @@
-# Sprint 10 Backlog: The Autonomous Enterprise (Hyper-Scale)
+# 🌍 Sprint 10 Backlog: Zero-Touch Global Scaling
 
-**Sprint Goal:** Implement "Zero-Touch" autonomous clearing, Real-time Market Sentiment Analysis, and an AI-driven "Chief Cash Officer" Advisory Dashboard.
-
----
-
-## 🏗️ Story 10.1: "Zero-Touch" Autonomous Clearing Engine
-**User Persona:** As a CFO, I want the system to operate entirely without human intervention for 99% of transactions so that our AR team can transition into "Strategic Value" roles.
-
-### 📝 Description
-The final evolution of the matching engine. By combining historical accuracy (Sprint 5) and anomaly detection (Sprint 6), the system will now "Auto-Certify" matches and post directly to the GL without any analyst review for trusted customer accounts.
-
-
-
-### ✅ Acceptance Criteria
-- [ ] Implement a "Trust Score" per customer; if Trust > 98%, matches are auto-certified.
-- [ ] System handles auto-write-offs for minor variances based on predefined risk appetites.
-- [ ] Exception rate drops below 1% for standard invoice-to-payment flows.
+**Sprint Goal:** Expand the engine to support multi-entity hierarchies and implement high-volume data partitioning for global enterprise deployment.
 
 ---
 
-## 🏗️ Story 10.2: Macro-Economic Sentiment & Risk Overlay
-**User Persona:** As a Treasury Director, I want the system to adjust payment expectations based on real-time news and market sentiment (e.g., shipping strikes, regional inflation) so that our cash forecast is always accurate.
+## 🏗️ Story 10.1: Multi-Entity "Intercompany" Hierarchy
+**User Persona:** As a Global Controller, I want to toggle between different regional subsidiaries (e.g., North America, EMEA, APAC) so that I can monitor localized liquidity within a consolidated dashboard.
 
 ### 📝 Description
-Integrate a news-scraping AI layer that monitors global events. If a "Port Strike" is detected in a specific region, the system automatically adjusts the "Projected Payment Date" for all customers in that region.
+Implement a "Company Code" filter layer. The system must partition invoices and bank feeds by `Entity_ID`, allowing for both a "Consolidated View" and a "Subsidiary-Specific View."
 
 ### ✅ Acceptance Criteria
-- [ ] Integration with a Global News API (e.g., Bloomberg, Reuters).
-- [ ] Automated adjustment of "Probability of Pay" scores based on macro-economic triggers.
-- [ ] Alert system for "High Impact" events affecting the top 10% of the AR portfolio.
+- [ ] **Hierarchical Filtering:** The sidebar includes a multi-select for "Global Entities."
+- [ ] **Data Isolation:** Ensure Analysts in the "APAC" group cannot view "EMEA" transactions unless granted "Global" permissions.
+- [ ] **Consolidation:** The **Liquidity Bridge** correctly aggregates multi-currency balances into a single "Reporting Currency" (e.g., USD) using real-time mock FX rates.
+
+
 
 ---
 
-## 🏗️ Story 10.3: AI "Chief Cash Officer" Advisory Dashboard
-**User Persona:** As a Finance Executive, I want the system to proactively suggest capital allocation strategies (e.g., "Invest $2M in Short-term Bonds") based on our projected cash surplus.
+## 🏗️ Story 10.2: High-Volume Data Partitioning (50k+ Records)
+**User Persona:** As a Treasury IT Lead, I want the system to remain responsive when processing 50,000+ open invoices so that the UI doesn't lag during peak month-end closing.
 
 ### 📝 Description
-The system evolves from descriptive (what happened) to prescriptive (what to do). It analyzes the forecasted cash surplus and suggests ways to optimize working capital.
-
-
+Refactor the data ingestion layer to move from flat CSV loading to a partitioned "Data Lake" approach. Implement "Lazy Loading" for the Analyst Workbench so only active transactions are rendered.
 
 ### ✅ Acceptance Criteria
-- [ ] "Strategy Engine" that suggests dynamic discounting offers to customers to pull cash forward.
-- [ ] Real-time "Investment Availability" metric based on the 30-day clearing forecast.
-- [ ] Benchmarking: Compare your O2C efficiency against "Best-in-Class" industry standards.
+- [ ] **Performance:** Dashboard load time remains < 3 seconds with a 50k row dataset.
+- [ ] **Memory Optimization:** Utilize `pandas` dtypes optimization to reduce the RAM footprint of the `st.session_state` cache.
+- [ ] **Pagination:** The Analyst Workbench implements a "Load More" or paginated view for unmatched items.
 
 ---
 
-## 🏗️ Story 10.4: Edge-Case "War Room" Simulation
-**User Persona:** As a Global Controller, I want to simulate a "Black Swan" event (e.g., total bank outage) to test our operational resilience and recovery time.
+## 🏗️ Story 10.3: Regional Tax & VAT Handling logic
+**User Persona:** As a Tax Manager, I want the system to identify VAT/GST components in bank credits so that we don't accidentally over-match net invoice amounts.
 
 ### 📝 Description
-A high-end simulation environment that stress-tests the entire O2C pipeline. It measures how fast the system can reconcile a month's worth of "backlog" transactions once systems are restored.
+Develop logic to identify and separate tax components in countries with complex VAT requirements (e.g., India, UK, Germany). The engine must recognize "Gross" vs. "Net" payment scenarios.
 
 ### ✅ Acceptance Criteria
-- [ ] "Bulk Recovery" mode that can process 500,000+ line items in under 60 minutes.
-- [ ] Automated "Data Integrity" check to ensure no records were lost or duplicated during the simulation.
-- [ ] Generation of a "Business Continuity Plan" (BCP) report for board-level review.
+- [ ] **Tax Gate:** Match engine identifies if `Bank_Amount` includes `VAT_Percentage` calculated on the `Invoice_Net_Amount`.
+- [ ] **Status:** Flagged as `STATUS_TAX_ADJUSTMENT` in the Audit Ledger.
+- [ ] **Validation:** GenAI Agent is updated to request "Tax Withholding Certificates" for payments where the variance matches regional tax rates.
+
+
+
+---
+
+## 🏗️ Story 10.4: Global Setting & Localization
+**User Persona:** As a Regional AR Lead, I want to see dates, currencies, and numbers formatted in my local standard so that I can avoid interpretation errors.
+
+### 📝 Description
+Implement a "Localization Profile" in the user settings. This affects date formats (DD/MM vs MM/DD), number separators, and primary local currency displays.
+
+### ✅ Acceptance Criteria
+- [ ] **Formatting:** UI dynamically updates based on `Locale` (e.g., switching from $1,234.56 to 1.234,56 €).
+- [ ] **Timezone Sync:** The `Match_Timestamp` in the Audit Ledger displays in both UTC and the User’s local timezone.
+- [ ] **Language Support:** Basic framework for multi-language labels (i18n) in the sidebar and navigation.
 
 ---
 
 ## 🚀 Technical Sub-tasks for Developers
-1. **Engine Tuning:** Optimize the Python matching engine using `C-extensions` or `Rust` to handle hyper-scale volume.
-2. **Sentiment Analysis:** Build a NLP pipeline using `HuggingFace` transformers for financial news categorization.
-3. **Simulation Logic:** Develop a "Throttling" service to simulate data spikes and latency in the API layer.
-4. **Strategy Engine:** Implement a Rule-based optimization model using `Linear Programming` (e.g., PuLP or SciPy).
+1. **Infrastructure:** Optimize `st.cache_data` TTL (Time-To-Live) for large datasets.
+2. **Logic Expansion:** Update `backend/engine.py` to support multi-entity data frames.
+3. **UI Polish:** Implement "Quick Filters" for top-performing subsidiaries.
+4. **Mock Data:** Update `mock_data_maker.py` to generate data across 10 distinct `Company_Codes` and regional tax variances.
