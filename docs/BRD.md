@@ -9,97 +9,76 @@
 ---
 
 ## 1. Executive Summary
-The SmartCash AI initiative is designed to eliminate the manual "last-mile" friction in the Order-to-Cash (O2C) cycle. By leveraging Large Language Models (LLMs) and fuzzy matching logic, we aim to bridge the gap between fragmented remittance data (PDFs, emails, portals) and the SAP General Ledger. Our goal is to transform the treasury from a reactive processing center to a proactive liquidity hub.
+SmartCash AI is an institutional-grade automation layer designed to eliminate manual "last-mile" friction in the Order-to-Cash (O2C) cycle. By integrating Large Language Models (LLMs) with high-performance fuzzy matching logic, the platform bridges the gap between fragmented bank feeds and the SAP General Ledger. 
+
+The goal is to transform the treasury from a reactive cost center into a proactive, high-velocity liquidity hub.
 
 ---
 
-## 2. Business Context: The Strategic O2C Flow
-The automation targets the critical junction where financial intent meets bank reality:
+## 2. The Strategic O2C Flow
+The platform optimizes the critical junction where bank reality meets financial intent:
 
-
-
-1. **Purchase Order Ingestion**
-2. **Inventory Validation**
-3. **PO Acceptance**
-4. **Sales Invoice Generation**
-5. **Service/Goods Fulfillment**
-6. **A/R Ledger Update**
-7. **Billing Distribution**
-8. **Payment Initiation**
-9. **Bank Credit Receipt**
-10. **Invoice Management (AI Priority)**
-11. **Reconciliation & Clearing (AI Priority)**
-12. **Financial Reporting**
+1. **A/R Ledger Ingestion** (Baseline Data)
+2. **Bank Credit Receipt** (MT942/CAMT.053)
+3. **Smart Matching Engine** (AI-Priority: `thefuzz` Logic)
+4. **Exception Handling** (GenAI-Driven Remittance Requests)
+5. **Reconciliation & Clearing** (STP Confirmation)
+6. **Compliance Archiving** (SOC2 Vault Logging)
+7. **Liquidity Reporting** (Executive Risk Radar)
 
 ---
 
 ## 3. Current State & Problem Definition
 
 ### 3.1 The "Manual Trap" Workflow
-Currently, the "Operations Team" acts as a human middleware:
-* **Fragmented Remittance:** Analysts manually scrape remittance data from a centralized mailbox.
-* **Comment Registration:** Qualitative customer data is manually keyed into "Cash Reports."
-* **Claim Gridlock:** Deductions and short-payments are handled via email threads with no central audit trail.
+Currently, the Treasury team acts as a human middleware:
+* **Fragmented Remittance:** Analysts manually scrape payment data from emails and portals.
+* **Matching Latency:** Average 48-hour delay between bank credit and ERP clearing.
+* **DSO Bloat:** Days Sales Outstanding (DSO) is currently 3-5 days higher than industry benchmarks.
 
-### 3.2 Quantitative Pain Points
-* **Reconciliation Latency:** Average 48-hour delay between bank credit and SAP clearing.
-* **DSO Bloat:** Days Sales Outstanding (DSO) is currently 3-5 days higher than the industry benchmark due to unapplied cash.
-* **Exception Fatigue:** 40% of transactions require manual intervention due to missing Invoice IDs or currency fluctuations.
+### 3.2 Solution Objectives
+* **STP Rate:** Achieve >90% Straight-Through Processing for standard invoices.
+* **Risk Visibility:** Real-time monitoring of currency and ESG concentration risks.
+* **Auditability:** 100% traceability for AI-assisted financial decisions.
 
 ---
 
 ## 4. Technical Architecture
-The solution sits at the intersection of three enterprise units:
+The solution operates as a Python-based middleware sitting between the bank and the ERP:
 
-
-
-1. **Treasury Gateway (MT942):** 4x daily ingestion of SWIFT intraday messages.
-2. **SmartCash AI Engine:** Python-based matching logic (utilizing `thefuzz` and `LLMs`).
-3. **SAP Integration Layer:** Automated Posting (BAPI/OData) for GL settlement.
+1. **Treasury Gateway:** Ingestion of intraday bank feeds.
+2. **Matching Engine:** Multi-factor logic utilizing `thefuzz` for payer identification and `scipy` for trend forecasting.
+3. **GenAI Layer:** Automated dunning and remittance clarification via LLM agents.
+4. **Governance Layer:** Immutable **SOC2 Compliance Vault** for audit trails.
 
 ---
 
 ## 5. Functional Requirements (FR)
 
-### 5.1 Data Orchestration
 | ID | Requirement | Technical Specification | Priority |
 | :--- | :--- | :--- | :--- |
-| **FR-01** | **MT942 Real-time Sync** | Automatic parsing of SWIFT MT942 files every 6 hours. | P0 |
-| **FR-02** | **Cognitive Extraction** | AI-driven OCR to extract remittance data from PDF, JPG, and Email. | P0 |
-| **FR-03** | **Heuristic Matching** | Matching engine must support Exact, Fuzzy, and Multi-Invoice grouping. | P0 |
-| **FR-04** | **ESG Integration** | Flag payments from customers with ESG scores below 'C'. | P2 |
-
-### 5.2 The Logic Gates (Confirmation Scenarios)
-The engine must classify all incoming credits into one of four logic buckets:
-* **Scenario A (Standard):** Full match of Amount + Invoice ID.
-* **Scenario B (Dispute):** Payer confirms they will NOT pay specific line items.
-* **Scenario C (Partial/Claims):** Payment received with attached deduction codes (e.g., "Damaged Goods").
-* **Scenario D (Unidentified):** Receipt with no metadata (Routed to AI Agent for customer outreach).
+| **FR-01** | **Heuristic Matching** | Support for Exact, Fuzzy, and Multi-Invoice grouping. | P0 |
+| **FR-02** | **Stress Simulation** | Numpy-based slider to model liquidity haircuts under market latency. | P1 |
+| **FR-03** | **Risk Radar** | Multi-level Sunburst visualization (Currency > Customer > ESG). | P1 |
+| **FR-04** | **Audit Ledger** | Auto-logging of match confidence scores and operator overrides. | P0 |
 
 ---
 
-## 6. AI & Intelligent Workflows
-* **Autonomous Dunning:** AI generates personalized, polite follow-ups for Scenario D cases.
-* **Deduction Mapping:** System auto-suggests GL reason codes based on historical claim patterns.
-* **Liquidity Heatmaps:** Real-time visualization of cash inflow vs. forecast.
+## 6. Logic Scenarios (The Confirmation Gates)
+* **Scenario A (Green):** Confidence ≥ 95%. Automated clearing (STP).
+* **Scenario B (Amber):** Confidence 70-94%. Routed to Analyst Workbench for one-click review.
+* **Scenario C (Red):** No match. AI Agent generates a remittance request email to the payer.
 
 ---
 
 ## 7. Non-Functional Requirements (NFR)
-* **Straight-Through Processing (STP):** Target >90% for standard invoices.
-* **Auditability:** Every AI decision must be logged in the **SOC2 Compliance Vault**.
-* **Global Support:** Support for USD, EUR, and GBP with real-time FX conversion logic.
+* **Scalability:** System handles up to 10k transactions per ingestion cycle.
+* **Data Integrity:** All financial values processed using 64-bit float precision via Numpy.
+* **Security:** AES-256 equivalent hashing for the **Audit Ledger** `Hash_ID`.
 
 ---
 
-## 8. Implementation Roadmap
-* **Q1 (Foundation):** MT942 ingestion, Python engine setup, and "Exact Match" logic.
-* **Q2 (Intelligence):** Implementation of `thefuzz` and LLM-based remittance scraping.
-* **Q3 (Ecosystem):** Full SAP write-back and automated dispute resolution.
-
----
-
-## 9. Key Performance Indicators (KPIs)
-* **DSO Reduction:** -4 days.
-* **STP Rate:** 85%+ (Automated Clearing).
-* **FTE Efficiency:** 60% reduction in manual data entry time.
+## 8. Key Performance Indicators (KPIs)
+* **DSO Reduction:** Target -4 days.
+* **Operational Savings:** 60% reduction in manual data entry.
+* **Accuracy:** 99.9% match precision for confidence-approved transactions.
