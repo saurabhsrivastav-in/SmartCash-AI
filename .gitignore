@@ -1,34 +1,61 @@
-# --- System / OS Files ---
+# ==========================================
+# SmartCash AI: Enterprise Security Guard
+# ==========================================
+
+# --- SYSTEM & OS ---
+# Prevent metadata leakage across different operating systems
 .DS_Store
 Thumbs.db
+*.swp
+*.swo
 
-# --- Python / Environment ---
+# --- VIRTUAL ENVIRONMENTS ---
+# Never push local environments; dependencies are managed via requirements.txt
 venv/
-.env
+env/
+.venv/
+bin/
+lib/
+include/
+
+# --- PYTHON & CACHING ---
 __pycache__/
 *.py[cod]
 *$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
 
-# --- Data & Finance (Protects your CSVs) ---
-# Keep the directory structure, but ignore the actual data files
+# --- SENSITIVE CREDENTIALS (CRITICAL) ---
+# Prevents accidental leaking of OpenAI/Gemini API keys
+.env
+.env.shared
+.streamlit/secrets.toml
+
+# --- INSTITUTIONAL DATA (Sprints 5, 7, 10) ---
+# Protects PII (Personally Identifiable Information) and financial records
+# We ignore actual data but keep the directory structure
 data/*.csv
 data/*.xlsx
 data/*.json
+data/*.xml
+!data/.gitkeep
 
-# If you want to keep specific sample files, uncomment below:
-# !data/sample_invoices.csv
-
-# --- AI / Machine Learning ---
+# --- AI & ANALYTICS ARTIFACTS ---
 .ipynb_checkpoints
-*.log
-models/
-*.pkl
-*.joblib
+models/*.pkl
+models/*.joblib
+.huggingface/
 
-# --- IDEs ---
+# --- IDE CONFIGURATIONS ---
+# Keeps the repo clean for other developers using different IDEs
 .vscode/
 .idea/
+*.sublime-project
+*.sublime-workspace
 
-# --- Temporary / Output ---
+# --- TEMPORARY & OUTPUTS ---
 output/
 temp/
+docs/_build/
