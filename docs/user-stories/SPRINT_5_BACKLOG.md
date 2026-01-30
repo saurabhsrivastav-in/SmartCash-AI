@@ -1,67 +1,64 @@
-# Sprint 5 Backlog: Strategic Optimization & Global Scaling
+# 📡 Sprint 5 Backlog: Strategic Ecosystem & ESG Intelligence
 
-**Sprint Goal:** Implement ML-driven self-learning for matching, multi-currency support for global entities, and "One-Click" month-end closing reports.
-
----
-
-## 🏗️ Story 5.1: ML Feedback Loop (Self-Learning Matching)
-**User Persona:** As a Product Manager, I want the system to learn from manual analyst corrections so that the auto-match rate improves over time without manual rule updates.
-
-### 📝 Description
-Develop a "Learning Layer" that monitors manual overrides. If an analyst consistently matches "Payer A" to "Entity B" despite low fuzzy scores, the system should create a "Learned Mapping" to automate that match in the future.
-
-
-
-### ✅ Acceptance Criteria
-- [ ] System stores manual override patterns in a `learned_logic` table.
-- [ ] After 3 identical manual matches, the system proposes an "Auto-Rule" for approval.
-- [ ] Confidence scores for learned matches increase dynamically over time.
+**Sprint Goal:** Integrate external ESG risk scoring and CRM metadata to transform the matching engine into a holistic risk-governance platform.
 
 ---
 
-## 🏗️ Story 5.2: Multi-Currency & FX Variance Handling
-**User Persona:** As a Global AR Lead, I want the system to match payments in different currencies (e.g., EUR payment for a USD invoice) so that we can support international entities.
+## 🏗️ Story 5.1: Real-Time ESG Risk Orchestration
+**User Persona:** As a Compliance Officer, I want the system to flag payments from entities with declining ESG scores so we can proactively manage reputational risk.
 
 ### 📝 Description
-Integrate a real-time Exchange Rate API. The system must calculate the FX variance during the matching process and suggest "Exchange Loss/Gain" posting codes if the variance is within a 2% threshold.
+Develop an integration layer that maps customer IDs to external Sustainability Ratings (AA to C). This data must be injected into the `SmartMatchingEngine` to influence the risk-weighting of unsettled invoices.
 
 ### ✅ Acceptance Criteria
-- [ ] Integration with an FX rate provider (e.g., OANDA or XE.com).
-- [ ] Automated calculation of `Invoice_Amount_FX` vs `Payment_Amount`.
-- [ ] Automated posting of FX differences to the designated GL account.
+- [ ] **Data Mapping:** Successfully joins the `invoices` dataset with a new `esg_ratings` reference table.
+- [ ] **Dynamic Flagging:** Any transaction with an ESG score below 'B' must trigger a high-visibility badge in the Analyst Workbench.
+- [ ] **Risk Weighting:** The "Executive Risk Radar" must allow filtering specifically by ESG tier.
+
+
 
 ---
 
-## 🏗️ Story 5.3: "Month-End" Command Center
-**User Persona:** As a Financial Controller, I want a high-level summary of all unapplied cash and disputed claims so that I can close the books faster at month-end.
+## 🏗️ Story 5.2: CRM Metadata Ingestion (Salesforce/Dynamics)
+**User Persona:** As an AR Analyst, I want to see recent "Collection Notes" from our CRM within the workbench so I understand why a customer might be delaying payment.
 
 ### 📝 Description
-A dedicated dashboard view that consolidates all "Blocking Issues." It highlights high-value unapplied cash that must be resolved before the ledger closes.
-
-
+Establish a data connector that pulls qualitative notes (e.g., "Customer disputing shipment #102") and displays them alongside the unmatched bank transaction.
 
 ### ✅ Acceptance Criteria
-- [ ] "Closing Readiness" score (0-100%) based on unapplied cash volume.
-- [ ] Bulk-action capability to post all remaining minor variances (<$5.00) to a "Write-off" account.
-- [ ] One-click generation of the "Account Reconciliation" (Rec) report for auditors.
+- [ ] **Contextual Display:** A "CRM Insights" panel appears in the Analyst Workbench when a transaction is selected.
+- [ ] **GenAI Enhancement:** The `GenAIAssistant` utilizes these CRM notes to customize the tone of the dunning email (e.g., mentioning the specific shipment dispute).
 
 ---
 
-## 🏗️ Story 5.4: Predictive "Payment Behavior" Profiling
-**User Persona:** As a Credit Risk Analyst, I want to see a "Payment Personality" for each customer so that I can adjust credit limits based on real-world behavior rather than just credit scores.
+## 🏗️ Story 5.3: The "Risk Radar" Sunburst 2.0
+**User Persona:** As a Treasurer, I want to see a multi-dimensional view of exposure so I can see which currency-region is most impacted by low-ESG customers.
 
 ### 📝 Description
-Analyze historical data to categorize customers as "Early Birds," "Grace-Period Payers," or "Chronic Late Payers."
+Enhance the Plotly Sunburst visualization to support three levels of drill-down: **Currency → ESG Category → Customer**. 
 
 ### ✅ Acceptance Criteria
-- [ ] Customer profile page showing "Average Days to Pay" vs "Terms."
-- [ ] Trend analysis: Is this customer getting faster or slower at paying?
-- [ ] Integration of these profiles into the Sprint 3 Priority Worklist logic.
+- [ ] **Visual Depth:** Implement `px.sunburst` with the path `['Currency', 'ESG_Score', 'Customer']`.
+- [ ] **Color Logic:** Map colors to the `ESG_Score` column (Green for AA/A, Yellow for B, Red for C).
+- [ ] **Interactivity:** Clicking a segment must update the "Unapplied Cash" metric for that specific filtered view.
+
+---
+
+## 🏗️ Story 5.4: Automated Credit Limit Alerts
+**User Persona:** As a Credit Manager, I want to receive an alert if a customer’s "Unapplied Cash" + "Open Invoices" exceeds their credit limit.
+
+### 📝 Description
+Implement a threshold monitoring system. When a bank credit remains unmatched, the system calculates the total outstanding exposure for that entity and compares it against a pre-set credit limit.
+
+### ✅ Acceptance Criteria
+- [ ] **Exposure Calculation:** `Total_Exposure = Sum(Open_Invoices) - Unapplied_Bank_Credits`.
+- [ ] **Alert Trigger:** Display a high-priority alert if `Total_Exposure > Credit_Limit`.
+- [ ] **Audit Trail:** Log the credit breach alert in the SOC2 Compliance Vault.
 
 ---
 
 ## 🚀 Technical Sub-tasks for Developers
-1. **ML Integration:** Set up a Scikit-learn classifier to identify matching patterns.
-2. **API Extension:** Add support for ISO currency codes in the backend matching engine.
-3. **Data Aggregation:** Create a "Month-End" view in SQL that joins `Transactions`, `Invoices`, and `Deductions`.
-4. **Optimization:** Index the `learned_logic` table to ensure the matching engine remains <200ms.
+1. **API Integration:** Create a mock API handler for `services/esg_provider.py`.
+2. **Schema Update:** Update `mock_data_maker.py` to generate credit limits and ESG categories.
+3. **UI Logic:** Enhance the sidebar with an "ESG Sensitivity" toggle to highlight risky transactions.
+4. **Data Science:** Refine the matching engine to prioritize clearing "High ESG Risk" invoices first to reduce exposure.
