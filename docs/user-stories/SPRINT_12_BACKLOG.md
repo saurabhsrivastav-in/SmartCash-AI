@@ -1,69 +1,67 @@
-# Sprint 12 Backlog: Interoperable Finance & Autonomous Treasury
+# 🏁 Sprint 12 Backlog: The Interoperable Autonomous Enterprise
 
-**Sprint Goal:** Implement Agent-to-Agent (A2A) communication protocols, real-time "Instant-Settlement" via Central Bank Digital Currencies (CBDCs), and autonomous treasury reallocation.
-
----
-
-## 🏗️ Story 12.1: Agent-to-Agent (A2A) Negotiation Protocol
-**User Persona:** As a Credit Manager, I want my SmartCash AI to talk directly to my customer’s AP (Accounts Payable) AI so they can negotiate payment dates and dispute resolutions without any human emails.
-
-### 📝 Description
-Implement a standardized API protocol (e.g., JSON-LD / IETF) that allows the SmartCash engine to "handshake" with external AI agents. The agents will exchange data on missing invoices, tax discrepancies, and payment schedules autonomously.
-
-
-
-### ✅ Acceptance Criteria
-- [ ] Establish a secure "Negotiation Sandbox" for cross-organizational AI communication.
-- [ ] Auto-resolve at least 50% of "Scenario C" (Claims) via A2A data exchange.
-- [ ] Maintain an "Agent Conversation Log" for human review and audit.
+**Sprint Goal:** Finalize the bi-directional ERP synchronization (Write-Back) and enable reconciliation support for Digital Assets and CBDC settlement rails.
 
 ---
 
-## 🏗️ Story 12.2: CBDC & Instant-Settlement Rail Integration
-**User Persona:** As a Treasurer, I want the system to utilize Central Bank Digital Currencies (CBDCs) for "Atomic Settlement" so that we can eliminate the 2-day bank clearing delay (T+0 settlement).
+## 🏗️ Story 12.1: SAP S/4HANA Bi-Directional Write-Back
+**User Persona:** As a Finance Controller, I want the system to automatically clear invoices in SAP once matched so that our general ledger reflects the real-time cash position without manual entry.
 
 ### 📝 Description
-Integrate with emerging CBDC rails or programmable money platforms. When a match is certified by the AI, the system triggers an immediate, programmable transfer of value that updates the GL and the bank balance simultaneously.
-
-
+Develop the "Last Mile" connector. This logic generates a standard IDOC or OData payload for SAP S/4HANA to execute the `F-28` (Post Incoming Payments) transaction automatically for all `STATUS_AUTO_POST` items.
 
 ### ✅ Acceptance Criteria
-- [ ] Connection to at least one Programmable Money API or CBDC sandbox.
-- [ ] Real-time update of the "Cash Position" metric within 5 seconds of payment initiation.
-- [ ] Reduction of "Payment-in-Transit" (Float) to zero for compatible digital currency transactions.
+- [ ] **Payload Generation:** System creates a valid JSON/XML structure containing `VBLNR` (Document Number) and `AUGBL` (Clearing Document).
+- [ ] **Feedback Loop:** The engine waits for an "OK" status from the ERP before finalizing the entry in the SmartCash Audit Ledger.
+- [ ] **Error Handling:** If the ERP write-back fails (e.g., account locked), the system reverts the status to `EXCEPTION` and alerts the analyst.
+
+
 
 ---
 
-## 🏗️ Story 12.3: Autonomous Liquidity "Sweep" to Treasury
-**User Persona:** As a Chief Cash Officer, I want the system to automatically move surplus unapplied cash into interest-bearing vehicles (e.g., Money Market Funds) the moment it is cleared.
+## 🏗️ Story 12.2: CBDC & Digital Asset Reconciliation
+**User Persona:** As a Global Treasurer, I want to reconcile payments made via Central Bank Digital Currencies (CBDCs) or stablecoins so that our "Digital Liquidity" is managed alongside traditional fiat.
 
 ### 📝 Description
-Link the "Zero-Touch" clearing engine (Sprint 10) directly to Treasury investment accounts. The system calculates the daily "Safety Buffer" and automatically "sweeps" the excess cash into low-risk, high-liquidity investments.
+Extend the matching engine to ingest blockchain-based transaction hashes (on-ledger events). The engine must treat a wallet-to-wallet transfer with a memo field the same as a SWIFT transaction with a reference field.
 
 ### ✅ Acceptance Criteria
-- [ ] Automated "Safety Buffer" calculation based on 12 months of historical volatility data.
-- [ ] Bi-directional API with Treasury Management Systems (TMS) for automated buy/sell orders.
-- [ ] Dashboard showing "Incremental Yield Earned" through autonomous sweeping.
+- [ ] **Schema Expansion:** The data layer supports `Wallet_Address` and `Transaction_Hash` as valid identifier fields.
+- [ ] **Valuation Logic:** Real-time conversion of digital asset value to the reporting currency at the exact moment of settlement.
+- [ ] **Visuals:** The **Risk Radar** now includes a "Digital Assets" segment in the currency drill-down.
 
 ---
 
-## 🏗️ Story 12.4: Adaptive "Black-Swan" Self-Configuration
-**User Persona:** As a Global Controller, I want the system to re-write its own matching thresholds if it detects systemic economic shifts (e.g., hyper-inflation or bank runs) to protect company liquidity.
+## 🏗️ Story 12.3: Zero-Touch "Self-Healing" Match Logic
+**User Persona:** As a Treasury Lead, I want the system to "learn" from previous manual corrections so that it stops flagging the same minor discrepancies as exceptions.
 
 ### 📝 Description
-Using reinforcement learning, the system will monitor macro-economic indicators (Sprint 10) and automatically tighten or loosen "Auto-Post" thresholds (Sprint 2) to prevent credit leakage during volatile periods.
-
-
+Implement a reinforcement learning feedback loop. When an analyst manually matches a specific payer name to an invoice ID twice, the system automatically creates a "Permanent Alias" in the database.
 
 ### ✅ Acceptance Criteria
-- [ ] System automatically reduces "Auto-Match" thresholds for high-risk regions during currency devaluation events.
-- [ ] Automated "Risk-OFF" mode that requires 100% human approval for specific countries or industries during a crisis.
-- [ ] Log of "Policy Self-Adjustments" with justifications for the Board of Directors.
+- [ ] **Alias Table:** A dynamic lookup table that stores `User_Confirmed_Aliases`.
+- [ ] **STP Uplift:** The engine checks the Alias Table before running the standard Fuzzy Logic, reducing CPU overhead and increasing STP speed.
+- [ ] **Optimization:** System identifies and suggests "Auto-Match Rules" based on high-frequency manual patterns.
+
+
+
+---
+
+## 🏗️ Story 12.4: Project "Golden Master" & Handover
+**User Persona:** As the Project Stakeholder, I want a final validation of all 12 sprints so that we can officially transition SmartCash AI to the production maintenance team.
+
+### 📝 Description
+Perform a comprehensive end-to-end stress test. This includes a "War Room" session to verify that the PQC security, GenAI agents, and ERP write-backs all function in a unified production environment.
+
+### ✅ Acceptance Criteria
+- [ ] **E2E Validation:** 1,000+ mock transactions processed with >95% STP and 0% data corruption.
+- [ ] **Documentation:** Final versions of the `User_Guide`, `Go_Live_Checklist`, and `Technical_Architecture` are archived.
+- [ ] **Final Sign-off:** Executive dashboard displays the "Golden Master" version badge (v1.0.0).
 
 ---
 
 ## 🚀 Technical Sub-tasks for Developers
-1. **Interoperability:** Build the "Financial Agent Communication" (FAC) protocol using gRPC or GraphQL.
-2. **Blockchain/CBDC:** Integrate `Hyperledger Fabric` or a similar DLT framework for atomic settlement.
-3. **Treasury Logic:** Implement a "Cash Sweep" algorithm using `Stochastic Optimization` for liquidity management.
-4. **AI/ML:** Implement a "Transformer-based" time-series model to predict liquidity needs 48 hours in advance.
+1. **Integration:** Finalize the `services/erp_connector.py` module for SAP OData.
+2. **Webhooks:** Set up listener endpoints for real-time digital asset settlement notifications.
+3. **Data Science:** Implement the "Alias Discovery" script to analyze the `Audit Ledger` for recurring manual patterns.
+4. **Final Deployment:** Execute the `Go_Live_Checklist.md` on the production Streamlit Cloud instance.
