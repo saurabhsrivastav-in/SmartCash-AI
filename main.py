@@ -48,7 +48,6 @@ def load_institutional_data():
         })
     return pd.DataFrame(inv_data), pd.DataFrame(bank_data)
 
-# Ensure data is loaded into session state before anything else renders
 if 'ledger' not in st.session_state or 'bank' not in st.session_state:
     ledger_df, bank_df = load_institutional_data()
     st.session_state.ledger = ledger_df
@@ -87,7 +86,6 @@ st.divider()
 # --- 5. SEARCH & FILTER LOGIC ---
 view_df = st.session_state.ledger.copy()
 
-# ENABLED AI SEARCH: checks both search bars
 if search_term:
     view_df = view_df[view_df['Customer'].str.contains(search_term, case=False) | 
                      view_df['Invoice_ID'].str.contains(search_term, case=False)]
@@ -100,6 +98,8 @@ with st.sidebar:
     menu = st.radio("Workspace", ["📈 Dashboard", "🛡️ Risk Radar", "⚡ Workbench", "📜 Audit"])
     latency = st.slider("Collection Latency (Days)", 0, 90, 15)
     ent_f = st.selectbox("Company Entity", ["Consolidated"] + list(st.session_state.ledger['Company_Code'].unique()))
+    st.divider()
+    stress_test = st.toggle("Enable Stress Loading", help="Simulate high-risk market conditions")
 
 if ent_f != "Consolidated":
     view_df = view_df[view_df['Company_Code'] == ent_f]
@@ -111,14 +111,34 @@ today = datetime(2026, 1, 30)
 
 if menu == "📈 Dashboard":
     m1, m2, m3, m4 = st.columns(4)
-    m1.metric("BoA Liquidity Tier", "Level 1 (Strong)", "0.02% Var")
+    m1.metric("Cash Conversion Cycle", f"{42+latency} Days", f"{'+3d' if stress_test else '-1d'}", delta_color="inverse")
     m2.metric("Filtered Liquidity", f"${liq_pool:.2f}M")
     m3.metric("Adjusted DSO", f"{34+latency}d")
     m4.metric("Matching Items", len(view_df))
 
     st.divider()
 
-    # PRIMARY: AGEING CHART
+    # NEW: MULTI-YEAR TREND ANALYSIS
+    st.subheader("📈 Multi-Year Liquidity Trend & Forecast")
+    quarters = ['Q1 24', 'Q2 24', 'Q3 24', 'Q4 24', 'Q1 25', 'Q2 25', 'Q3 25', 'Q4 25', 'Q1 26 (Est)', 'Q2 26 (Est)', 'Q3 26 (Est)', 'Q4 26 (Est)', 'Q1 27 (Proj)']
+    cash_values = [45, 48, 42, 55, 58, 62, 59, 70, liq_pool, liq_pool * 1.1, liq_pool * 1.05, liq_pool * 1.2, liq_pool * 1.25]
+    
+    fig_trend = go.Figure()
+    fig_trend.add_trace(go.Scatter(x=quarters[:8], y=cash_values[:8], mode='lines+markers', name='Historical', line=dict(color='#58a6ff', width=3)))
+    fig_trend.add_trace(go.Scatter(x=quarters[7:], y=cash_values[7:], mode='lines+markers', name='Forecast', line=dict(color='#238636', width=3, dash='dot')))
+    
+    fig_trend.update_layout(
+        template="plotly_dark", 
+        height=400,
+        xaxis_title="Time Period (Multi-Year)",
+        yaxis_title="Total Liquidity ($ Millions)",
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+    )
+    st.plotly_chart(fig_trend, use_container_width=True)
+    
+
+    st.divider()
+
     st.subheader("⏳ Accounts Receivable Ageing Analysis")
     ov = view_df[view_df['Status'] == 'Overdue'].copy()
     if not ov.empty:
@@ -142,15 +162,14 @@ if menu == "📈 Dashboard":
                          color='Amount_Remaining', color_continuous_scale='Turbo')
         fig_age.update_layout(template="plotly_dark", height=450)
         st.plotly_chart(fig_age, use_container_width=True)
-        
 
     st.divider()
 
-    # SECONDARY: INTERACTIVE HEATMAP
     st.subheader("🔥 Interactive Stress Matrix (FX vs Hedge)")
     fx_range = np.array([-15, -10, -5, -2, 0, 5, 10])
     hedge_range = np.array([0, 25, 50, 75, 100])
-    z_data = [[round(liq_pool * (1 + (fx/100) * (1 - (h/100))), 2) for h in hedge_range] for fx in fx_range]
+    multiplier = 0.85 if stress_test else 1.0
+    z_data = [[round(liq_pool * multiplier * (1 + (fx/100) * (1 - (h/100))), 2) for h in hedge_range] for fx in fx_range]
 
     fig_h = go.Figure(data=go.Heatmap(
         z=z_data, x=[f"{h}% Hedge" for h in hedge_range], y=[f"{fx}% Vol" for fx in fx_range],
@@ -158,7 +177,6 @@ if menu == "📈 Dashboard":
     ))
     fig_h.update_layout(template="plotly_dark", height=400, xaxis_title="Hedge Coverage", yaxis_title="FX Volatility (%)")
     st.plotly_chart(fig_h, use_container_width=True)
-    
 
 elif menu == "🛡️ Risk Radar":
     weights = {'AAA':0.05, 'AA':0.1, 'A':0.2, 'B':0.4, 'C':0.6, 'D':0.9}
@@ -168,16 +186,21 @@ elif menu == "🛡️ Risk Radar":
                         color_discrete_map={'AAA':'#238636', 'AA':'#2ea043', 'A':'#d29922', 'B':'#db6d28', 'C':'#f85149', 'D':'#b62323'})
     fig_s.update_layout(height=700, template="plotly_dark")
     st.plotly_chart(fig_s, use_container_width=True)
-    
 
 elif menu == "⚡ Workbench":
     st.subheader("⚡ Operational Command")
     t1, t2, t3 = st.tabs(["🧩 AI Matcher", "📩 Dunning Center", "🛠️ Dispute Resolver"])
     
     with t1:
-        st.write("**Recent Bank Transactions**")
-        st.dataframe(st.session_state.bank, use_container_width=True)
-        st.info("AI Matching engine is active. Select an entry to reconcile with open invoices.")
+        st.write("**Intelligent Bank Reconciliation**")
+        match_df = st.session_state.bank.copy()
+        match_df['Suggested_Invoice'] = match_df['Customer'].apply(
+            lambda x: st.session_state.ledger[st.session_state.ledger['Customer'] == x]['Invoice_ID'].values[0] 
+            if len(st.session_state.ledger[st.session_state.ledger['Customer'] == x]) > 0 else "No Match"
+        )
+        match_df['Confidence'] = match_df['Suggested_Invoice'].apply(lambda x: "98%" if x != "No Match" else "0%")
+        st.dataframe(match_df, use_container_width=True)
+        st.info("AI Matcher identified high-confidence links between receipts and open receivables.")
 
     with t2:
         ov = view_df[view_df['Status'] == 'Overdue']
