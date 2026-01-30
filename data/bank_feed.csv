@@ -7,3 +7,203 @@ TXN-7705,3000,Zylos Manufacturing,2100.50,GBP,2025-09-13,Unreconciled
 TXN-7706,1000,Quantum Dynamics,12450.75,USD,2024-11-01,Unreconciled
 TXN-7707,2000,Alpha Logistics,450.50,EUR,2024-11-16,Unreconciled
 TXN-7708,3000,Tech Retail Corp,3200.00,GBP,2026-03-02,Unreconciled
+TXN-7701,1000,Tesla Inc,50000.00,USD,2026-01-15,Unreconciled
+TXN-7702,2000,Global Blue Ltd,1250.00,EUR,2024-12-21,Unreconciled
+TXN-7703,1000,Saurabh Softwares,890.00,USD,2025-11-06,Unreconciled
+TXN-7704,1000,Eco Energy Systems,15000.00,USD,2026-01-21,Unreconciled
+TXN-7705,3000,Zylos Manufacturing,2100.50,GBP,2025-09-13,Unreconciled
+TXN-7706,1000,Quantum Dynamics,12450.75,USD,2024-11-01,Unreconciled
+TXN-7707,2000,Alpha Logistics,450.50,EUR,2024-11-16,Unreconciled
+TXN-7708,3000,Tech Retail Corp,3200.00,GBP,2026-03-02,Unreconciled
+TXN-7709,1000,Delta Trading,8500.00,USD,2026-03-05,Unreconciled
+TXN-7710,2000,Sigma Logistics,12400.00,EUR,2026-03-10,Unreconciled
+TXN-7711,3000,Omega Heavy Ind,45000.00,GBP,2026-03-12,Unreconciled
+TXN-7712,1000,Bravos Corp,2100.00,USD,2026-03-15,Unreconciled
+TXN-7713,2000,Zeta Mining Ltd,95000.00,EUR,2026-03-18,Unreconciled
+TXN-7714,3000,Falcon Exports,6700.00,GBP,2026-03-20,Unreconciled
+TXN-7715,1000,Titan Foundry,33000.00,USD,2026-03-22,Unreconciled
+TXN-7716,2000,Nebula Soft,4500.00,EUR,2026-03-25,Unreconciled
+TXN-7717,3000,Apex Solutions,11000.00,GBP,2026-03-28,Unreconciled
+TXN-7718,1000,Vertex Global,15000.00,USD,2026-04-01,Unreconciled
+TXN-7719,2000,Delta Trading,8500.00,EUR,2026-04-05,Unreconciled
+TXN-7720,3000,Sigma Logistics,12400.00,GBP,2026-04-10,Unreconciled
+TXN-7721,1000,Omega Heavy Ind,45000.00,USD,2026-04-12,Unreconciled
+TXN-7722,2000,Bravos Corp,2100.00,EUR,2026-04-15,Unreconciled
+TXN-7723,3000,Zeta Mining Ltd,95000.00,GBP,2026-04-18,Unreconciled
+TXN-7724,1000,Falcon Exports,6700.00,USD,2026-04-20,Unreconciled
+TXN-7725,2000,Titan Foundry,33000.00,EUR,2026-04-22,Unreconciled
+TXN-7726,3000,Nebula Soft,4500.00,GBP,2026-04-25,Unreconciled
+TXN-7727,1000,Apex Solutions,11000.00,USD,2026-04-28,Unreconciled
+TXN-7728,2000,Vertex Global,15000.00,EUR,2026-05-01,Unreconciled
+TXN-7729,3000,Delta Trading,8500.00,GBP,2026-05-05,Unreconciled
+TXN-7730,1000,Sigma Logistics,12400.00,USD,2026-05-10,Unreconciled
+TXN-7731,2000,Omega Heavy Ind,45000.00,EUR,2026-05-12,Unreconciled
+TXN-7732,3000,Bravos Corp,2100.00,GBP,2026-05-15,Unreconciled
+TXN-7733,1000,Zeta Mining Ltd,95000.00,USD,2026-05-18,Unreconciled
+TXN-7734,2000,Falcon Exports,6700.00,EUR,2026-05-20,Unreconciled
+TXN-7735,3000,Titan Foundry,33000.00,GBP,2026-05-22,Unreconciled
+TXN-7736,1000,Nebula Soft,4500.00,USD,2026-05-25,Unreconciled
+TXN-7737,2000,Apex Solutions,11000.00,EUR,2026-05-28,Unreconciled
+TXN-7738,3000,Vertex Global,15000.00,GBP,2026-06-01,Unreconciled
+TXN-7739,1000,Delta Trading,8500.00,USD,2026-06-05,Unreconciled
+TXN-7740,2000,Sigma Logistics,12400.00,EUR,2026-06-10,Unreconciled
+TXN-7741,3000,Omega Heavy Ind,45000.00,GBP,2026-06-12,Unreconciled
+TXN-7742,1000,Bravos Corp,2100.00,USD,2026-06-15,Unreconciled
+TXN-7743,2000,Zeta Mining Ltd,95000.00,EUR,2026-06-18,Unreconciled
+TXN-7744,3000,Falcon Exports,6700.00,GBP,2026-06-20,Unreconciled
+TXN-7745,1000,Titan Foundry,33000.00,USD,2026-06-22,Unreconciled
+TXN-7746,2000,Nebula Soft,4500.00,EUR,2026-06-25,Unreconciled
+TXN-7747,3000,Apex Solutions,11000.00,GBP,2026-06-28,Unreconciled
+TXN-7748,1000,Vertex Global,15000.00,USD,2026-07-01,Unreconciled
+TXN-7749,2000,Delta Trading,8500.00,EUR,2026-07-05,Unreconciled
+TXN-7750,3000,Sigma Logistics,12400.00,GBP,2026-07-10,Unreconciled
+TXN-7751,1000,Omega Heavy Ind,45000.00,USD,2026-07-12,Unreconciled
+TXN-7752,2000,Bravos Corp,2100.00,EUR,2026-07-15,Unreconciled
+TXN-7753,3000,Zeta Mining Ltd,95000.00,GBP,2026-07-18,Unreconciled
+TXN-7754,1000,Falcon Exports,6700.00,USD,2026-07-20,Unreconciled
+TXN-7755,2000,Titan Foundry,33000.00,EUR,2026-07-22,Unreconciled
+TXN-7756,3000,Nebula Soft,4500.00,GBP,2026-07-25,Unreconciled
+TXN-7757,1000,Apex Solutions,11000.00,USD,2026-07-28,Unreconciled
+TXN-7758,2000,Vertex Global,15000.00,EUR,2026-08-01,Unreconciled
+TXN-7759,3000,Delta Trading,8500.00,GBP,2026-08-05,Unreconciled
+TXN-7760,1000,Sigma Logistics,12400.00,USD,2026-08-10,Unreconciled
+TXN-7761,2000,Omega Heavy Ind,45000.00,EUR,2026-08-12,Unreconciled
+TXN-7762,3000,Bravos Corp,2100.00,GBP,2026-08-15,Unreconciled
+TXN-7763,1000,Zeta Mining Ltd,95000.00,USD,2026-08-18,Unreconciled
+TXN-7764,2000,Falcon Exports,6700.00,EUR,2026-08-20,Unreconciled
+TXN-7765,3000,Titan Foundry,33000.00,GBP,2026-08-22,Unreconciled
+TXN-7766,1000,Nebula Soft,4500.00,USD,2026-08-25,Unreconciled
+TXN-7767,2000,Apex Solutions,11000.00,EUR,2026-08-28,Unreconciled
+TXN-7768,3000,Vertex Global,15000.00,GBP,2026-09-01,Unreconciled
+TXN-7769,1000,Delta Trading,8500.00,USD,2026-09-05,Unreconciled
+TXN-7770,2000,Sigma Logistics,12400.00,EUR,2026-09-10,Unreconciled
+TXN-7771,3000,Omega Heavy Ind,45000.00,GBP,2026-09-12,Unreconciled
+TXN-7772,1000,Bravos Corp,2100.00,USD,2026-09-15,Unreconciled
+TXN-7773,2000,Zeta Mining Ltd,95000.00,EUR,2026-09-18,Unreconciled
+TXN-7774,3000,Falcon Exports,6700.00,GBP,2026-09-20,Unreconciled
+TXN-7775,1000,Titan Foundry,33000.00,USD,2026-09-22,Unreconciled
+TXN-7776,2000,Nebula Soft,4500.00,EUR,2026-09-25,Unreconciled
+TXN-7777,3000,Apex Solutions,11000.00,GBP,2026-09-28,Unreconciled
+TXN-7778,1000,Vertex Global,15000.00,USD,2026-10-01,Unreconciled
+TXN-7779,2000,Delta Trading,8500.00,EUR,2026-10-05,Unreconciled
+TXN-7780,3000,Sigma Logistics,12400.00,GBP,2026-10-10,Unreconciled
+TXN-7781,1000,Omega Heavy Ind,45000.00,USD,2026-10-12,Unreconciled
+TXN-7782,2000,Bravos Corp,2100.00,EUR,2026-10-15,Unreconciled
+TXN-7783,3000,Zeta Mining Ltd,95000.00,GBP,2026-10-18,Unreconciled
+TXN-7784,1000,Falcon Exports,6700.00,USD,2026-10-20,Unreconciled
+TXN-7785,2000,Titan Foundry,33000.00,EUR,2026-10-22,Unreconciled
+TXN-7786,3000,Nebula Soft,4500.00,GBP,2026-10-25,Unreconciled
+TXN-7787,1000,Apex Solutions,11000.00,USD,2026-10-28,Unreconciled
+TXN-7788,2000,Vertex Global,15000.00,EUR,2026-11-01,Unreconciled
+TXN-7789,3000,Delta Trading,8500.00,GBP,2026-11-05,Unreconciled
+TXN-7790,1000,Sigma Logistics,12400.00,USD,2026-11-10,Unreconciled
+TXN-7791,2000,Omega Heavy Ind,45000.00,EUR,2026-11-12,Unreconciled
+TXN-7792,3000,Bravos Corp,2100.00,GBP,2026-11-15,Unreconciled
+TXN-7793,1000,Zeta Mining Ltd,95000.00,USD,2026-11-18,Unreconciled
+TXN-7794,2000,Falcon Exports,6700.00,EUR,2026-11-20,Unreconciled
+TXN-7795,3000,Titan Foundry,33000.00,GBP,2026-11-22,Unreconciled
+TXN-7796,1000,Nebula Soft,4500.00,USD,2026-11-25,Unreconciled
+TXN-7797,2000,Apex Solutions,11000.00,EUR,2026-11-28,Unreconciled
+TXN-7798,3000,Vertex Global,15000.00,GBP,2026-12-01,Unreconciled
+TXN-7799,1000,Delta Trading,8500.00,USD,2026-12-05,Unreconciled
+TXN-7800,2000,Sigma Logistics,12400.00,EUR,2026-12-10,Unreconciled
+TXN-7801,3000,Omega Heavy Ind,45000.00,GBP,2026-12-12,Unreconciled
+TXN-7802,1000,Bravos Corp,2100.00,USD,2026-12-15,Unreconciled
+TXN-7803,2000,Zeta Mining Ltd,95000.00,EUR,2026-12-18,Unreconciled
+TXN-7804,3000,Falcon Exports,6700.00,GBP,2026-12-20,Unreconciled
+TXN-7805,1000,Titan Foundry,33000.00,USD,2026-12-22,Unreconciled
+TXN-7806,2000,Nebula Soft,4500.00,EUR,2026-12-25,Unreconciled
+TXN-7807,3000,Apex Solutions,11000.00,GBP,2026-12-28,Unreconciled
+TXN-7808,1000,Tesla Inc,50000.00,USD,2027-01-05,Unreconciled
+TXN-7809,2000,Global Blue Ltd,1250.00,EUR,2027-01-08,Unreconciled
+TXN-7810,3000,Saurabh Softwares,890.00,GBP,2027-01-12,Unreconciled
+TXN-7811,1000,Eco Energy Systems,15000.00,USD,2027-01-15,Unreconciled
+TXN-7812,2000,Quantum Dynamics,12000.00,EUR,2027-01-20,Unreconciled
+TXN-7813,3000,Zylos Manufacturing,2750.00,GBP,2027-01-25,Unreconciled
+TXN-7814,1000,Tesla Inc,50000.00,USD,2027-02-01,Unreconciled
+TXN-7815,2000,Alpha Logistics,450.50,EUR,2027-02-05,Unreconciled
+TXN-7816,3000,Tech Retail Corp,3200.00,GBP,2027-02-10,Unreconciled
+TXN-7817,1000,Delta Trading,8500.00,USD,2027-02-15,Unreconciled
+TXN-7818,2000,Sigma Logistics,12400.00,EUR,2027-02-20,Unreconciled
+TXN-7819,3000,Omega Heavy Ind,45000.00,GBP,2027-02-25,Unreconciled
+TXN-7820,1000,Bravos Corp,2100.00,USD,2027-03-01,Unreconciled
+TXN-7821,2000,Zeta Mining Ltd,95000.00,EUR,2027-03-05,Unreconciled
+TXN-7822,3000,Falcon Exports,6700.00,GBP,2027-03-10,Unreconciled
+TXN-7823,1000,Titan Foundry,33000.00,USD,2027-03-15,Unreconciled
+TXN-7824,2000,Nebula Soft,4500.00,EUR,2027-03-20,Unreconciled
+TXN-7825,3000,Apex Solutions,11000.00,GBP,2027-03-25,Unreconciled
+TXN-7826,1000,Vertex Global,15000.00,USD,2027-03-28,Unreconciled
+TXN-7827,2000,Delta Trading,8500.00,EUR,2027-04-01,Unreconciled
+TXN-7828,3000,Sigma Logistics,12400.00,GBP,2027-04-05,Unreconciled
+TXN-7829,1000,Omega Heavy Ind,45000.00,USD,2027-04-10,Unreconciled
+TXN-7830,2000,Bravos Corp,2100.00,EUR,2027-04-12,Unreconciled
+TXN-7831,3000,Zeta Mining Ltd,95000.00,GBP,2027-04-15,Unreconciled
+TXN-7832,1000,Falcon Exports,6700.00,USD,2027-04-18,Unreconciled
+TXN-7833,2000,Titan Foundry,33000.00,EUR,2027-04-20,Unreconciled
+TXN-7834,3000,Nebula Soft,4500.00,GBP,2027-04-22,Unreconciled
+TXN-7835,1000,Apex Solutions,11000.00,USD,2027-04-25,Unreconciled
+TXN-7836,2000,Vertex Global,15000.00,EUR,2027-04-28,Unreconciled
+TXN-7837,3000,Delta Trading,8500.00,GBP,2027-05-01,Unreconciled
+TXN-7838,1000,Sigma Logistics,12400.00,USD,2027-05-05,Unreconciled
+TXN-7839,2000,Omega Heavy Ind,45000.00,EUR,2027-05-10,Unreconciled
+TXN-7840,3000,Bravos Corp,2100.00,GBP,2027-05-12,Unreconciled
+TXN-7841,1000,Zeta Mining Ltd,95000.00,USD,2027-05-15,Unreconciled
+TXN-7842,2000,Falcon Exports,6700.00,EUR,2027-05-18,Unreconciled
+TXN-7843,3000,Titan Foundry,33000.00,GBP,2027-05-20,Unreconciled
+TXN-7844,1000,Nebula Soft,4500.00,USD,2027-05-22,Unreconciled
+TXN-7845,2000,Apex Solutions,11000.00,EUR,2027-05-25,Unreconciled
+TXN-7846,3000,Vertex Global,15000.00,GBP,2027-05-28,Unreconciled
+TXN-7847,1000,Tesla Inc,50000.00,USD,2027-06-01,Unreconciled
+TXN-7848,2000,Global Blue Ltd,1250.00,EUR,2027-06-05,Unreconciled
+TXN-7849,3000,Saurabh Softwares,890.00,GBP,2027-06-10,Unreconciled
+TXN-7850,1000,Eco Energy Systems,15000.00,USD,2027-06-15,Unreconciled
+TXN-7851,2000,Quantum Dynamics,12000.00,EUR,2027-06-20,Unreconciled
+TXN-7852,3000,Zylos Manufacturing,2750.00,GBP,2027-06-25,Unreconciled
+TXN-7853,1000,Tesla Inc,50000.00,USD,2027-07-01,Unreconciled
+TXN-7854,2000,Alpha Logistics,450.50,EUR,2027-07-05,Unreconciled
+TXN-7855,3000,Tech Retail Corp,3200.00,GBP,2027-07-10,Unreconciled
+TXN-7856,1000,Delta Trading,8500.00,USD,2027-07-15,Unreconciled
+TXN-7857,2000,Sigma Logistics,12400.00,EUR,2027-07-20,Unreconciled
+TXN-7858,3000,Omega Heavy Ind,45000.00,GBP,2027-07-25,Unreconciled
+TXN-7859,1000,Bravos Corp,2100.00,USD,2027-08-01,Unreconciled
+TXN-7860,2000,Zeta Mining Ltd,95000.00,EUR,2027-08-05,Unreconciled
+TXN-7861,3000,Falcon Exports,6700.00,GBP,2027-08-10,Unreconciled
+TXN-7862,1000,Titan Foundry,33000.00,USD,2027-08-15,Unreconciled
+TXN-7863,2000,Nebula Soft,4500.00,EUR,2027-08-20,Unreconciled
+TXN-7864,3000,Apex Solutions,11000.00,GBP,2027-08-25,Unreconciled
+TXN-7865,1000,Vertex Global,15000.00,USD,2027-08-28,Unreconciled
+TXN-7866,2000,Delta Trading,8500.00,EUR,2027-09-01,Unreconciled
+TXN-7867,3000,Sigma Logistics,12400.00,GBP,2027-09-05,Unreconciled
+TXN-7868,1000,Omega Heavy Ind,45000.00,USD,2027-09-10,Unreconciled
+TXN-7869,2000,Bravos Corp,2100.00,EUR,2027-09-12,Unreconciled
+TXN-7870,3000,Zeta Mining Ltd,95000.00,GBP,2027-09-15,Unreconciled
+TXN-7871,1000,Falcon Exports,6700.00,USD,2027-09-18,Unreconciled
+TXN-7872,2000,Titan Foundry,33000.00,EUR,2027-09-20,Unreconciled
+TXN-7873,3000,Nebula Soft,4500.00,GBP,2027-09-22,Unreconciled
+TXN-7874,1000,Apex Solutions,11000.00,USD,2027-09-25,Unreconciled
+TXN-7875,2000,Vertex Global,15000.00,EUR,2027-09-28,Unreconciled
+TXN-7876,3000,Delta Trading,8500.00,GBP,2027-10-01,Unreconciled
+TXN-7877,1000,Sigma Logistics,12400.00,USD,2027-10-05,Unreconciled
+TXN-7878,2000,Omega Heavy Ind,45000.00,EUR,2027-10-10,Unreconciled
+TXN-7879,3000,Bravos Corp,2100.00,GBP,2027-10-12,Unreconciled
+TXN-7880,1000,Zeta Mining Ltd,95000.00,USD,2027-10-15,Unreconciled
+TXN-7881,2000,Falcon Exports,6700.00,EUR,2027-10-18,Unreconciled
+TXN-7882,3000,Titan Foundry,33000.00,GBP,2027-10-20,Unreconciled
+TXN-7883,1000,Nebula Soft,4500.00,USD,2027-10-22,Unreconciled
+TXN-7884,2000,Apex Solutions,11000.00,EUR,2027-10-25,Unreconciled
+TXN-7885,3000,Vertex Global,15000.00,GBP,2027-10-28,Unreconciled
+TXN-7886,1000,Tesla Inc,50000.00,USD,2027-11-01,Unreconciled
+TXN-7887,2000,Global Blue Ltd,1250.00,EUR,2027-11-05,Unreconciled
+TXN-7888,3000,Saurabh Softwares,890.00,GBP,2027-11-10,Unreconciled
+TXN-7889,1000,Eco Energy Systems,15000.00,USD,2027-11-15,Unreconciled
+TXN-7890,2000,Quantum Dynamics,12000.00,EUR,2027-11-20,Unreconciled
+TXN-7891,3000,Zylos Manufacturing,2750.00,GBP,2027-11-25,Unreconciled
+TXN-7892,1000,Tesla Inc,50000.00,USD,2027-12-01,Unreconciled
+TXN-7893,2000,Alpha Logistics,450.50,EUR,2027-12-05,Unreconciled
+TXN-7894,3000,Tech Retail Corp,3200.00,GBP,2027-12-10,Unreconciled
+TXN-7895,1000,Delta Trading,8500.00,USD,2027-12-15,Unreconciled
+TXN-7896,2000,Sigma Logistics,12400.00,EUR,2027-12-20,Unreconciled
+TXN-7897,3000,Omega Heavy Ind,45000.00,GBP,2027-12-25,Unreconciled
+TXN-7898,1000,Bravos Corp,2100.00,USD,2027-12-28,Unreconciled
+TXN-7899,2000,Zeta Mining Ltd,95000.00,EUR,2027-12-30,Unreconciled
+TXN-7900,3000,Falcon Exports,6700.00,GBP,2027-12-31,Unreconciled
