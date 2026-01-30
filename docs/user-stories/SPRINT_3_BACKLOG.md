@@ -1,71 +1,67 @@
-# Sprint 3 Backlog: Scale & ERP Integration
+# 🤖 Sprint 3 Backlog: Cognitive Automation & GenAI Agents
 
-**Sprint Goal:** Complete the O2C loop by integrating Sales Order data, automating SAP GL posting (Write-back), and deploying AI-driven worklist prioritization.
-
----
-
-## 🏗️ Story 3.1: Full O2C Data Integration (Orders to Cash)
-**User Persona:** As a Credit Manager, I want to see the original Sales Order data linked to the outstanding invoice so that I can verify pricing or shipping disputes instantly.
-
-### 📝 Description
-Integrate the Sales Order (SO) table data from the ERP. The system must create a "Golden Record" that links: `Sales Order` ⮕ `Delivery Note` ⮕ `Invoice` ⮕ `Payment`.
-
-
-
-### ✅ Acceptance Criteria
-- [ ] UI displays the linked PO/SO number alongside every open invoice.
-- [ ] System automatically resolves "Pricing Mismatches" by checking the approved Sales Order price against the payment received.
-- [ ] Users can drill down into "Line Item" details for Bulk Payments.
+**Sprint Goal:** Deploy the GenAI "Co-Pilot" to autonomously resolve reconciliation exceptions and automate institutional remittance dunning.
 
 ---
 
-## 🏗️ Story 3.2: Automated SAP GL Clearing (Write-back)
-**User Persona:** As an AR Accountant, I want the system to automatically post the matched payments to SAP so that the General Ledger is updated without manual entry.
+## 🏗️ Story 3.1: GenAI Remittance Agent
+**User Persona:** As an AR Analyst, I want the system to draft personalized dunning emails for unmatched payments so I can resolve exceptions without manual typing.
 
 ### 📝 Description
-Develop the "Write-back" connector. Once a match is confirmed (Auto or Manual), the system calls the SAP BAPI (e.g., `BAPI_ACC_DOCUMENT_POST`) to clear the invoice.
+Integrate a Large Language Model (LLM) via the `GenAIAssistant` class. When the Match Engine fails to find a Level 1 or Level 2 match, the system must analyze the bank narrative and generate a professional inquiry email.
 
 ### ✅ Acceptance Criteria
-- [ ] Successful posting of "Full Payments" directly to the SAP GL.
-- [ ] Successful posting of "Partial Payments" with the correct **Deduction Reason Code**.
-- [ ] System captures the "SAP Document Number" as a reference for successful posting.
-- [ ] Fail-safe: Any failed posting must be logged and flagged in the "Sync Error" queue.
+- [ ] **Context Awareness:** The draft must include the Payer Name, Amount, and Currency found in the bank feed.
+- [ ] **Tone Control:** Emails must maintain "Institutional Professionalism" (Polite but firm).
+- [ ] **UI Integration:** The draft must appear in a `st.text_area` within the Analyst Workbench for one-click copying.
+
+
 
 ---
 
-## 🏗️ Story 3.3: AI-Prioritized "Smart Worklist"
-**User Persona:** As an AR Analyst, I want the system to sort my worklist by "Collection Risk" and "Value" so that I tackle the most critical items first.
+## 🏗️ Story 3.2: Short-Payment & Variance Logic
+**User Persona:** As a Finance Manager, I want the system to identify partial payments so that we can trigger dispute workflows for underpayments.
 
 ### 📝 Description
-Replace the static list with an AI-prioritized queue. The algorithm should rank tasks based on:
-1. Amount ($) 
-2. Days Overdue
-3. Historical "Payment Reliability" of the customer.
-
-
+Develop logic to handle "Scenario C" (Partial Payments). The engine must identify if a payment is within a "Bank Fee" tolerance (e.g., <$25) or if it constitutes a significant "Short-Pay" dispute.
 
 ### ✅ Acceptance Criteria
-- [ ] The dashboard "Sort" defaults to the **Smart Score**.
-- [ ] Display a "Risk Indicator" (High/Medium/Low) based on historical claim frequency.
-- [ ] Real-time refresh of the worklist as new MT942 files are ingested.
+- [ ] **Tolerance Check:** Amounts within 0.5% variance are flagged as "Minor Variance" (Auto-Adjust).
+- [ ] **Dispute Flagging:** Variances >0.5% are marked as `STATUS_DISPUTE`.
+- [ ] **Reason Coding:** GenAI suggests a reason code (e.g., "Tax Withholding" or "Damaged Goods") based on the bank narrative.
 
 ---
 
-## 🏗️ Story 3.4: Real-time Claim & Deduction Aging Report
-**User Persona:** As a Finance Director, I want to see the aging of open claims so that I can identify recurring commercial disputes.
+## 🏗️ Story 3.3: Advanced Liquidity Bridge (Waterfall 2.0)
+**User Persona:** As a CFO, I want to see the specific impact of "Stressed Collections" on our net cash position.
 
 ### 📝 Description
-Create a reporting module that tracks deductions that were coded in Sprint 2 but remain unresolved.
+Enhance the Plotly Waterfall chart to show three distinct states: Opening Balance, Expected Inflows (Full), and Stressed Inflows (Haircut).
 
 ### ✅ Acceptance Criteria
-- [ ] Chart showing "Deductions by Category" (e.g., 40% Damaged, 30% Pricing).
-- [ ] Aging buckets for claims (0-30, 31-60, 61+ days).
-- [ ] Export functionality to CSV/Excel for commercial team review.
+- [ ] **Dynamic Calculation:** The "Collections (Stressed)" bar must reflect the `liquidity_haircut` variable in real-time.
+- [ ] **Connector Logic:** Ensure Waterfall connectors properly link "Gross Liquidity" to "Net Position."
+- [ ] **Legend & Tooltips:** Add hover-data showing the exact dollar amount lost to "Collection Latency."
+
+
+
+---
+
+## 🏗️ Story 3.4: Global ESG Risk Flagging
+**User Persona:** As a Compliance Officer, I want the system to highlight payments from low-ESG-rated entities so we can maintain ethical treasury standards.
+
+### 📝 Description
+Upgrade the Risk & Governance view to include an **ESG Portfolio Alert** system. Payments from 'C' rated customers must trigger a visual warning in the Audit Ledger.
+
+### ✅ Acceptance Criteria
+- [ ] **Visual Cues:** Use `st.warning` or color-coded rows for transactions involving 'C' rated entities.
+- [ ] **Drill-Down:** Clicking a segment in the Sunburst chart displays a list of the specific invoices contributing to that risk level.
+- [ ] **Compliance Log:** The `Audit Ledger` must record the ESG score at the time of match.
 
 ---
 
 ## 🚀 Technical Sub-tasks for Developers
-1. **ERP Connector:** Develop the SAP RFC or OData service for `POST` operations.
-2. **Priority Algorithm:** Build a scoring weightage script (e.g., `Score = (Amount * 0.6) + (Days_Overdue * 0.4)`).
-3. **Analytics:** Implement `Plotly` or `Chart.js` in Streamlit for the Aging Report.
-4. **Final UI Polish:** Implement Role-Based Access Control (RBAC) so only "Managers" can approve high-value overrides.
+1. **GenAI Integration:** Implement `backend/ai_agent.py` using an LLM API (OpenAI/Gemini/Local Llama).
+2. **Logic Expansion:** Update `SmartMatchingEngine.run_match` to return "Partial Match" statuses.
+3. **UI Polish:** Add `st.balloons()` for STP success and `st.snow()` if the liquidity haircut exceeds 30%.
+4. **Mock Data Expansion:** Update `mock_data_maker.py` to create "Short-Payment" rows where `Bank_Amount < Invoice_Amount`.
