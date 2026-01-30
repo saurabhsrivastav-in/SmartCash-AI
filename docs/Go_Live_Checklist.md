@@ -1,84 +1,58 @@
-# 🚀 Go-Live Checklist: SmartCash AI Deployment
+# 🏁 Go-Live Checklist: SmartCash AI
 
-**Project:** SmartCash AI Automation: Next-Gen Treasury Cutover  
-**Release Version:** v1.0.0-PROD (Enterprise Build)  
-**Deployment Date:** January 2026  
-**Owner:** Saurabh Srivastav, Product Manager  
-
----
-
-## 1. Pre-Deployment (T-minus 72 Hours)
-*Foundational stability and data integrity checks.*
-
-- [ ] **Data Sanitization:** Purge all "Test/Dummy" rows from `data/invoices.csv` and `data/bank_feed.csv`.
-- [ ] **Infrastructure Freeze:** GitHub `main` branch locked; no further commits allowed without emergency CAB approval.
-- [ ] **Environment Secret Audit:** Confirm `.env` variables (SAP BAPI credentials, OpenAI API keys) are moved to the Secure Secret Manager.
-- [ ] **Backup Verification:** Execute a full snapshot of existing SAP AR tables (BSIK/BSID) and the Python local database.
+**Project:** SmartCash AI - Institutional Treasury Command  
+**Deployment Target:** Production Environment (Streamlit Cloud / Enterprise VPC)  
+**Version:** 1.0.0 (Gold Master)  
+**Release Lead:** Saurabh Srivastav  
 
 ---
 
-## 2. Technical Cutover (T-minus 24 Hours)
-*Establishing the plumbing between the bank and the engine.*
-
-
-
-- [ ] **MT942 SFTP Handshake:** Verify Treasury IT can pull the 4x daily SWIFT files without authentication latency.
-- [ ] **SSL/TLS & PQC:** Confirm the `https` certificate is active; verify Post-Quantum Cryptography (PQC) encryption for vendor data.
-- [ ] **Docker / Cloud Scale:** Confirm the container orchestration (Kubernetes/ECS) is set to 3x redundancy for the launch window.
-- [ ] **Persistence Layer:** Verify the "SOC2 Compliance Vault" has write-permissions for the production logs.
+## 1. Data Integrity & Ingestion (Critical)
+* [ ] **Data Source Validation:** Ensure `data/invoices.csv` and `data/bank_feed.csv` are mapped to live production feeds rather than mock data.
+* [ ] **Schema Check:** Verify all required columns (`ESG_Score`, `Currency`, `Invoice_ID`) exist to prevent Plotly Sunburst rendering failures.
+* [ ] **Encoding:** Confirm all CSV files are encoded in `UTF-8` to handle multi-currency symbols (e.g., €, £, ₹).
 
 ---
 
-## 3. Production Launch (Day 0: Go-Live)
-*The critical path for the launch window.*
+## 2. Engine & Logic Verification
+* [ ] **Fuzzy Thresholds:** Validate that the `thefuzz` match threshold is set to a minimum of **90%** to minimize false positives in automated clearing.
+* [ ] **Stress Simulation:** Test the "Collection Latency" slider to ensure it doesn't cause `ZeroDivisionError` in the waterfall calculations.
+* [ ] **GenAI Prompting:** Confirm the `GenAIAssistant` is utilizing the latest system instructions for professional dunning correspondence.
 
-### Phase A: Data Ingestion (09:00 AM)
-- [ ] **MT942 Pulse:** Trigger the first intraday bank file ingestion (Scenario: Morning Credit Sweep).
-- [ ] **Remittance Listener:** Activate the Python `imap` listener for the Centralized Remittance Mailbox.
-- [ ] **Inflow Sync:** Pull the 1,000+ most recent open items from SAP into the `SmartMatchingEngine`.
 
-### Phase B: Processing & Matching (11:00 AM)
-- [ ] **STP Benchmark:** Monitor the first 100 transactions; target >90% Straight-Through Processing accuracy.
-- [ ] **Fuzzy Logic Validation:** Review "TheFuzz" scores on the first 10 matches to ensure no false positives.
-- [ ] **BAPI Write-back:** (CRITICAL) Enable the SAP connector to post the first batch of auto-matches to the GL.
 
 ---
 
-## 4. Organizational Readiness
-*Ensuring the team can drive the new system.*
-
-
-
-- [ ] **Analyst Certification:** Confirm all 15 AR Analysts have passed the "Workbench Exception Handling" simulation.
-- [ ] **Support Escalation:** Distribute the "SmartCash Troubleshooting Matrix" to the Tier-1 Helpdesk.
-- [ ] **Customer Communication:** Deploy the registration emails to the Top 50 Strategic Partners for the new Vendor Portal.
+## 3. Security & Governance (Audit-Ready)
+* [ ] **SOC2 Vault Logging:** Perform a test match and verify the `Hash_ID` is generated and saved in the `Audit Ledger`.
+* [ ] **Secrets Management:** Ensure no API keys or database credentials are hardcoded in `main.py` (Use `st.secrets` or `.env`).
+* [ ] **Asset Failover:** Verify that `st.image` calls have the `try-except` failover implemented to prevent "broken image" icons during stakeholder demos.
 
 ---
 
-## 5. Post-Launch Monitoring (T-plus 48 Hours)
-*Hyper-care and performance auditing.*
+## 4. UI/UX & Visualization
+* [ ] **Dark Mode Styling:** Verify the custom CSS injects correctly, ensuring metrics are legible against the `#0b0e14` background.
+* [ ] **Responsive Design:** Test the **Risk Radar** Sunburst chart on multiple screen sizes (Tablet vs. Desktop) for readability.
+* [ ] **Final Cleanup:** Remove all print statements and developer `st.write()` debuggers from the code.
 
-- [ ] **SteerCo Reporting:** Hourly automated summaries of "Auto-Matched vs. Manual Exceptions" sent via Slack/Email.
-- [ ] **Latency Audit:** Ensure the Executive Dashboard (Plotly/Streamlit) loads in <1.5s under concurrent user load.
-- [ ] **Audit Integrity:** Verify the Hashed Audit Ledger is immutable and recording all "Scenario D" exceptions.
 
----
-
-## 6. Contingency / Rollback Plan
-*Emergency protocols for unexpected system failure.*
-
-| Trigger Event | Action | Responsibility |
-| :--- | :--- | :--- |
-| **BAPI Posting Error** | Kill SAP Write-back; switch to "Offline Reconciliation" mode. | SAP IT Lead |
-| **OCR Failure > 20%** | Revert to manual attachment viewing; disable auto-scrape. | AI Team Lead |
-| **Data Mismatch** | Full System Pause; Rollback to T-minus 24h Backup. | DevOps Lead |
 
 ---
 
-### Final Go/No-Go Approval
+## 5. Infrastructure & Deployment
+* [ ] **Requirements.txt:** Confirm all libraries (`thefuzz`, `scipy`, `plotly`) are pinned to stable versions to avoid deployment drift.
+* [ ] **Resource Limits:** Ensure the Streamlit Cloud instance has sufficient memory (RAM) to handle the `st.cache_data` load for large invoice datasets.
+* [ ] **Pathing:** Verify `sys.path.append` logic is correctly pointing to the `backend/` directory for cloud execution.
 
-| Authority | Decision | Signature | Time |
-| :--- | :--- | :--- | :--- |
-| **Saurabh Srivastav (PM)** | [ ] GO [ ] NO-GO | ________________ | ________ |
-| **Technical Architect** | [ ] GO [ ] NO-GO | ________________ | ________ |
-| **Head of Treasury Ops** | [ ] GO [ ] NO-GO | ________________ | ________ |
+---
+
+## 6. Stakeholder Handover
+* [ ] **User Guide:** Distribute the `User_Guide_AR_Analyst.md` to the operations team.
+* [ ] **UAT Sign-off:** Confirm final approval from the Treasury Lead and Compliance Officer.
+* [ ] **Emergency Contact:** Establish a "War Room" contact for the first 48 hours post-deployment.
+
+---
+
+### 🚀 Launch Status: [ ] GO | [ ] NO-GO
+
+**Final Approval:** ____________________ **Date:** __________
