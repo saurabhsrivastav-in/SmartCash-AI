@@ -6,96 +6,72 @@ import os
 def generate_mock_data():
     """
     Generates institutional-grade datasets for SmartCash AI.
-    Features: ESG Scoring (S5), Credit Limits (S7), and Company Codes (S10).
+    Ensures column names match the Matching Engine and Risk Radar expectations.
     """
-    # 1. Setup Master Data
-    customers = [
-        ('Tesla Inc', 'AA', 2500000), 
-        ('Global Blue SE', 'A', 1500000), 
-        ('Tech Retail Corp', 'B', 800000),
-        ('Saurabh Soft', 'AA', 3000000), 
-        ('Eco Energy', 'A', 1200000), 
-        ('Nordic Logistics', 'B', 950000),
-        ('Swiss Finance', 'AA', 5000000), 
-        ('Pacific Rim', 'C', 450000), 
-        ('Horizon Ventures', 'A', 1100000)
-    ]
-    currencies = ['USD', 'EUR', 'GBP', 'INR', 'CHF']
-    # Sprint 10: Multi-entity hierarchy
-    company_codes = ['US01', 'EU10', 'AP20', 'CH05'] 
+    # Create directory if not exists
+    if not os.path.exists('data'):
+        os.makedirs('data')
 
-    # 2. Generate Invoices
-    invoice_data = []
-    for i in range(1, 201):
-        cust, esg, limit = customers[np.random.randint(0, len(customers))]
-        curr = currencies[np.random.randint(0, len(currencies))]
-        cocode = company_codes[np.random.randint(0, len(company_codes))]
-        
-        amount = np.random.uniform(15000, 450000)
-        # Create a mix of past-due and future-due invoices
-        due_date = datetime.now() + timedelta(days=np.random.randint(-45, 60))
-        status = 'Paid' if np.random.random() > 0.6 else 'Open'
-        
-        invoice_data.append([
-            f"INV-{2026}{i:03d}",
-            cust, 
-            round(amount, 2), 
-            curr, 
-            due_date.strftime('%Y-%m-%d'), 
-            status, 
-            esg,      # Sprint 5: ESG Score
-            limit,    # Sprint 7: Credit Limit
-            cocode    # Sprint 10: Company Code
-        ])
-        
-    inv_df = pd.DataFrame(invoice_data, columns=[
-        'Invoice_ID', 'Customer_Name', 'Amount', 'Currency', 
-        'Due_Date', 'Status', 'ESG_Score', 'Credit_Limit', 'Company_Code'
-    ])
+    np.random.seed(42)  # For reproducible results
+    rows = 50
 
-    # 3. Generate Bank Feed (Simulating ~50% collections)
+    # --- 1. GENERATE INVOICES (The ERP Ledger) ---
+    invoices = pd.DataFrame({
+        'Invoice_ID': [f'INV-{2026000 + i}' for i in range(rows)],
+        'Customer_Name': np.random.choice([
+            'Tesla Inc', 'Global Blue SE', 'Tech Retail Corp', 
+            'Eco Energy Systems', 'Saurabh Soft', 'Acme Corp', 'Global Logistics'
+        ], size=rows),
+        'Amount': np.round(np.random.uniform(5000, 100000, size=rows), 2),
+        'Currency': np.random.choice(['USD', 'EUR', 'GBP'], size=rows),
+        'Due_Date': [(datetime.now() + timedelta(days=np.random.randint(-30, 60))).strftime('%Y-%m-%d') for i in range(rows)],
+        'Status': np.random.choice(['Open', 'Paid'], size=rows, p=[0.7, 0.3]),
+        'Company_Code': np.random.choice(['US01', 'EU10', 'AP20'], size=rows),
+        'ESG_Score': np.random.choice(['AA', 'A', 'B', 'C'], size=rows, p=[0.2, 0.4, 0.3, 0.1])
+    })
+
+    # --- 2. GENERATE BANK FEED (The Cash Transactions) ---
+    # We want some bank transactions to match perfectly and some to be "noisy"
+    bank_rows = 15
     bank_data = []
-    open_invoices = inv_df[inv_df['Status'] == 'Open'].sample(frac=0.5)
-    
-    for idx, row in open_invoices.iterrows():
-        # Injecting "Noisy" data for Fuzzy Matching logic
-        rand_scenario = np.random.random()
+
+    for i in range(bank_rows):
+        # Pick a random invoice to "pay"
+        idx = np.random.randint(0, rows)
+        inv_ref = invoices.iloc[idx]
         
-        if rand_scenario > 0.8: # Misspelled Name
-            payer = row['Customer_Name'].replace('Inc', 'Incorporated').replace('Corp', 'Co.')
-            amt_received = row['Amount']
-            ref = "Trade Settlement" 
-        elif rand_scenario < 0.2: # Short Pay / Fee Deduction
-            payer = row['Customer_Name']
-            amt_received = row['Amount'] - np.random.choice([25, 50, 100])
-            ref = row['Invoice_ID']
-        else: # Perfect Match
-            payer = row['Customer_Name']
-            amt_received = row['Amount']
-            ref = row['Invoice_ID']
+        # Add "noise" to payer name (e.g., Tesla Inc -> TSLA MOTORS GMBH)
+        noise_map = {
+            'Tesla Inc': 'TSLA MOTORS GMBH',
+            'Global Blue SE': 'GLOBEL BLUE INTL',
+            'Saurabh Soft': 'SAURABH_SOFTWARE_LTD'
+        }
+        payer_name = noise_map.get(inv_ref['Customer_Name'], inv_ref['Customer_Name'].upper())
+        
+        # Decide if this is an exact match or a short-pay (Sprint 3 logic)
+        amount_received = inv_ref['Amount']
+        if np.random.random() > 0.8:
+            amount_received -= 15.00  # Simulate a bank fee discrepancy
+            
+        bank_data.append({
+            'Bank_TX_ID': f'TXN-{999000 + i}',
+            'Payer_Name': payer_name,
+            'Amount_Received': amount_received, # Matches main.py selectbox
+            'Currency': inv_ref['Currency'],
+            'Bank_Ref': f'REMIT-{np.random.randint(10000, 99999)}',
+            'Company_Code': inv_ref['Company_Code'],
+            'Value_Date': datetime.now().strftime('%Y-%m-%d')
+        })
 
-        bank_data.append([
-            f"BNK-{idx:04d}", 
-            round(amt_received, 2), 
-            row['Currency'], 
-            payer, 
-            ref,
-            datetime.now().strftime('%Y-%m-%d'),
-            row['Company_Code'], # Ensure entity alignment
-            'Unmatched'
-        ])
+    bank_feed = pd.DataFrame(bank_data)
 
-    bank_df = pd.DataFrame(bank_data, columns=[
-        'Bank_Ref', 'Amount_Received', 'Currency', 'Payer_Name', 
-        'Remittance_Text', 'Date', 'Company_Code', 'Match_Status'
-    ])
-
-    # 4. Save to Repository
-    os.makedirs('data', exist_ok=True)
-    inv_df.to_csv('data/invoices.csv', index=False)
-    bank_df.to_csv('data/bank_feed.csv', index=False)
+    # --- 3. EXPORT TO CSV ---
+    invoices.to_csv('data/invoices.csv', index=False)
+    bank_feed.to_csv('data/bank_feed.csv', index=False)
     
-    print("✅ Strategic Data Generated: /data/invoices.csv and /data/bank_feed.csv")
+    print("✅ Success: Data generated with Institutional Schema.")
+    print(f"📍 Invoices: data/invoices.csv ({len(invoices)} rows)")
+    print(f"📍 Bank Feed: data/bank_feed.csv ({len(bank_feed)} rows)")
 
 if __name__ == "__main__":
     generate_mock_data()
