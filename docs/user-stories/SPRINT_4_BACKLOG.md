@@ -1,68 +1,67 @@
-# Sprint 4 Backlog: Advanced Analytics & Dunning Automation
+# 🛡️ Sprint 4 Backlog: Multi-Currency Scaling & Audit Hardening
 
-**Sprint Goal:** Automate proactive customer communication (Dunning) and deploy high-level executive dashboards for DSO and cash flow forecasting.
-
----
-
-## 🏗️ Story 4.1: Automated Dunning Engine (ZF259+)
-**User Persona:** As a Credit Manager, I want the system to automatically send reminder emails based on invoice due dates so that I can reduce manual follow-up time.
-
-### 📝 Description
-Develop a trigger-based email engine that pulls "Confirmation Scenarios" from the DB. If no confirmation is received for an invoice due within 5 days, the system sends a customized Dunning letter.
-
-
-
-### ✅ Acceptance Criteria
-- [ ] System identifies invoices meeting the "Dunning Trigger" (e.g., 5 days before due date).
-- [ ] Emails are populated with a dynamic spreadsheet attachment of all overdue items for that specific customer.
-- [ ] System logs the "Last Contact Date" in the SAP customer master record.
-- [ ] Analyst can "Snooze" dunning for specific disputed accounts.
+**Sprint Goal:** Finalize the global scaling engine to handle cross-border FX variances and secure the SOC2 Audit Ledger for production-grade governance.
 
 ---
 
-## 🏗️ Story 4.2: Real-time "Time-Gap" & Performance Tracker
-**User Persona:** As an Operations Lead, I want to track the time difference between bank receipt (MT942) and GL clearing so that I can identify operational bottlenecks.
+## 🏗️ Story 4.1: Multi-Currency FX Variance Engine
+**User Persona:** As a Treasury Manager, I want the system to handle small FX discrepancies so that international payments aren't rejected due to penny-rounding errors.
 
 ### 📝 Description
-Create a performance metric that calculates the "Mean Time to Post." It tracks the payment journey from Bank Ingestion ⮕ AI Match ⮕ Analyst Approval ⮕ SAP Posting.
+Implement a "Currency Tolerance" logic gate. When matching a EUR payment to a USD invoice, the engine must allow for a +/- 2% variance to account for mid-market rate fluctuations and intermediary bank fees.
 
 ### ✅ Acceptance Criteria
-- [ ] Dashboard displays "Average Posting Latency" (Target: < 4 hours).
-- [ ] Visualization of the "Bottleneck Step" (e.g., Is the delay in AI processing or Analyst review?).
-- [ ] Ability to filter performance by Analyst or Region.
+- [ ] **FX Gate:** Engine successfully matches payments across different currency codes if the converted amount is within tolerance.
+- [ ] **Auto-Adjustment:** System creates a "Penny-Rounding" log for differences < $5.00.
+- [ ] **Reporting:** The Executive Dashboard reflects the "FX Impact" on total liquidity.
 
 ---
 
-## 🏗️ Story 4.3: Cash Flow & DSO Forecasting Dashboard
-**User Persona:** As a CFO, I want to see a forecast of expected cash inflows based on historical payment behavior so that I can manage company liquidity.
+## 🏗️ Story 4.2: Institutional Audit Ledger (Production)
+**User Persona:** As an External Auditor, I want to see an immutable record of every AI-driven decision so that the company remains SOC2 compliant.
 
 ### 📝 Description
-Leverage historical "Payment Receipt" data to predict when "Open Invoices" will likely be paid, regardless of the official due date.
-
-
+Upgrade the `Audit Ledger` from a simple table to a cryptographically verified log. Every match action must be hashed using SHA-256, linking the user session, the algorithm used, and the final outcome.
 
 ### ✅ Acceptance Criteria
-- [ ] Forecast chart showing "Projected Cash Inflow" for the next 30/60/90 days.
-- [ ] Integration of "Scenario C" (Claims) into the forecast (e.g., reducing expected inflow by the average claim %).
-- [ ] Display real-time **DSO (Days Sales Outstanding)** trend line.
+- [ ] **Immutability:** Every log entry includes a `Hash_ID` that changes if the row data is tampered with.
+- [ ] **Decision Mapping:** Logs must clearly distinguish between `AUTO_STP` (Engine) and `MANUAL_CONFIRM` (Analyst).
+- [ ] **Export Functionality:** Add a "Download Audit CSV" button for reporting purposes.
+
+
 
 ---
 
-## 🏗️ Story 4.4: Role-Based Access Control (RBAC) & Audit Trail
-**User Persona:** As an Internal Auditor, I want a complete log of all manual overrides so that we comply with SOX and internal security policies.
+## 🏗️ Story 4.3: Smart Matching 2.0 (Collective Payments)
+**User Persona:** As an AR Analyst, I want the system to match one bank credit to multiple invoices so that I don't have to manually split bulk payments.
 
 ### 📝 Description
-Implement secure login and permission tiers. Ensure every manual change to a match is logged with a "Reason for Change."
+Implement "Many-to-One" matching logic. If a single bank credit amount equals the sum of two or more open invoices for the same customer, the engine suggests a "Collective Match."
 
 ### ✅ Acceptance Criteria
-- [ ] Define roles: `AR_Analyst` (Match/Code), `AR_Manager` (Approve High Value), `Auditor` (Read Only).
-- [ ] Every manual override must require a text comment and a Reason Code.
-- [ ] Exportable "Audit Log" showing: `Timestamp`, `User`, `Old_Value`, `New_Value`, `Action`.
+- [ ] **Heuristic Gate:** Logic scans for combinations of open invoices that sum up to the received `Bank_Amount`.
+- [ ] **Verification:** Collective matches must be flagged for Analyst review in the Workbench before posting.
+- [ ] **UI Update:** The workbench must show the specific list of invoices being settled by the bulk payment.
+
+
+
+---
+
+## 🏗️ Story 4.4: Performance Benchmarking & Scaling
+**User Persona:** As a Treasury IT Lead, I want the dashboard to load in < 2 seconds even with 50,000 invoices so that the system remains responsive under high volume.
+
+### 📝 Description
+Optimize the Streamlit caching layer (`st.cache_data`) and the `thefuzz` execution speed. Implement batch-processing for fuzzy matching to avoid UI blocking.
+
+### ✅ Acceptance Criteria
+- [ ] **Latency Check:** Dashboard metrics and Waterfall charts render in < 1.5s for datasets up to 1,000 rows.
+- [ ] **Batch Processing:** Fuzzy matching runs as a background process to prevent the UI from freezing.
+- [ ] **Resource Monitoring:** Ensure memory usage remains stable during heavy data ingestion.
 
 ---
 
 ## 🚀 Technical Sub-tasks for Developers
-1. **Email Service:** Integrate `SendGrid` or `SMTP` for automated dunning triggers.
-2. **Data Science:** Build a simple linear regression or moving average model for the cash forecast.
-3. **Security:** Implement `OAuth2` or `JWT` for secure session management.
-4. **Logging:** Use `Loguru` or standard Python logging to capture all state changes in a dedicated `audit_log` table.
+1. **Security:** Implement the `hashlib` logic in `backend/compliance.py`.
+2. **Algorithms:** Develop the subset-sum algorithm for "Many-to-One" matching in `backend/engine.py`.
+3. **Optimizations:** Refactor `load_data()` to use Parquet format if CSV performance bottlenecks are found.
+4. **Mock Data:** Update `mock_data_maker.py` to include "Bulk Payment" scenarios where one bank row matches two invoice rows.
