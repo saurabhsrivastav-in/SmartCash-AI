@@ -167,7 +167,7 @@ elif menu == "⚡ Analyst Workbench":
                 else:
                     st.error("❌ No suitable candidates found.")
 
-# --- TAB 3: RISK RADAR ---
+# --- TAB 3: RISK RADAR (Updated for Enhanced Tooltips) ---
 elif menu == "🛡️ Risk Radar":
     st.subheader("🌎 Institutional Risk Exposure (ESG Weighted)")
     
@@ -177,26 +177,33 @@ elif menu == "🛡️ Risk Radar":
         invoices['Risk_Factor'] = invoices['ESG_Score'].map(rating_weights)
         invoices['Weighted_Risk'] = invoices['Amount'] * invoices['Risk_Factor']
         
-        # Display Hierarchy Visualization
         name_col = 'Customer' if 'Customer' in invoices.columns else 'Customer_Name'
         
+        # Enhanced Sunburst with hover_data
         fig_sun = px.sunburst(
             invoices, 
             path=['Company_Code', 'Currency', name_col, 'ESG_Score'], 
             values='Weighted_Risk',
             color='ESG_Score',
             color_discrete_map={'AAA':'#238636', 'AA':'#2ea043', 'A':'#3fb950', 'B':'#d29922', 'C':'#db6d28', 'D':'#f85149'},
+            # ADDING EXTRA DATA TO HOVER
+            hover_data={
+                'Weighted_Risk': ':,.2f', # Format weighted risk
+                'Amount': ':,.2f',        # Show raw invoice amount
+                'Risk_Factor': ':.0%',    # Show the risk multiplier as a percentage
+                'ESG_Score': True         # Ensure rating is visible
+            },
             template="plotly_dark",
             title="Institutional Risk Hierarchy (By Weighted Exposure)"
         )
+
+        # Customizing the hover template for better readability
+        fig_sun.update_traces(
+            hovertemplate="<b>%{label}</b><br>Weighted Risk: %{value:$,.2f}<br>Raw Amount: %{customdata[0]:$,.2f}<br>Risk Multiplier: %{customdata[1]:.0%}"
+        )
+        
         st.plotly_chart(fig_sun, use_container_width=True)
         
-        # Data View
-        st.subheader("Detailed Exposure Ledger")
-        st.dataframe(invoices[['Company_Code', 'Currency', name_col, 'Amount', 'ESG_Score', 'Weighted_Risk']], use_container_width=True)
-    else:
-        st.error("Schema Mismatch: Please ensure invoices.csv contains 'Company_Code' and 'ESG_Score'.")
-
 # --- TAB 4: AUDIT LEDGER ---
 elif menu == "📜 Audit Ledger":
     st.subheader("🔐 SOC2 Compliance Vault (Immutable)")
