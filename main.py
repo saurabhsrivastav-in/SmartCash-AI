@@ -39,8 +39,8 @@ def load_data():
         inv = pd.read_csv('data/invoices.csv')
         bank = pd.read_csv('data/bank_feed.csv')
         return inv, bank
-    except:
-        st.error("⚠️ Data Source Missing. Please run mock_data_maker.py first.")
+    except Exception as e:
+        st.error(f"⚠️ Data Source Error: {e}")
         return pd.DataFrame(), pd.DataFrame()
 
 # Persistent Session Objects
@@ -61,20 +61,20 @@ with st.sidebar:
     st.divider()
     
     st.subheader("🛠️ Stress Parameters")
-    # SPRINT 8: Collection Latency Slider
     latency_days = st.slider("Collection Latency (Days)", 0, 90, 15)
     
-    # SPRINT 10: Multi-Entity Filter
     entity = st.selectbox("Company Entity", ["All Entities", "US01", "EU10", "AP20"])
     if entity != "All Entities":
         invoices = invoices[invoices['Company_Code'] == entity]
+        bank_feed = bank_feed[bank_feed['Company_Code'] == entity]
     
     st.divider()
     st.info(f"🟢 **System Status: Secure**\n\n**Vault Ref:** {datetime.now().strftime('%H%M%S')}-TXN")
 
 # --- 4. TOP-LEVEL METRICS ---
 m1, m2, m3, m4 = st.columns(4)
-base_dso = st.session_state.engine.calculate_dso(invoices)
+# Ensure engine has calculate_dso method
+base_dso = st.session_state.engine.calculate_dso(invoices) if not invoices.empty else 0
 m1.metric("Adjusted DSO", f"{base_dso + latency_days:.1f} Days", f"+{latency_days}d Latency", delta_color="inverse")
 m2.metric("Matching STP Rate", "94.2%", "+1.4% WoW")
 m3.metric("ESG Risk Exposure", "Medium", "Tier B Avg", delta_color="off")
@@ -90,96 +90,99 @@ tab_exec, tab_workbench, tab_risk, tab_audit = st.tabs([
     "📜 Audit Ledger"
 ])
 
-# --- TAB 1: EXECUTIVE DASHBOARD (Sprints 1 & 8) ---
+# --- TAB 1: EXECUTIVE DASHBOARD ---
 with tab_exec:
     c1, c2 = st.columns([2, 1])
     with c1:
         st.subheader("💧 Liquidity Bridge (Stress-Adjusted)")
-        # Fetching Waterfall Data from Analytics Backend
-        waterfall_data = st.session_state.analytics.get_waterfall_data(invoices, latency_days)
-        
-        fig_waterfall = go.Figure(go.Waterfall(
-            orientation = "v",
-            measure = waterfall_data["measure"],
-            x = waterfall_data["x"],
-            y = waterfall_data["y"],
-            connector = {"line":{"color":"#30363d"}},
-            decreasing = {"marker":{"color":"#f85149"}},
-            increasing = {"marker":{"color":"#3fb950"}},
-            totals = {"marker":{"color":"#1f6feb"}}
-        ))
-        fig_waterfall.update_layout(template="plotly_dark", height=450, margin=dict(l=10,r=10,t=10,b=10))
-        st.plotly_chart(fig_waterfall, use_container_width=True)
-        
+        if not invoices.empty:
+            waterfall_data = st.session_state.analytics.get_waterfall_data(invoices, latency_days)
+            fig_waterfall = go.Figure(go.Waterfall(
+                orientation = "v",
+                measure = waterfall_data["measure"],
+                x = waterfall_data["x"],
+                y = waterfall_data["y"],
+                connector = {"line":{"color":"#30363d"}},
+                decreasing = {"marker":{"color":"#f85149"}},
+                increasing = {"marker":{"color":"#3fb950"}},
+                totals = {"marker":{"color":"#1f6feb"}}
+            ))
+            fig_waterfall.update_layout(template="plotly_dark", height=450, margin=dict(l=10,r=10,t=10,b=10))
+            st.plotly_chart(fig_waterfall, use_container_width=True)
+        else:
+            st.warning("No data available for waterfall.")
 
     with c2:
         st.subheader("📅 Cash Flow Forecast")
-        # Dummy predictive data for visual fidelity
         months = ["Dec", "Jan", "Feb", "Mar"]
         forecast = [42, 45, 48 + (latency_days/2), 52 + latency_days]
         fig_forecast = px.line(x=months, y=forecast, markers=True, template="plotly_dark")
         fig_forecast.update_traces(line_color="#58a6ff", line_width=4)
         st.plotly_chart(fig_forecast, use_container_width=True)
 
-# --- TAB 2: ANALYST WORKBENCH (Sprints 2 & 3) ---
+# --- TAB 2: ANALYST WORKBENCH (Corrected Column Names) ---
 with tab_workbench:
     st.subheader("📥 Active Bank Feed")
-    # Enhanced dataframe with matching capability
     st.dataframe(bank_feed, use_container_width=True, hide_index=True)
     
     st.divider()
-    w1, w2 = st.columns([1, 2])
-    
-    with w1:
-        st.subheader("Step 1: Focus Item")
-        tx_selection = st.selectbox("Select Bank Transaction", bank_feed.index, 
-                                    format_func=lambda x: f"{bank_feed.iloc[x]['Payer_Name']} | {bank_feed.iloc[x]['Amount']}")
-        tx = bank_feed.iloc[tx_selection]
-        st.info(f"**Target:** {tx['Payer_Name']} | **Sum:** {tx['Currency']} {tx['Amount']}")
+    if not bank_feed.empty:
+        w1, w2 = st.columns([1, 2])
+        with w1:
+            st.subheader("Step 1: Focus Item")
+            tx_selection = st.selectbox(
+                "Select Bank Transaction", 
+                bank_feed.index, 
+                format_func=lambda x: f"{bank_feed.iloc[x]['Payer_Name']} | {bank_feed.iloc[x]['Amount_Received']}"
+            )
+            tx = bank_feed.iloc[tx_selection]
+            st.info(f"**Target:** {tx['Payer_Name']} | **Sum:** {tx['Currency']} {tx['Amount_Received']:,.2f}")
 
-    with w2:
-        st.subheader("Step 2: AI Match Execution")
-        if st.button("🔥 Execute Multi-Factor Matching"):
-            results = st.session_state.engine.run_match(tx['Amount'], tx['Payer_Name'], tx['Currency'], invoices)
-            
-            if results:
-                match = results[0]
-                conf = match['confidence']
+        with w2:
+            st.subheader("Step 2: AI Match Execution")
+            if st.button("🔥 Execute Multi-Factor Matching"):
+                # Pass Amount_Received to the engine
+                results = st.session_state.engine.run_match(tx['Amount_Received'], tx['Payer_Name'], tx['Currency'], invoices)
                 
-                if conf >= 0.95:
-                    st.success(f"✅ **STP MATCH FOUND: {conf*100}% Confidence**")
-                    st.balloons()
-                    # LOG TO COMPLIANCE VAULT
-                    st.session_state.vault.log_action(match['Invoice_ID'], "AUTO_MATCH_STP", tx['Amount'])
+                if results:
+                    match = results[0]
+                    conf = match['confidence']
+                    
+                    if conf >= 0.95:
+                        st.success(f"✅ **STP MATCH FOUND: {conf*100:.1f}% Confidence**")
+                        st.balloons()
+                        st.session_state.vault.log_action(match['Invoice_ID'], "AUTO_MATCH_STP", tx['Amount_Received'])
+                    else:
+                        st.warning(f"⚠️ **EXCEPTION: Low Confidence ({conf*100:.1f}%)**")
+                        with st.expander("🤖 GenAI Remittance Assistant", expanded=True):
+                            st.markdown("Confidence score below threshold. AI suggests a clarification request:")
+                            email_draft = f"Subject: Payment Discrepancy - {tx['Payer_Name']}\n\nDear Accounts Payable,\n\nWe received your payment of {tx['Amount_Received']} but are unable to auto-reconcile it..."
+                            st.text_area("Draft Communication", value=email_draft, height=180)
+                            st.button("✉️ Dispatch Email")
                 else:
-                    st.warning(f"⚠️ **EXCEPTION: Low Confidence ({conf*100}%)**")
-                    # SPRINT 3: GenAI Dunning/Remittance Sidebar
-                    with st.expander("🤖 GenAI Remittance Assistant", expanded=True):
-                        st.markdown("Confidence score below threshold. AI suggests a clarification request:")
-                        email_draft = f"Subject: Payment Discrepancy - {tx['Payer_Name']}\n\nDear Accounts Payable,\n\nWe received your payment of {tx['Amount']} but are unable to auto-reconcile it..."
-                        st.text_area("Draft Communication", value=email_draft, height=180)
-                        st.button("✉️ Dispatch Email")
-            else:
-                st.error("❌ No suitable candidates found in Ledger.")
+                    st.error("❌ No suitable candidates found in Ledger.")
+    else:
+        st.info("No bank feed data available for the current filter.")
 
-# --- TAB 3: RISK RADAR (Sprint 5) ---
+# --- TAB 3: RISK RADAR ---
 with tab_risk:
     st.subheader("🌎 Institutional Risk Exposure (ESG Weighted)")
-    fig_sun = px.sunburst(
-        invoices, 
-        path=['Company_Code', 'Currency', 'ESG_Score'], 
-        values='Amount',
-        color='ESG_Score',
-        color_discrete_map={'AA': '#238636', 'A': '#2ea043', 'B': '#d29922', 'C': '#f85149'},
-        template="plotly_dark"
-    )
-    st.plotly_chart(fig_sun, use_container_width=True)
-    
+    if not invoices.empty:
+        fig_sun = px.sunburst(
+            invoices, 
+            path=['Company_Code', 'Currency', 'ESG_Score'], 
+            values='Amount',
+            color='ESG_Score',
+            color_discrete_map={'AA': '#238636', 'A': '#2ea043', 'B': '#d29922', 'C': '#f85149'},
+            template="plotly_dark"
+        )
+        st.plotly_chart(fig_sun, use_container_width=True)
+    else:
+        st.warning("No invoice data for risk analysis.")
 
-# --- TAB 4: AUDIT LEDGER (Sprint 9) ---
+# --- TAB 4: AUDIT LEDGER ---
 with tab_audit:
     st.subheader("🔐 SOC2 Compliance Vault (Immutable)")
     st.info("The ledger below is a real-time feed from the SHA-256 Hashed Audit CSV.")
-    # Read from backend/compliance.py
     logs = st.session_state.vault.get_logs()
     st.dataframe(logs, use_container_width=True, hide_index=True)
