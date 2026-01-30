@@ -1,0 +1,63 @@
+/* Institutional Dark Theme Overrides */
+
+/* Main Background */
+.stApp {
+    background-color: #0e1117;
+    color: #e0e0e0;
+}
+
+/* Tab Styling */
+.stTabs [data-baseweb="tab-list"] {
+    gap: 24px;
+    background-color: #161b22;
+    padding: 10px 20px;
+    border-radius: 10px 10px 0 0;
+}
+
+.stTabs [data-baseweb="tab"] {
+    height: 50px;
+    white-space: pre-wrap;
+    background-color: transparent;
+    border-radius: 4px;
+    color: #8b949e;
+    font-weight: 600;
+}
+
+.stTabs [aria-selected="true"] {
+    color: #58a6ff !important;
+    border-bottom: 2px solid #58a6ff !important;
+}
+
+/* Metrics Cards (Sprint 1 KPIs) */
+[data-testid="stMetricValue"] {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #58a6ff;
+}
+
+/* Sidebar Customization */
+section[data-testid="stSidebar"] {
+    background-color: #161b22;
+    border-right: 1px solid #30363d;
+}
+
+/* Table Styling for Audit Ledger (Sprint 9) */
+.stDataFrame {
+    border: 1px solid #30363d;
+    border-radius: 8px;
+}
+
+/* Buttons - Institutional Blue */
+.stButton>button {
+    background-color: #238636;
+    color: white;
+    border-radius: 6px;
+    border: none;
+    padding: 0.5rem 1rem;
+    width: 100%;
+}
+
+.stButton>button:hover {
+    background-color: #2ea043;
+    border: none;
+}
