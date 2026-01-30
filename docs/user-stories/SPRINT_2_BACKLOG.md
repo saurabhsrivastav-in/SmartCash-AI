@@ -1,65 +1,68 @@
-# Sprint 2 Backlog: Intelligence & Exception Handling
+# 🧠 Sprint 2 Backlog: Intelligence & Fuzzy Match Engine
 
-**Sprint Goal:** Implement AI-driven fuzzy matching, OCR remittance extraction, and the Analyst Workbench for managing short-payments and deductions.
+**Sprint Goal:** Implement the Level 2 "Fuzzy Match" gate to identify payers with >90% accuracy despite "dirty" bank data and mismatched naming conventions.
 
 ---
 
-## 🏗️ Story 2.1: Multi-Source Remittance Extraction (OCR)
-**User Persona:** As an AR Analyst, I want the system to read PDF attachments from the centralized mailbox so that I don't have to manually open and type remittance data.
+## 🏗️ Story 2.1: Advanced Fuzzy Logic Integration
+**User Persona:** As an AR Analyst, I want the system to identify "Tesla Inc" even if the bank feed says "Tesla Ltd" so that I don't have to manually search for the customer.
 
 ### 📝 Description
-Integrate an OCR engine to process unstructured document layouts. The system must identify and extract: Invoice Number, Gross Amount, and Discount/Deduction values.
-
-
+Integrate the `thefuzz` library into the `SmartMatchingEngine`. This gate should calculate the Levenshtein distance between the `Bank_Payer_Name` and the `ERP_Customer_Name`.
 
 ### ✅ Acceptance Criteria
-- [ ] Successfully extract text from `.pdf`, `.png`, and `.jpg` formats.
-- [ ] Map extracted `Invoice_ID` and `Amount` to the transaction record in the staging table.
-- [ ] Assign a **Confidence Score (0-100%)** to each extraction.
-- [ ] Flag documents with <60% confidence for manual indexing.
+- [ ] **Heuristic Gate:** Logic triggered if Level 1 (Exact Match) fails.
+- [ ] **Similarity Scoring:** System calculates a ratio (0-100) using `token_set_ratio`.
+- [ ] **Threshold:** Returns a match suggestion only if the score is > 85.
+- [ ] **Multi-Currency FX Handling:** Allows for a +/- 1% variance in amount to account for bank fees/FX fluctuations.
+
+
 
 ---
 
-## 🏗️ Story 2.2: Fuzzy Logic for Customer Identification
-**User Persona:** As a Finance Manager, I want the system to identify payers even if the name on the bank file doesn't perfectly match the SAP master data.
+## 🏗️ Story 2.2: The Analyst Workbench (UI/UX)
+**User Persona:** As an AR Analyst, I want a dedicated interface to review "Suggested Matches" so I can maintain control over high-value postings.
 
 ### 📝 Description
-Implement string-matching algorithms (e.g., Levenshtein Distance) to reconcile variations like "Walmart Inc" vs "Walamrt" or "Target Corp #402".
+Develop the **Analyst Workbench** view in Streamlit. This interface allows the user to select a bank transaction and see the top AI-suggested invoice matches.
 
 ### ✅ Acceptance Criteria
-- [ ] System identifies matches with a name similarity score >85%.
-- [ ] System validates the `Amount` as a secondary check before suggesting a fuzzy match.
-- [ ] Suggested matches are presented in the UI with a "Confidence Badge" (e.g., "92% Match").
+- [ ] **Focus Dropdown:** Selectable list of unmatched bank transactions.
+- [ ] **Suggestion Display:** Shows the Top 3 matches with their corresponding confidence scores.
+- [ ] **Manual Override:** Button to "Confirm Match" which then triggers the SOC2 Vault logging.
 
 ---
 
-## 🏗️ Story 2.3: Analyst Workbench (Exception UI)
-**User Persona:** As an AR Analyst, I want a dedicated interface to review suggested matches so that I can approve or reject AI decisions with one click.
-
-
-
-### ✅ Acceptance Criteria
-- [ ] **Split View:** Show Bank Transaction on the left and Suggested SAP Invoice on the right.
-- [ ] **Action Buttons:** "Confirm Match," "Reject," and "Search Manual."
-- [ ] **Real-time Update:** Once confirmed, the status in the DB changes from `SUGGESTED` to `READY_TO_POST`.
-
----
-
-## 🏗️ Story 2.4: Short-Payment & Deduction Coding
-**User Persona:** As a Credit Manager, I want to code partial payments with reason codes so that we can track claims and disputes in real-time.
+## 🏗️ Story 2.3: Predictive DSO Drift Modeling
+**User Persona:** As a Treasurer, I want to see a forecast of our DSO trends so I can predict liquidity shortfalls before they happen.
 
 ### 📝 Description
-When `Bank_Amount < Invoice_Amount`, the system must force the analyst to select a **Reason Code** before the item can be cleared.
+Utilize `scipy.stats` to perform linear regression on historical payment dates. This should visualize the "Drift" caused by the Macro Stress slider.
 
 ### ✅ Acceptance Criteria
-- [ ] Display a "Variance" field (Invoice Amount - Bank Amount).
-- [ ] Provide a dropdown of SAP-standard Reason Codes (e.g., ZF01 - Damaged, ZF02 - Tax).
-- [ ] System calculates "Remaining Balance" and flags it for the **Claim Aging** report.
+- [ ] **Trendline:** Display a Plotly line chart showing historical vs. forecasted DSO.
+- [ ] **Stress Interaction:** The forecast window (shaded area) must shift dynamically based on the "Collection Latency" slider.
+- [ ] **Accuracy Metric:** Display the $R^2$ value of the trend to show statistical confidence.
+
+---
+
+## 🏗️ Story 2.4: Risk Radar Sunburst (Level 2)
+**User Persona:** As a Risk Manager, I want to see where our cash is concentrated so I can identify exposure to high-risk customers.
+
+### 📝 Description
+Enhance the **Risk & Governance** view with a multi-level Sunburst chart. This chart must drill down from Currency -> Customer -> ESG Score.
+
+
+
+### ✅ Acceptance Criteria
+- [ ] **Hierarchy:** Correct rendering of the path: `['Currency', 'Customer', 'ESG_Score']`.
+- [ ] **Color Mapping:** 'AA' and 'A' scores appear Green; 'C' scores appear Red.
+- [ ] **Scaling:** The size of each segment must be proportional to the `Invoice_Amount`.
 
 ---
 
 ## 🚀 Technical Sub-tasks for Developers
-1. **AI Integration:** Install `PyMuPDF` or `EasyOCR` for remittance processing.
-2. **Algorithm Design:** Implement the `fuzzywuzzy` or `RapidFuzz` library in the matching service.
-3. **Frontend Evolution:** Add a "Review Queue" page to the Streamlit app.
-4. **Data Schema Update:** Add `confidence_score` and `reason_code` columns to the `transactions` table.
+1. **Library Update:** Add `thefuzz` and `python-Levenshtein` to `requirements.txt`.
+2. **Backend Logic:** Refine `backend/engine.py` to include `process.extractOne` logic.
+3. **Data Science:** Implement `get_dso_forecast` function in `main.py` using `scipy.stats.linregress`.
+4. **Mock Data:** Update `mock_data_maker.py` to add "Ltd", "Group", or "LLC" suffixes to 50% of bank names to test fuzzy accuracy.
