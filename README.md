@@ -14,7 +14,7 @@
 ---
 
 ### 🌐 Enterprise Deployment
-**[📊 Access Live Command Center](https://smartcash-ai-hsmgehy5g5fz5f3y75ymim.streamlit.app/)** | **[🖥️ C-Suite Executive View](https://smartcash-ai-hsmgehy5g5fz5f3y75ymim.streamlit.app/)**
+**[📊 Access Live Command Center](https://smartcash-ai-csjcpzt5x3lbimlnuwbnvp.streamlit.app/)** | **[🖥️ C-Suite Executive View](https://smartcash-ai-yfd8pn3nqnmanfkxhevxuc.streamlit.app/)**
 
 </div>
 
