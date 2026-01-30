@@ -1,77 +1,81 @@
-# 📘 User Guide: SmartCash AI Analyst Workbench
-**Version:** 1.0.0 (Production)  
-**Target Audience:** Accounts Receivable (AR) Analysts & Treasury Managers  
+# 📘 AR Analyst User Guide: SmartCash AI
+
+**System Role:** Accounts Receivable / Treasury Operations  
+**Platform:** SmartCash AI - Institutional Treasury Command  
+**Version:** 1.0.0  
 
 ---
 
-## 1. System Overview
-SmartCash AI is an autonomous reconciliation layer that sits between your **Bank (MT942)** and **SAP S/4HANA**. While the system achieves an 85% Straight-Through Processing (STP) rate, your role is to manage "High-Value Exceptions" and refine AI logic.
-
-### Daily Routine
-1. **Login:** Access via Enterprise SSO.
-2. **Cycle Check:** The system syncs 4x daily (09:00, 12:00, 15:00, 18:00 local time).
-3. **Queue Refresh:** Always check the "Total Unapplied Cash" metric before starting.
+## 1. Introduction
+Welcome to **SmartCash AI**. This platform is designed to act as your "AI Co-Pilot," automating the repetitive data-entry tasks of bank reconciliation and allowing you to focus on high-value exception management and customer relations.
 
 ---
 
-## 2. Navigating the "AI-Prioritized" Worklist
-Unlike legacy spreadsheets, your worklist is dynamically ranked by **Urgency and Value**.
+## 2. Navigating the Analyst Workbench
+The **Analyst Workbench** is where you will spend most of your time. It is designed to handle transactions that require a "human-in-the-loop" review.
 
+### 2.1 Step 1: Selecting a Transaction
+The system automatically pulls the latest intraday bank feed. 
+1. Navigate to **Analyst Workbench** via the sidebar.
+2. View the **Bank Feed Table** to see incoming credits.
+3. Use the **Focus Item** dropdown to select a specific transaction for review.
 
+### 2.2 Step 2: Running the Match Engine
+Once a transaction is selected, click **"Run Multi-Factor Match Engine"**. The system will compare the bank data against open invoices using three logic gates:
 
-### Status Identification
-* 🟢 **Auto-Posted (STP):** Completed. No action required. Verified by SHA-256 Audit Hash.
-* 🟡 **Suggested Match:** AI confidence is 80%–94%. Requires a "Human-in-the-Loop" (HITL) 1-click verification.
-* 🔴 **Critical Exception:** No match found or ESG violation detected. Manual investigation mandatory.
-
----
-
-## 3. Resolving a "Suggested Match" (Scenario B)
-When the AI finds a high-probability match but requires confirmation:
-
-1.  **Open Comparison:** Click the transaction to enter the "Split-Screen View."
-2.  **Visual Validation:** Compare the **Payer Name (Bank)** vs. **Customer Name (SAP)**.
-3.  **Confidence Metadata:** Hover over the confidence score to see *why* the AI matched them (e.g., "PO Number match in email body").
-4.  **Finalize:** Click **[Approve & Post]**. The system executes the SAP BAPI call immediately.
+| Match Type | Confidence | System Action |
+| :--- | :--- | :--- |
+| **Exact Match** | 100% | Auto-posts and triggers success balloons. |
+| **Fuzzy Match** | 90% - 99% | Asks for analyst confirmation. |
+| **Exception** | < 90% | Triggers the GenAI Dispute Agent. |
 
 
 
 ---
 
-## 4. Short-Payments & Deduction Coding (Scenario C)
-When a customer pays less than the invoice total, you must "Code the Gap":
+## 3. Managing Exceptions & Disputes
+When the system cannot find a high-confidence match (due to missing Invoice IDs or "short-pays"), it enters **Exception Mode**.
 
-1.  **Select Difference:** The AI will highlight the variance in red.
-2.  **Reason Coding:** Select the **Standard Reason Code** (e.g., *ZF10 - Freight*, *ZF22 - Early Pay Discount*).
-3.  **Documentation:** Drag the customer's PDF debit memo into the **Evidence Box**.
-4.  **Post:** Clicking **[Post with Residual]** clears the original invoice and creates a new sub-ledger item for the dispute.
+### 3.1 AI Remittance Request
+If a match is below 90% confidence:
+1. The system will display a **Warning** message.
+2. The **GenAI Assistant** will automatically draft an email tailored to that specific customer.
+3. **Action:** Review the draft, copy it, and send it to the customer's AP department to request a remittance advice.
 
----
-
-## 5. The GenAI Dispute Assistant
-For "Scenario D" (No Info) payments, do not write manual emails.
-
-1.  **Trigger Assistant:** Click the **[🤖 Draft Inquiry]** icon.
-2.  **Contextual Awareness:** The AI automatically pulls the Bank Reference ID and Payer Name into a professional template.
-3.  **Review & Send:** Edit if necessary and click **[Send via Outlook]**.
-4.  **Auto-Follow-up:** The system places a 48-hour "Wait" tag on the transaction; if no reply is received, it escalates to the Credit Manager.
-
-
+### 3.2 Handling Short-Payments
+If the `Amount_Received` is less than the `Invoice_Amount`, the system will flag the variance. You can then use the dashboard metrics to determine if the difference is a bank fee or a formal dispute.
 
 ---
 
-## 6. Power-User Shortcuts & Filtering
-* **Global Search:** Use `Ctrl + K` to jump to any Invoice ID or Bank TXN.
-* **Filter by ESG:** Use the sidebar to filter for "High Risk" (Score D/E) counterparties to perform enhanced due diligence.
-* **Bulk Clearing:** Hold `Shift` to select multiple Yellow badges for batch approval (only recommended for 90%+ confidence).
+## 4. Monitoring Risk & DSO
+Analysts are responsible for maintaining the health of the A/R aging. 
+
+* **Check the Executive Dashboard:** Monitor the **Adjusted DSO**. If it increases, it means collections are slowing down.
+* **Review the Risk Radar:** Use the Sunburst chart to identify which currencies or customers (with low ESG scores) are causing the highest liquidity concentration.
+
+
 
 ---
 
-## 7. Troubleshooting FAQ
-| Issue | Solution |
-| :--- | :--- |
-| **Payment not showing?** | Verify the MT942 file timestamp in the "System Health" sidebar. |
-| **"Object Locked" Error?** | The invoice is likely open in an SAP GUI session (User Edit Mode). Close SAP and retry. |
-| **Wrong AI Match?** | Click **[Reject Match]**. This feedback trains the model to avoid this error in the next cycle. |
+## 5. Compliance & The Audit Ledger
+Every action you take—whether confirming an AI suggestion or clearing a transaction—is logged in the **Audit Ledger**.
 
-**Support:** Raise a priority ticket in Jira under the `TREASURY-AI` queue or email `it.support@company.com`.
+1. Navigate to **Audit Ledger**.
+2. Verify your recent postings.
+3. Note the **Hash_ID**: This is a unique digital fingerprint used for SOC2 compliance audits; you do not need to edit this.
+
+---
+
+## 6. Pro-Tips for Peak Efficiency
+* **Sidebar Controls:** Use the **Collection Latency** slider during team meetings to show the "What-If" impact of payment delays.
+* **Ballon Confirmation:** When you see balloons, the transaction has been successfully logged to the vault and is ready for ERP upload.
+* **Refresh Regularly:** Use the browser refresh to pull the latest data if the `invoices.csv` file has been updated by the IT team.
+
+---
+
+## 7. Troubleshooting
+* **Missing Invoices:** If an invoice isn't appearing, ensure the `Status` in the source data is set to 'Open'.
+* **Broken Images:** If you see a broken icon, check your internet connection; the system includes a failover, but high-latency networks may occasionally block the visual assets.
+
+---
+**Need Support?** Contact the Treasury IT Helpdesk or refer to the [Technical Documentation](../docs/PRD.md).
