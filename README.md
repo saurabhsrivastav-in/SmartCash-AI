@@ -1,32 +1,63 @@
+<div align="center">
+
 [![SmartCash AI CI](https://github.com/saurabhsrivastav-in/SmartCash-AI/actions/workflows/python-app.yml/badge.svg)](https://github.com/saurabhsrivastav-in/SmartCash-AI/actions/workflows/python-app.yml)
 
-# 🏦 SmartCash AI: Institutional Cash Orchestration & Autonomous O2C 🚀
+# 🏦 SmartCash AI: Institutional Treasury Orchestration
+### **Autonomous Order-to-Cash (O2C) & Liquidity Forecasting Engine**
 
-![Status](https://img.shields.io/badge/Status-Enterprise--Ready-success)
-![Tier](https://img.shields.io/badge/Tier-Tier--1--Treasury-blue)
-![Compliance](https://img.shields.io/badge/Compliance-SOC2%20%7C%20ESG%20%7C%20BASEL--III-orange)
+![Status](https://img.shields.io/badge/Status-Enterprise--Ready-success?style=for-the-badge)
+![Tier](https://img.shields.io/badge/Tier-Tier--1--Treasury-blue?style=for-the-badge)
+![Compliance](https://img.shields.io/badge/Compliance-SOC2%20%7C%20ESG%20%7C%20BASEL--III-orange?style=for-the-badge)
 
-**SmartCash AI** is a high-performance treasury orchestration engine designed for global enterprises. By bridging the gap between fragmented bank feeds and ERP subledgers, the platform achieves a **94.2% Straight-Through Processing (STP) rate**, transforming Accounts Receivable from a cost center into a strategic liquidity asset.
+**SmartCash AI** is a high-performance orchestration engine designed to eliminate fragmented liquidity. By bridging the gap between global bank feeds and ERP subledgers, the platform achieves a **94.2% Straight-Through Processing (STP) rate**, transforming Accounts Receivable from a reactive cost center into a proactive liquidity asset.
 
+---
 
+### 🌐 Enterprise Deployment
+**[📊 Access Live Command Center](https://smartcash-ai-hsmgehy5g5fz5f3y75ymim.streamlit.app/)** | **[🖥️ C-Suite Executive View](https://smartcash-ai-hsmgehy5g5fz5f3y75ymim.streamlit.app/)**
 
-## 🌐 Enterprise Demo
-**Access the Live Command Center:** [SmartCash AI Dashboard](https://smartcash-ai-hsmgehy5g5fz5f3y75ymim.streamlit.app/)
+</div>
 
 ---
 
 ## 💎 Institutional Value Proposition
-1. **Liquidity Velocity:** Automated reconciliation of multi-currency payments using weighted fuzzy heuristics via `thefuzz`.
-2. **Macro-Stress Control:** Real-time Numpy-driven simulations to model the impact of collection latency on cash buffers.
-3. **Cognitive Exception Handling:** GenAI agents that resolve "Short-Pays" by drafting professional dispute communications automatically.
+
+| **Core Pillar** | **Strategic Capability** | **Technical Leverage** |
+| :--- | :--- | :--- |
+| **Liquidity Velocity** | Automated reconciliation of multi-currency payments (USD/EUR/GBP) to reduce unapplied cash. | Weighted fuzzy heuristics via `thefuzz` and `Pandas`. |
+| **Macro-Stress Control** | Real-time simulations modeling the impact of collection latency (DSO) on operational buffers. | `NumPy`-driven Monte Carlo simulations for FX/Hedge sensitivity. |
+| **Cognitive Dunning** | GenAI agents that identify "Short-Pays" and draft professional dispute resolutions. | `GPT-4` integration for context-aware customer communication. |
+| **ESG Risk Radar** | Dynamic exposure tracking based on counterparty ESG ratings (AAA-D). | Multi-dimensional `Plotly` Sunburst visualization. |
 
 ---
 
-## 📖 Strategy & Governance Documentation
-*The blueprint for the Autonomous Finance Organization.*
+## 📊 Executive Dashboard Preview
+* **Multi-Year Trend Analysis:** Historical bank inflow tracking (2023–2025) with AI-projected 2026 forecast.
+* **AR Ageing (DPD):** Real-time "Bucket Analysis" (0-30, 31-60, 91+ days) to identify capital lock-up.
+* **Operational Workbench:** Intelligent "AI Matcher" linking bank transactions to open invoices with 98% confidence scores.
 
-* **[Strategic Pitch Deck](./Project_Pitch_Deck.md)**
-* **[Business Requirements (BRD)](./docs/BRD.md)**
-* **[Product Requirements (PRD)](./docs/PRD.md)**
-* **[UAT & Quality Assurance](./UAT_Plan.md)**
-* **[AR Analyst User Guide](./User_Guide_AR_Analyst.md)**
+---
+
+## 🛠️ Tech Stack & Engineering
+* **Frontend:** `Streamlit` (Enterprise Finance UI Framework)
+* **Data Science:** `Pandas`, `NumPy`, `Plotly`
+* **Automation:** `GitHub Actions` (CI/CD), `Python-Dotenv`
+* **Security:** Role-Based Access Control logic simulation (RBAC)
+
+---
+
+## 📖 Strategy & Governance Blueprint
+*The roadmap for the Autonomous Finance Organization.*
+
+* **[🎯 Strategic Pitch Deck](./Project_Pitch_Deck.md)** — ROI analysis and C-Suite value drivers.
+* **[📝 Business Requirements (BRD)](./docs/BRD.md)** — Functional mapping of the O2C lifecycle.
+* **[⚙️ Product Requirements (PRD)](./docs/PRD.md)** — Technical specifications and API logic.
+* **[✅ UAT & Quality Assurance](./UAT_Plan.md)** — Stakeholder validation and testing protocols.
+* **[📖 AR Analyst User Guide](./User_Guide_AR_Analyst.md)** — End-user operational manual.
+
+---
+
+## 👨‍💻 Developed by Saurabh Srivastav
+**Business Analyst | Digital Transformation Specialist** Specializing in bridging the gap between **Complex Financial Requirements** and **Elite Technical Execution**.
+
+[LinkedIn](https://www.linkedin.com/in/saurabh-srivastav-in/) | [Portfolio](https://github.com/saurabhsrivastav-in/) | [Email](mailto:saurabhsrivastav.db@gmail.com)
