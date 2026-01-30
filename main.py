@@ -95,88 +95,93 @@ st.divider()
 
 # --- 5. PAGE ROUTING LOGIC ---
 
-# --- TAB 1: EXECUTIVE DASHBOARD (YoY Growth Edition) ---
+# --- TAB 1: EXECUTIVE DASHBOARD (Stress Test Edition) ---
 if menu == "📈 Executive Dashboard":
     st.subheader("🗓️ Year-over-Year Performance Analysis")
-    year_col1, year_col2 = st.columns(2)
+    
+    # 1. Selection & Stress Controls
+    year_col1, year_col2, year_col3 = st.columns([1, 1, 1])
     with year_col1:
         primary_year = st.selectbox("Primary Year", [2026, 2025, 2024], index=0)
     with year_col2:
         compare_year = st.selectbox("Comparison Year", [2025, 2024, "None"], index=1)
+    with year_col3:
+        st.write("") # Spacer
+        stress_active = st.toggle("🚨 Activate 'D-Rating' Stress Test", help="Simulates 100% default of all 'D' rated customers")
 
-    # --- GROWTH CALCULATION ENGINE ---
-    # Hypothetical Aggregates (In a real app, these would sum from df_filtered)
-    curr_total = 292.5  # Primary Year Total (M)
-    prev_total = 267.0  # Comparison Year Total (M)
+    # --- STRESS TEST LOGIC ---
+    # Baseline Totals
+    curr_total = 292.5 
+    prev_total = 267.0
     
+    # Calculate Potential Default Impact
+    # In a real app, this sums 'Amount' where ESG_Score == 'D'
+    d_rating_exposure = invoices[invoices['ESG_Score'] == 'D']['Amount'].sum() / 1_000_000 # Convert to Millions
+    
+    display_total = curr_total
+    status_msg = "Normal Operations"
+    status_color = "normal"
+
+    if stress_active:
+        display_total = curr_total - d_rating_exposure
+        status_msg = f"STRESSED SCENARIO: -${d_rating_exposure:.1f}M Exposure Defaulted"
+        status_color = "inverse"
+        st.error(f"⚠️ **CRITICAL ALERT:** Liquidity adjusted for 100% default of D-rated entities.")
+
+    # --- GROWTH CALCULATIONS ---
     if compare_year != "None":
-        growth_val = curr_total - prev_total
+        growth_val = display_total - prev_total
         growth_pct = (growth_val / prev_total) * 100
         
         # Display Growth Indicators
         g1, g2, g3 = st.columns(3)
-        g1.metric(f"Total Liquidity ({primary_year})", f"${curr_total}M")
-        g2.metric(f"Total Liquidity ({compare_year})", f"${prev_total}M")
-        g3.metric("YoY Liquidity Growth", f"{growth_pct:+.1f}%", f"{growth_val:+.1f}M USD")
+        g1.metric(f"Liquidity ({primary_year})", f"${display_total:.1f}M", 
+                  delta=f"-{d_rating_exposure:.1f}M" if stress_active else None, delta_color="inverse")
+        g2.metric(f"Liquidity ({compare_year})", f"${prev_total:.1f}M")
+        g3.metric("Adjusted YoY Growth", f"{growth_pct:+.1f}%", f"{growth_val:+.1f}M USD", delta_color=status_color)
         
-        st.divider()
+    st.divider()
 
+    # --- VISUALS ---
     c1, c2 = st.columns([2, 1])
-    
     with c1:
         st.subheader(f"💧 Liquidity Bridge: {primary_year} vs {compare_year}")
-        if not invoices.empty:
-            months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"]
-            primary_values = [42, 45, 48, 52, 50, 55]
-            compare_values = [38, 41, 44, 46, 48, 50]
+        months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"]
+        
+        # Simulate Monthly Impact
+        monthly_impact = d_rating_exposure / 6
+        primary_values = [42, 45, 48, 52, 50, 55]
+        stressed_values = [v - monthly_impact for v in primary_values]
+        compare_values = [38, 41, 44, 46, 48, 50]
 
-            fig_bridge = go.Figure()
-            fig_bridge.add_trace(go.Bar(
-                x=months, y=primary_values, name=f"{primary_year} (Current)",
-                marker_color='#58a6ff',
-                customdata=np.array(primary_values) - np.array(compare_values),
-                hovertemplate="Value: %{y}M<br>YoY Diff: %{customdata:+.1f}M"
-            ))
-            
-            if compare_year != "None":
-                fig_bridge.add_trace(go.Bar(
-                    x=months, y=compare_values, name=f"{compare_year} (Baseline)",
-                    marker_color='#30363d', opacity=0.7
-                ))
+        fig_bridge = go.Figure()
+        fig_bridge.add_trace(go.Bar(
+            x=months, 
+            y=stressed_values if stress_active else primary_values, 
+            name="Stressed View" if stress_active else "Current",
+            marker_color='#f85149' if stress_active else '#58a6ff'
+        ))
+        
+        if compare_year != "None":
+            fig_bridge.add_trace(go.Bar(x=months, y=compare_values, name="Baseline", marker_color='#30363d', opacity=0.7))
 
-            fig_bridge.update_layout(
-                template="plotly_dark", barmode='group',
-                xaxis_title="Reporting Month", yaxis_title="Liquidity (USD M)",
-                margin=dict(l=10, r=10, t=10, b=10),
-                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
-            )
-            st.plotly_chart(fig_bridge, use_container_width=True)
+        fig_bridge.update_layout(template="plotly_dark", barmode='group', margin=dict(l=10, r=10, t=10, b=10))
+        st.plotly_chart(fig_bridge, use_container_width=True)
 
     with c2:
-        st.subheader("📅 Cash Flow Forecast")
+        st.subheader("📅 Risk-Adjusted Forecast")
         fig_forecast = go.Figure()
-
-        # Primary Forecast (Reactive to Sidebar Latency)
+        
+        # Current Projection
         fig_forecast.add_trace(go.Scatter(
-            x=months, y=[v + (latency_days/5) for v in primary_values],
-            mode='lines+markers', name='Projection',
-            line=dict(color='#58a6ff', width=4)
+            x=months, y=[v + (latency_days/5) for v in (stressed_values if stress_active else primary_values)],
+            mode='lines+markers', name='Stressed' if stress_active else 'Projected',
+            line=dict(color='#f85149' if stress_active else '#58a6ff', width=4)
         ))
 
-        if compare_year != "None":
-            fig_forecast.add_trace(go.Scatter(
-                x=months, y=compare_values,
-                mode='lines', name='Prior Year Actual',
-                line=dict(color='#8b949e', dash='dot')
-            ))
-
-        fig_forecast.update_layout(
-            template="plotly_dark",
-            xaxis_title="Month", yaxis_title="Inflow (M)",
-            margin=dict(l=10, r=10, t=10, b=10),
-            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
-        )
+        fig_forecast.update_layout(template="plotly_dark", margin=dict(l=10, r=10, t=10, b=10))
         st.plotly_chart(fig_forecast, use_container_width=True)
+        
 
 # --- TAB 2: ANALYST WORKBENCH ---
 elif menu == "⚡ Analyst Workbench":
