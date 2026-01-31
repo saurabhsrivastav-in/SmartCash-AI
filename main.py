@@ -20,21 +20,32 @@ def load_institutional_data():
         inv_df = pd.read_csv("data/invoices.csv")
         bank_df = pd.read_csv("data/bank_feed.csv")
         
-        # --- Harmonization Logic ---
+        # 1. Strip hidden spaces from column names
         inv_df.columns = inv_df.columns.str.strip()
-        
-        # Fix for your KeyError: Create the column if missing
-        if 'Is_Disputed' not in inv_df.columns:
-            inv_df['Is_Disputed'] = False  # Default all invoices to not disputed
-            
-        # Ensure Status column is clean
-        if 'Status' in inv_df.columns:
-            inv_df['Status'] = inv_df['Status'].str.strip()
+        bank_df.columns = bank_df.columns.str.strip()
 
-        # ... (rest of your existing load logic) ...
+        # 2. Rename common variations to 'Amount_Remaining'
+        rename_map = {
+            'Amount': 'Amount_Remaining',
+            'Balance': 'Amount_Remaining',
+            'Total': 'Amount_Remaining',
+            'Outstanding': 'Amount_Remaining'
+        }
+        inv_df = inv_df.rename(columns=rename_map)
+
+        # 3. Create 'Is_Disputed' column if it's missing (to prevent the next KeyError)
+        if 'Is_Disputed' not in inv_df.columns:
+            inv_df['Is_Disputed'] = False
+
+        # 4. Standardize 'Customer' for the AI Matcher
+        bank_df = bank_df.rename(columns={'Payer': 'Customer', 'Sender': 'Customer', 'Description': 'Customer'})
+
+        # Convert dates
+        inv_df['Due_Date'] = pd.to_datetime(inv_df['Due_Date'])
+        
         return inv_df, bank_df
     except Exception as e:
-        st.error(f"Error: {e}")
+        st.error(f"Initialization Error: {e}")
         return pd.DataFrame(), pd.DataFrame()
         
         # Sync naming: Repository logic expects 'Amount_Remaining'
