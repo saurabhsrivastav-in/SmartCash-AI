@@ -199,9 +199,23 @@ if menu == "📈 Dashboard":
 elif menu == "🛡️ Risk Radar":
     weights = {'AAA':0.05, 'AA':0.1, 'A':0.2, 'B':0.4, 'C':0.6, 'D':0.9}
     view_df['Exposure'] = view_df['Amount_Remaining'] * view_df['ESG_Score'].map(weights)
+    
+    # 1. Add a temporary column for tooltips (Amount in Millions)
+    view_df['Amount_M'] = view_df['Amount_Remaining'] / 1e6
+
+    # 2. Update the sunburst call with hover_data
     fig_s = px.sunburst(view_df, path=['Company_Code', 'Currency', 'ESG_Score', 'Customer'], 
                         values='Exposure', color='ESG_Score',
-                        color_discrete_map={'AAA':'#238636', 'AA':'#2ea043', 'A':'#d29922', 'B':'#db6d28', 'C':'#f85149', 'D':'#b62323'})
+                        color_discrete_map={'AAA':'#238636', 'AA':'#2ea043', 'A':'#d29922', 'B':'#db6d28', 'C':'#f85149', 'D':'#b62323'},
+                        hover_data={'Amount_M': ':,.2f'}) # Pass the million-unit column
+    
+    # 3. Refine the hover template
+    # %{label} automatically captures the Company Name (Customer) at the leaf level
+    # customdata[0] captures the Amount_M column added above
+    fig_s.update_traces(
+        hovertemplate="<b>%{label}</b><br>Total Value: $%{customdata[0]}M<br>Risk Exposure: $%{value:,.2f}<extra></extra>"
+    )
+
     fig_s.update_layout(height=700, template="plotly_dark")
     st.plotly_chart(fig_s, use_container_width=True)
 
