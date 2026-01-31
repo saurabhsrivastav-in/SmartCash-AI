@@ -236,7 +236,7 @@ elif menu == "🛡️ Risk Radar":
     st.plotly_chart(fig_s, use_container_width=True)
 elif menu == "⚡ Workbench":
     st.subheader("⚡ Operational Command")
-    t1, t2, t3 = st.tabs(["🧩 AI Matcher", "📩 Dunning Center", "🛠️ Dispute Resolver"])
+   t1, t2, t3 = st.tabs(["🧩 AI Matcher", "📩 Dunning Center", "🛠️ Dispute Resolver"])
     
     with t1:
         st.write("**Intelligent Bank Reconciliation**")
@@ -251,7 +251,7 @@ elif menu == "⚡ Workbench":
         else:
             st.error("❌ Column mismatch: Ensure both files have a 'Customer' or 'Payer_Name' column.")
 
-  with t2:
+    with t2:
         ov = view_df[view_df['Status'] == 'Overdue']
         if not ov.empty:
             target = st.selectbox("Select Debtor", ov['Customer'].unique())
@@ -308,7 +308,8 @@ Treasury Operations Team"""
                     st.session_state.ledger.at[idx, 'Is_Disputed'] = False
                     st.session_state.audit.insert(0, {"Time": datetime.now().strftime("%H:%M"), "Action": "RESOLVED", "ID": to_resolve, "Detail": "Issue Settled"})
                     st.rerun()
-            else: st.info("No active disputes.")
+            else: 
+                st.info("No active disputes.")
 
 elif menu == "📜 Audit":
     st.table(pd.DataFrame(st.session_state.audit))
