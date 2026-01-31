@@ -215,8 +215,11 @@ with tab_velocity:
 
 with tab_entity:
     st.subheader("🏢 Strategic Entity Risk Profiling")
+    st.markdown("---")
     
     # Pre-processing data for entity intelligence
+    risk_colors = {'AAA':'#238636', 'AA':'#2ea043', 'A':'#d29922', 'B':'#db6d28', 'C':'#f85149', 'D':'#b62323'}
+    
     entity_stats = view_df.copy()
     entity_stats['Due_Date_DT'] = pd.to_datetime(entity_stats['Due_Date'])
     entity_stats['Days_Late'] = (pd.to_datetime('2026-01-30') - entity_stats['Due_Date_DT']).dt.days
@@ -228,12 +231,11 @@ with tab_entity:
         'Days_Late': 'mean'
     }).reset_index()
 
-    # Define a reliable color map for the UI cards
-    risk_colors = {'AAA':'#238636', 'AA':'#2ea043', 'A':'#d29922', 'B':'#db6d28', 'C':'#f85149', 'D':'#b62323'}
-
+    # --- TOP ROW: Behavioral Matrix & Priority Cards ---
     col_e1, col_e2 = st.columns([2, 1])
 
     with col_e1:
+        st.write("#### 🎯 Exposure vs. Collection Delay")
         # 4D Bubble Chart
         fig_bubble = px.scatter(
             entity_analysis,
@@ -242,39 +244,76 @@ with tab_entity:
             size="Invoice_ID",
             color="ESG_Score",
             hover_name="Customer",
-            title="Exposure Risk Matrix: Value vs. Collection Delay",
             color_discrete_map=risk_colors,
             labels={"Days_Late": "Avg Days Overdue", "Amount_Remaining": "Total Exposure ($)"},
-            template="plotly_dark"
+            template="plotly_dark",
+            size_max=40
         )
         
-        # Add visual quadrants for executive decision making
-        fig_bubble.add_vline(x=30, line_dash="dash", line_color="gray", opacity=0.5)
+        # Quadrant Lines for decision making
+        fig_bubble.add_vline(x=30, line_dash="dash", line_color="#f85149", opacity=0.6, annotation_text="Critical Delay")
         fig_bubble.add_hrect(y0=1500000, y1=entity_analysis['Amount_Remaining'].max()*1.2, 
-                             fillcolor="red", opacity=0.05, annotation_text="CRITICAL CONCENTRATION", annotation_position="top left")
+                             fillcolor="red", opacity=0.05, annotation_text="HIGH VALUE AT RISK", annotation_position="top left")
         
-        st.plotly_chart(fig_bubble, use_container_width=True, key="entity_bubble_chart")
+        st.plotly_chart(fig_bubble, use_container_width=True, key="entity_bubble_chart_v3")
 
     with col_e2:
         st.write("#### 🛡️ Top Concentration Risks")
-        top_entities = entity_analysis.sort_values('Amount_Remaining', ascending=False).head(5)
+        top_entities = entity_analysis.sort_values('Amount_Remaining', ascending=False).head(4)
         
         for _, row in top_entities.iterrows():
-            # Use the ESG_Score to pull the correct color from our risk_colors map
             border_color = risk_colors.get(row['ESG_Score'], '#58a6ff')
             
             st.markdown(f"""
-            <div style="background:#161b22; padding:15px; border-radius:10px; border-left: 5px solid {border_color}; margin-bottom:10px;">
-                <h5 style="margin:0;">{row['Customer']}</h5>
-                <p style="margin:0; font-size:12px; color:#8b949e;">Entity: {row['Company_Code']} | Rating: <b>{row['ESG_Score']}</b></p>
-                <div style="display:flex; justify-content:space-between; align-items:baseline;">
-                    <h4 style="margin:5px 0 0 0; color:#58a6ff;">${row['Amount_Remaining']/1e6:.2f}M</h4>
-                    <span style="font-size:12px; color:{border_color};">{int(row['Days_Late'])} Days Late</span>
+            <div style="background:#161b22; padding:15px; border-radius:10px; border-left: 6px solid {border_color}; border-top: 1px solid #30363d; margin-bottom:12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-weight: bold; font-size: 16px; color: #f0f6fc;">{row['Customer']}</span>
+                    <span style="background: {border_color}; color: white; padding: 1px 8px; border-radius: 12px; font-size: 11px;">{row['ESG_Score']}</span>
+                </div>
+                <div style="margin-top: 10px; display:flex; justify-content:space-between;">
+                    <div>
+                        <p style="margin:0; font-size:11px; color:#8b949e;">TOTAL EXPOSURE</p>
+                        <h4 style="margin:0; color:#58a6ff;">${row['Amount_Remaining']/1e6:.2f}M</h4>
+                    </div>
+                    <div style="text-align: right;">
+                        <p style="margin:0; font-size:11px; color:#8b949e;">AVG DELAY</p>
+                        <h4 style="margin:0; color:{'#f85149' if row['Days_Late'] > 30 else '#c9d1d9'};">{int(row['Days_Late'])} Days</h4>
+                    </div>
                 </div>
             </div>
             """, unsafe_allow_html=True)
 
-    st.divider()
+    st.markdown("---")
+    
+    # --- BOTTOM ROW: Regional Diversification & Volume Distribution ---
+    col_b1, col_b2 = st.columns([1, 1])
+    
+    with col_b1:
+        st.write("#### 🌍 Regional/Company Code Diversification")
+        fig_bar = px.bar(
+            entity_analysis, 
+            x="Company_Code", 
+            y="Amount_Remaining", 
+            color="ESG_Score",
+            barmode="stack",
+            template="plotly_dark",
+            color_discrete_map=risk_colors
+        )
+        st.plotly_chart(fig_bar, use_container_width=True, key="entity_regional_bar_v3")
+        
+    with col_b2:
+        st.write("#### 📊 Risk Distribution by Invoice Volume")
+        fig_pie = px.pie(
+            entity_analysis,
+            names="ESG_Score",
+            values="Invoice_ID",
+            color="ESG_Score",
+            hole=0.4,
+            color_discrete_map=risk_colors,
+            template="plotly_dark"
+        )
+        fig_pie.update_traces(textposition='inside', textinfo='percent+label')
+        st.plotly_chart(fig_pie, use_container_width=True, key="entity_volume_pie")
     
     # Geographical/Company Code Diversification
     st.write("#### 🌍 Regional/Company Code Diversification")
