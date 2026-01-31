@@ -253,7 +253,7 @@ with tab_entity:
         fig_bubble.add_hrect(y0=1500000, y1=entity_analysis['Amount_Remaining'].max()*1.2, 
                              fillcolor="red", opacity=0.05, annotation_text="CRITICAL CONCENTRATION", annotation_position="top left")
         
-        st.plotly_chart(fig_bubble, use_container_width=True)
+        st.plotly_chart(fig_bubble, use_container_width=True, key="entity_bubble_chart")
 
     with col_e2:
         st.write("#### 🛡️ Top Concentration Risks")
@@ -287,7 +287,7 @@ with tab_entity:
         template="plotly_dark",
         color_discrete_map=risk_colors
     )
-    st.plotly_chart(fig_bar, use_container_width=True)
+    st.plotly_chart(fig_bar, use_container_width=True, key="entity_regional_bar")
     
     # Sector/Code breakdown for geographical/entity risk
     st.write("#### 🌍 Regional/Company Code Diversification")
