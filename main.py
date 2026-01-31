@@ -147,31 +147,28 @@ if menu == "📈 Dashboard":
 
     st.divider()
 
-    st.subheader("⏳ Accounts Receivable Ageing Analysis")
-    
-    # Logic: Filter for Overdue items (either by 'Status' column or Date comparison)
-    today_val = datetime(2026, 1, 31)
-    
-    # Create a copy and ensure Due_Date is datetime
-    ageing_df = view_df.copy()
-    ageing_df['Due_Date'] = pd.to_datetime(ageing_df['Due_Date'])
-    
-    # Filter for items that are past due
-    ov = ageing_df[(ageing_df['Status'].str.upper() == 'OVERDUE') | (ageing_df['Due_Date'] < today_val)].copy()
+ st.subheader("⏳ Accounts Receivable Ageing Analysis")
+    ov = view_df[view_df['Status'] == 'Overdue'].copy()
     if not ov.empty:
-        def get_bucket(d):
-            days = (today - datetime.strptime(d, '%Y-%m-%d')).days
-            if days <= 15: return "0-15"
-            elif days <= 30: return "16-30"
-            elif days <= 60: return "31-60"
-            elif days <= 90: return "61-90"
-            elif days <= 120: return "91-120"
-            elif days <= 180: return "121-180"
-            elif days <= 360: return "181-360"
-            else: return "361-540"
+        # Ensure Due_Date is datetime to avoid the TypeError
+        ov['Due_Date'] = pd.to_datetime(ov['Due_Date'])
         
+        def get_bucket(invoice_date):
+            # Calculate the difference using the 'today' variable defined on line 114
+            diff = (today - invoice_date).days
+            if diff <= 15: return "0-15"
+            elif diff <= 30: return "16-30"
+            elif diff <= 60: return "31-60"
+            elif diff <= 90: return "61-90"
+            elif diff <= 120: return "91-120"
+            elif diff <= 180: return "121-180"
+            elif diff <= 360: return "181-360"
+            else: return "361+"
+
         ov['Bucket'] = ov['Due_Date'].apply(get_bucket)
-        order = ["0-15", "16-30", "31-60", "61-90", "91-120", "121-180", "181-360", "361-540"]
+        
+        # Categorical ordering so the X-axis is logical
+        order = ["0-15", "16-30", "31-60", "61-90", "91-120", "121-180", "181-360", "361+"]
         age_data = ov.groupby('Bucket')['Amount_Remaining'].sum().reindex(order, fill_value=0).reset_index()
         
         fig_age = px.bar(age_data, x='Bucket', y='Amount_Remaining', 
@@ -179,6 +176,8 @@ if menu == "📈 Dashboard":
                          color='Amount_Remaining', color_continuous_scale='Turbo')
         fig_age.update_layout(template="plotly_dark", height=450)
         st.plotly_chart(fig_age, use_container_width=True)
+    else:
+        st.info("No overdue items found for the current selection.")
 
     st.divider()
 
