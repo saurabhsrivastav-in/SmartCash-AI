@@ -144,10 +144,7 @@ if menu == "📈 Dashboard":
     )
     st.plotly_chart(fig_trend, use_container_width=True)
     
-
-    st.divider()
-
- st.divider()
+st.divider()
 
     st.subheader("⏳ Accounts Receivable Ageing Analysis")
     ov = view_df[view_df['Status'] == 'Overdue'].copy()
@@ -180,8 +177,6 @@ if menu == "📈 Dashboard":
         st.plotly_chart(fig_age, use_container_width=True)
     else:
         st.info("No overdue items found for the current selection.")
-
-    st.divider() # Keep this aligned too!
 
     st.divider()
 
