@@ -273,7 +273,7 @@ with tab_entity:
             annotation_text="CONCENTRATION LIMIT"
         )
         
-        st.plotly_chart(fig_bubble, use_container_width=True, key="entity_bubble_enlarged")
+        st.plotly_chart(fig_bubble, use_container_width=True)
 
     # --- ENLARGED LAYOUT: 3:1 Ratio ---
     col_matrix, col_cards = st.columns([3, 1])
