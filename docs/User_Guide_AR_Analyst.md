@@ -34,7 +34,9 @@ The **Sunburst Chart** on the main dashboard represents your global liquidity ri
 ---
 
 ## 4. The Matching Workflow
-The engine automatically categorizes every transaction into three buckets:
+The engine automatically categorizes every transaction into three buckets based on a cascading logic gate.
+
+
 
 ### ✅ Bucket A: Auto-Matched (STP)
 * **Status:** Green
