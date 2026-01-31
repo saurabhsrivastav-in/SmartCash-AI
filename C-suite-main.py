@@ -262,17 +262,23 @@ with tab_entity:
         )
         st.plotly_chart(fig_bubble, use_container_width=True, key="bubble_main")
 
-    with col_cards:
-        st.write("#### 🛡️ Priority Watchlist")
-        top_risks = entity_analysis.sort_values(by='Amount_Remaining', ascending=False).head(5)
-        for _, row in top_risks.iterrows():
-            border_color = risk_colors.get(row['ESG_Score'], '#58a6ff')
-            st.markdown(f"""
-            <div style="background:#161b22; padding:12px; border-radius:10px; border-left: 5px solid {border_color}; margin-bottom:10px; border-top: 1px solid #30363d;">
-                <p style="margin:0; font-weight:bold; font-size:14px;">{row['Customer']}</p>
-                <p style="margin:0; font-size:18px; color:#58a6ff; font-weight:800;">${row['Amount_Remaining']/1e6:.2f}M</p>
-            </div>
-            """, unsafe_allow_html=True)
+   with col_cards:
+    st.write("#### 🛡️ Priority Watchlist")
+    # Consolidate duplicates before picking the top 5
+    watchlist_data = entity_analysis.groupby('Customer')['Amount_Remaining'].sum().reset_index()
+    top_risks = watchlist_data.sort_values(by='Amount_Remaining', ascending=False).head(5)
+    
+    for _, row in top_risks.iterrows():
+        # Find the original rating for the color indicator
+        orig_rating = entity_analysis[entity_analysis['Customer'] == row['Customer']]['ESG_Score'].iloc[0]
+        border_color = risk_colors.get(orig_rating, '#58a6ff')
+        
+        st.markdown(f"""
+        <div style="background:#161b22; padding:12px; border-radius:10px; border-left: 5px solid {border_color}; margin-bottom:10px;">
+            <p style="margin:0; font-weight:bold;">{row['Customer']}</p>
+            <p style="margin:0; font-size:18px; color:#58a6ff;">${row['Amount_Remaining']/1e6:.2f}M</p>
+        </div>
+        """, unsafe_allow_html=True)
 
 with tab_stress:
     st.subheader("Strategic Liquidity Stress Matrix (FX Volatility vs. Hedging)")
