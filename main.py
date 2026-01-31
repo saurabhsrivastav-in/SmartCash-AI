@@ -200,8 +200,19 @@ if menu == "📈 Dashboard":
                          color='Amount_Remaining', color_continuous_scale='Turbo')
         fig_age.update_layout(template="plotly_dark", height=450)
         st.plotly_chart(fig_age, use_container_width=True)
-    else:
-        st.info("No overdue items found for the current selection.")
+      else: 
+            # Calculate total outstanding balance to show some data
+            total_pending = view_df['Amount_Remaining'].sum()
+            st.info(f"✅ No overdue items found for the current selection.")
+            st.metric("Total Outstanding (Current)", f"${total_pending:,.2f}")
+            
+            # Show the next 5 upcoming payments
+            st.write("📅 **Upcoming Receivables (Next 30 Days):**")
+            upcoming = view_df[view_df['Status'] != 'Overdue'].sort_values('Due_Date').head(5)
+            if not upcoming.empty:
+                st.dataframe(upcoming[['Customer', 'Due_Date', 'Amount_Remaining']], use_container_width=True)
+            else:
+                st.write("No upcoming invoices found.")
 
     st.divider()
 
