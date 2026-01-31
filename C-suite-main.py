@@ -9,63 +9,69 @@ from pptx import Presentation
 from pptx.util import Inches, Pt
 from io import BytesIO
 
-# --- REPORT GENERATION ENGINES ---
+# --- FIXED REPORT GENERATION ENGINES ---
 
 def generate_pdf(df, mode_name, liquidity):
     pdf = FPDF()
     pdf.add_page()
-    pdf.set_font("Arial", 'B', 16)
+    pdf.set_font("Helvetica", 'B', 16) # Use Helvetica for better compatibility
     pdf.cell(190, 10, "SmartCash AI: Executive Treasury Report", ln=True, align='C')
-    pdf.set_font("Arial", size=12)
-    pdf.cell(190, 10, f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M')}", ln=True, align='C')
+    
+    pdf.set_font("Helvetica", size=10)
+    pdf.cell(190, 10, f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}", ln=True, align='C')
     pdf.ln(10)
     
-    pdf.set_font("Arial", 'B', 12)
-    pdf.cell(100, 10, f"Scenario Mode: {mode_name}")
-    pdf.cell(90, 10, f"Net Liquidity: ${liquidity/1e6:.2f}M", ln=True)
+    pdf.set_font("Helvetica", 'B', 12)
+    pdf.cell(95, 10, f"Scenario: {mode_name}")
+    pdf.cell(95, 10, f"Net Liquidity: ${liquidity/1e6:.2f}M", ln=True)
     pdf.ln(5)
     
     # Table Header
-    pdf.set_fill_color(30, 36, 61)
+    pdf.set_fill_color(22, 27, 34)
     pdf.set_text_color(255, 255, 255)
     pdf.cell(40, 10, "Invoice", 1, 0, 'C', True)
     pdf.cell(60, 10, "Customer", 1, 0, 'C', True)
     pdf.cell(45, 10, "Amount", 1, 0, 'C', True)
     pdf.cell(45, 10, "Due Date", 1, 1, 'C', True)
     
-    # Table Body (Top 15 items for brevity)
+    # Table Body
     pdf.set_text_color(0, 0, 0)
-    for _, row in df.head(15).iterrows():
+    pdf.set_font("Helvetica", size=10)
+    for _, row in df.head(20).iterrows():
         pdf.cell(40, 10, str(row['Invoice_ID']), 1)
-        pdf.cell(60, 10, str(row['Customer']), 1)
+        pdf.cell(60, 10, str(row['Customer'])[:25], 1) # Trim long names
         pdf.cell(45, 10, f"{row['Amount_Remaining']:,.2f}", 1)
         pdf.cell(45, 10, str(row['Due_Date']), 1, 1)
         
-    return pdf.output(dest='S')
+    # CRITICAL FIX: Convert string output to bytes
+    pdf_output = pdf.output()
+    if isinstance(pdf_output, str):
+        return pdf_output.encode('latin-1')
+    return pdf_output
 
 def generate_pptx(df, mode_name, liquidity):
     prs = Presentation()
-    slide = prs.slides.add_slide(prs.slide_layouts[5]) # Title Only layout
+    slide = prs.slides.add_slide(prs.slide_layouts[5])
     
-    # Title
     title = slide.shapes.title
-    title.text = f"Executive Summary: {mode_name} Scenario"
+    title.text = f"SmartCash AI Executive Summary"
     
-    # Add KPI Box
-    txBox = slide.shapes.add_textbox(Inches(1), Inches(1.5), Inches(8), Inches(2))
-    tf = txBox.text_frame
+    # KPI Stats
+    content = slide.shapes.add_textbox(Inches(0.5), Inches(1.5), Inches(9), Inches(5))
+    tf = content.text_frame
     p = tf.add_paragraph()
-    p.text = f"Total Risk-Adjusted Liquidity: ${liquidity/1e6:.2f}M"
-    p.font.bold = True
-    p.font.size = Pt(32)
-
-    # Add Data Summary
-    p2 = tf.add_paragraph()
-    p2.text = f"Portfolio analyzed across {len(df)} institutional invoices."
-    p2.font.size = Pt(18)
+    p.text = f"Scenario Mode: {mode_name}"
+    p.font.size = Pt(24)
     
+    p2 = tf.add_paragraph()
+    p2.text = f"Risk-Adjusted Liquidity: ${liquidity/1e6:.2f}M"
+    p2.font.bold = True
+    p2.font.size = Pt(32)
+    
+    # CRITICAL FIX: Use BytesIO correctly
     binary_output = BytesIO()
     prs.save(binary_output)
+    binary_output.seek(0) # Move to start of buffer
     return binary_output.getvalue()
 
 # --- 1. STABILITY INITIALIZATION ---
@@ -241,7 +247,7 @@ with cols[2]:
     if st.button("📩 Escalated Board Report", use_container_width=True):
         st.toast("Executive Summary PDF generated and sent.")
 
-# --- 9. UI DOWNLOAD SECTION (Place at bottom of script) ---
+# --- 9. UI DOWNLOAD SECTION ---
 
 st.divider()
 st.subheader("📤 Export Intelligence")
