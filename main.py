@@ -148,7 +148,16 @@ if menu == "📈 Dashboard":
     st.divider()
 
     st.subheader("⏳ Accounts Receivable Ageing Analysis")
-    ov = view_df[view_df['Status'] == 'Overdue'].copy()
+    
+    # Logic: Filter for Overdue items (either by 'Status' column or Date comparison)
+    today_val = datetime(2026, 1, 31)
+    
+    # Create a copy and ensure Due_Date is datetime
+    ageing_df = view_df.copy()
+    ageing_df['Due_Date'] = pd.to_datetime(ageing_df['Due_Date'])
+    
+    # Filter for items that are past due
+    ov = ageing_df[(ageing_df['Status'].str.upper() == 'OVERDUE') | (ageing_df['Due_Date'] < today_val)].copy()
     if not ov.empty:
         def get_bucket(d):
             days = (today - datetime.strptime(d, '%Y-%m-%d')).days
