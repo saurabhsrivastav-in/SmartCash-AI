@@ -200,7 +200,7 @@ elif menu == "🛡️ Risk Radar":
     weights = {'AAA':0.05, 'AA':0.1, 'A':0.2, 'B':0.4, 'C':0.6, 'D':0.9}
     view_df['Exposure'] = view_df['Amount_Remaining'] * view_df['ESG_Score'].map(weights)
     
-    # 1. Add a temporary column for tooltips (Amount in Millions)
+    # 1. Add a temporary column for tooltips (Amount)
     view_df['Amount'] = view_df['Amount_Remaining'] / 1e6
 
     # 2. Update the sunburst call with hover_data
@@ -211,7 +211,7 @@ elif menu == "🛡️ Risk Radar":
     
     # 3. Refine the hover template
     # %{label} automatically captures the Company Name (Customer) at the leaf level
-    # customdata[0] captures the Amount_M column added above
+    # customdata[0] captures the Amount column added above
     fig_s.update_traces(
         hovertemplate="<b>%{label}</b><br>Total Value: $%{customdata[0]}M<br>Risk Exposure: $%{value:,.2f}<extra></extra>"
     )
