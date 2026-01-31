@@ -88,10 +88,16 @@ if 'ledger' not in st.session_state:
     inv_data = []
     for i in range(300):
         ent = np.random.choice(entities)
-        # FIX 1: Increase the range to 10M - 35M
-        amt = np.random.uniform(10000000, 35000000) 
         
-        due = datetime(2026, 1, 30) - timedelta(days=np.random.randint(-30, 90))
+        # --- STRATEGIC DATA SCALING ---
+        # 10% of invoices are "Strategic Risks" (20M - 35M)
+        # 90% are standard operational (1M - 15M)
+        if np.random.random() > 0.90:
+            amt = np.random.uniform(20_000_000, 35_000_000)
+        else:
+            amt = np.random.uniform(1_000_000, 15_000_000)
+            
+        due = datetime(2026, 1, 30) - timedelta(days=np.random.randint(-15, 60))
         inv_data.append({
             'Invoice_ID': f"INV-{1000+i}",
             'Company_Code': ent,
