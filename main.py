@@ -84,28 +84,22 @@ with st.sidebar:
     st.header("⚙️ Controls")
     menu = st.radio("Workspace", ["📈 Dashboard", "🛡️ Risk Radar", "⚡ Workbench", "📜 Audit"])
     latency = st.slider("Collection Latency (Days)", 0, 90, 15)
-if 'Company_Code' in st.session_state.ledger.columns:
-    entities = ["Consolidated"] + list(st.session_state.ledger['Company_Code'].unique())
-    ent_f = st.selectbox("Company Entity", entities)
-else:
-    st.warning("⚠️ 'Company_Code' column not found. Defaulting to Consolidated.")
-    ent_f = "Consolidated"
-   entities = ["Consolidated"] + list(st.session_state.ledger['Company_Code'].unique())
-    ent_f = st.selectbox("Company Entity", entities)
-else:
-    # This block also needs to be indented
-    st.warning("⚠️ 'Company_Code' column not found. Defaulting to Consolidated.")
-    ent_f = "Consolidated"
-    ent_f = st.selectbox("Company Entity", entities)
-else:
-    st.warning("⚠️ 'Company_Code' column not found in the uploaded ledger. Defaulting to Consolidated.")
-    ent_f = "Consolidated"
+    
+    # Check if column exists to prevent KeyError
+    if 'Company_Code' in st.session_state.ledger.columns:
+        entities = ["Consolidated"] + list(st.session_state.ledger['Company_Code'].unique())
+        ent_f = st.selectbox("Company Entity", entities)
+    else:
+        st.warning("⚠️ 'Company_Code' column not found.")
+        ent_f = "Consolidated"
+    
     st.divider()
     stress_test = st.toggle("Enable Stress Loading", help="Simulate high-risk market conditions")
 
+# Process the filter after the sidebar is closed
 if ent_f != "Consolidated":
     view_df = view_df[view_df['Company_Code'] == ent_f]
-
+    
 liq_pool = (view_df['Amount_Remaining'].sum() / 1e6) - (latency * 0.12)
 today = datetime(2026, 1, 30)
 
