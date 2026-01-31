@@ -211,15 +211,19 @@ elif menu == "⚡ Workbench":
     st.subheader("⚡ Operational Command")
     t1, t2, t3 = st.tabs(["🧩 AI Matcher", "📩 Dunning Center", "🛠️ Dispute Resolver"])
     
-    with t1:
+   with t1:
         st.write("**Intelligent Bank Reconciliation**")
         match_df = st.session_state.bank.copy()
-        match_df['Suggested_Invoice'] = match_df['Customer'].apply(
-            lambda x: st.session_state.ledger[st.session_state.ledger['Customer'] == x]['Invoice_ID'].values[0] 
-            if len(st.session_state.ledger[st.session_state.ledger['Customer'] == x]) > 0 else "No Match"
-        )
-        match_df['Confidence'] = match_df['Suggested_Invoice'].apply(lambda x: "98%" if x != "No Match" else "0%")
-        st.dataframe(match_df, use_container_width=True)
+        
+        # Check if 'Customer' exists in bank feed AND ledger
+        if 'Customer' in match_df.columns and 'Customer' in st.session_state.ledger.columns:
+            match_df['Suggested_Invoice'] = match_df['Customer'].apply(
+                lambda x: st.session_state.ledger[st.session_state.ledger['Customer'] == x]['Invoice_ID'].values[0] 
+                if not st.session_state.ledger[st.session_state.ledger['Customer'] == x].empty else "No Match"
+            )
+            st.dataframe(match_df, use_container_width=True)
+        else:
+            st.error("❌ Column mismatch: Ensure both files have a 'Customer' column.")
         st.info("AI Matcher identified high-confidence links between receipts and open receivables.")
 
     with t2:
