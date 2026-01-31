@@ -201,13 +201,13 @@ elif menu == "🛡️ Risk Radar":
     view_df['Exposure'] = view_df['Amount_Remaining'] * view_df['ESG_Score'].map(weights)
     
     # 1. Add a temporary column for tooltips (Amount in Millions)
-    view_df['Amount_M'] = view_df['Amount_Remaining'] / 1e6
+    view_df['Amount'] = view_df['Amount_Remaining'] / 1e6
 
     # 2. Update the sunburst call with hover_data
     fig_s = px.sunburst(view_df, path=['Company_Code', 'Currency', 'ESG_Score', 'Customer'], 
                         values='Exposure', color='ESG_Score',
                         color_discrete_map={'AAA':'#238636', 'AA':'#2ea043', 'A':'#d29922', 'B':'#db6d28', 'C':'#f85149', 'D':'#b62323'},
-                        hover_data={'Amount_M': ':,.2f'}) # Pass the million-unit column
+                        hover_data={'Amount': ':,.2f'}) # Pass the amount-unit column
     
     # 3. Refine the hover template
     # %{label} automatically captures the Company Name (Customer) at the leaf level
