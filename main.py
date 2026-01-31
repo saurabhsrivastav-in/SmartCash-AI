@@ -257,7 +257,17 @@ elif menu == "⚡ Workbench":
             target = st.selectbox("Select Debtor", ov['Customer'].unique())
             inv = ov[ov['Customer'] == target].iloc[0]
             st.markdown("### 📧 Professional Notice Draft")
-            email_body = f"Subject: URGENT: Payment Overdue for {inv['Customer']} ({inv['Invoice_ID']})\n\nDear Accounts Payable Team..."
+          email_body = f"""Subject: URGENT: Payment Overdue for {inv['Customer']} ({inv['Invoice_ID']})
+
+Dear Accounts Payable Team,
+
+This is a formal notice regarding Invoice {inv['Invoice_ID']}, which was due on {inv['Due_Date']}.
+Our records indicate an outstanding balance of {inv['Currency']} {inv['Amount_Remaining']:,.2f}.
+
+Please confirm the payment status or provide a remittance advice by EOD.
+
+Best Regards,
+Treasury Operations Team"""
             st.text_area("Final Review", email_body, height=280)
             if st.button("📤 Dispatch Professional Notice"):
                 st.session_state.audit.insert(0, {"Time": datetime.now().strftime("%H:%M"), "Action": "DUNNING", "ID": inv['Invoice_ID'], "Detail": f"Sent to {target}"})
