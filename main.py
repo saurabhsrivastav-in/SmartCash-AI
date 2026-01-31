@@ -251,13 +251,14 @@ elif menu == "⚡ Workbench":
         else:
             st.error("❌ Column mismatch: Ensure both files have a 'Customer' or 'Payer_Name' column.")
 
-    with t2:
+  with t2:
         ov = view_df[view_df['Status'] == 'Overdue']
         if not ov.empty:
             target = st.selectbox("Select Debtor", ov['Customer'].unique())
             inv = ov[ov['Customer'] == target].iloc[0]
             st.markdown("### 📧 Professional Notice Draft")
-          email_body = f"""Subject: URGENT: Payment Overdue for {inv['Customer']} ({inv['Invoice_ID']})
+            
+            email_body = f"""Subject: URGENT: Payment Overdue for {inv['Customer']} ({inv['Invoice_ID']})
 
 Dear Accounts Payable Team,
 
@@ -268,9 +269,17 @@ Please confirm the payment status or provide a remittance advice by EOD.
 
 Best Regards,
 Treasury Operations Team"""
+            
             st.text_area("Final Review", email_body, height=280)
+            
             if st.button("📤 Dispatch Professional Notice"):
-                st.session_state.audit.insert(0, {"Time": datetime.now().strftime("%H:%M"), "Action": "DUNNING", "ID": inv['Invoice_ID'], "Detail": f"Sent to {target}"})
+                # Ensure datetime is imported at the top of your script
+                st.session_state.audit.insert(0, {
+                    "Time": datetime.now().strftime("%H:%M"), 
+                    "Action": "DUNNING", 
+                    "ID": inv['Invoice_ID'], 
+                    "Detail": f"Sent to {target}"
+                })
                 st.success("Notice dispatched.")
         else: 
             total_pending = view_df['Amount_Remaining'].sum()
