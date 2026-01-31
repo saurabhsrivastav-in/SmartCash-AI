@@ -222,18 +222,58 @@ with tab_velocity:
 
 with tab_entity:
     st.subheader("🏢 Strategic Entity Risk Profiling")
-    st.markdown("---")
     
+    # --- NEW: Product Feature Toggle ---
+    col_ctrl1, col_ctrl2 = st.columns([2, 1])
+    with col_ctrl1:
+        view_limit = st.toggle("Focus on High-Exposure Entities (Top per Category)", value=False)
+    with col_ctrl2:
+        top_n = st.select_slider("Entities per Rating", options=[5, 10], value=5, disabled=not view_limit)
+
     risk_colors = {'AAA':'#238636', 'AA':'#2ea043', 'A':'#d29922', 'B':'#db6d28', 'C':'#f85149', 'D':'#b62323'}
-    entity_stats = view_df.copy()
-    entity_stats['Due_DT'] = pd.to_datetime(entity_stats['Due_Date'])
-    entity_stats['Days_Late'] = (pd.to_datetime('2026-01-30') - entity_stats['Due_DT']).dt.days.clip(lower=0)
     
-    entity_analysis = entity_stats.groupby(['Customer', 'ESG_Score', 'Company_Code']).agg({
+    # Process Grouped Data
+    e_stats = view_df.copy()
+    e_stats['Due_DT'] = pd.to_datetime(e_stats['Due_Date'])
+    e_stats['Days_Late'] = (pd.to_datetime('2026-01-31') - e_stats['Due_DT']).dt.days.clip(lower=0)
+    
+    entity_analysis = e_stats.groupby(['Customer', 'ESG_Score']).agg({
         'Amount_Remaining': 'sum',
-        'Invoice_ID': 'count',
         'Days_Late': 'mean'
     }).reset_index()
+
+    # --- NEW: Top N per Category Filtering Logic ---
+    if view_limit:
+        entity_analysis = entity_analysis.sort_values(['ESG_Score', 'Amount_Remaining'], ascending=[True, False])
+        entity_analysis = entity_analysis.groupby('ESG_Score').head(top_n).reset_index(drop=True)
+
+    col_matrix, col_cards = st.columns([3, 1])
+
+    with col_matrix:
+        st.write(f"#### 🎯 Strategic Risk Matrix {'(Filtered: Top ' + str(top_n) + ' per Rating)' if view_limit else ''}")
+        fig_bubble = px.scatter(
+            entity_analysis, x="Days_Late", y="Amount_Remaining",
+            size="Amount_Remaining", color="ESG_Score", hover_name="Customer",
+            color_discrete_map=risk_colors, template="plotly_dark", size_max=60
+        )
+        
+        max_bubble_value = entity_analysis['Amount_Remaining'].max()
+        fig_bubble.update_layout(
+            height=650,
+            yaxis=dict(range=[0, max_bubble_value * 1.2], title="Exposure ($)", gridcolor="#30363d"),
+            xaxis=dict(range=[-5, 100], title="Avg Days Overdue", gridcolor="#30363d")
+        )
+        
+        fig_bubble.add_vline(x=30, line_dash="dash", line_color="#f85149", annotation_text="30D Threshold")
+        fig_bubble.add_hrect(
+            y0=total_val * 0.1, 
+            y1=max_bubble_value * 1.25, 
+            fillcolor="red", 
+            opacity=0.05, 
+            annotation_text="CONCENTRATION LIMIT"
+        )
+        
+        st.plotly_chart(fig_bubble, use_container_width=True, key="entity_bubble_enlarged")
 
     # --- ENLARGED LAYOUT: 3:1 Ratio ---
     col_matrix, col_cards = st.columns([3, 1])
