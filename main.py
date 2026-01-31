@@ -17,9 +17,21 @@ if 'chat_key' not in st.session_state:
 @st.cache_data
 def load_institutional_data():
     try:
-        # 1. Load your new 200+ row Invoice file
-        inv_df = pd.read_csv("invoices.csv")
+        # Update these paths to include the 'data/' folder
+        inv_df = pd.read_csv("data/invoices.csv")
+        bank_df = pd.read_csv("data/bank_feed.csv")
+        
+        # ... rest of your processing logic ...
         inv_df['Due_Date'] = pd.to_datetime(inv_df['Due_Date'])
+        bank_df['Date'] = pd.to_datetime(bank_df['Date'])
+        
+        if 'Amount' in inv_df.columns:
+            inv_df = inv_df.rename(columns={'Amount': 'Amount_Remaining'})
+            
+        return inv_df, bank_df
+    except FileNotFoundError:
+        st.error("⚠️ Files still not found. Check if the folder is named 'data' (lowercase).")
+        return pd.DataFrame(), pd.DataFrame()
         
         # Sync naming: Repository logic expects 'Amount_Remaining'
         if 'Amount' in inv_df.columns:
