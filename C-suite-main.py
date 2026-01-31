@@ -8,12 +8,8 @@ from datetime import datetime, timedelta
 # --- 1. STABILITY INITIALIZATION ---
 if 'audit' not in st.session_state:
     st.session_state.audit = []
-if 'search_query' not in st.session_state:
-    st.session_state.search_query = "Consolidated"
-
-# --- 2. DATA ENGINE ---
-@st.cache_data
-def load_institutional_data():
+if 'ledger' not in st.session_state:
+    # Initial data generation
     customers = ['Tesla', 'EcoEnergy', 'GlobalBlue', 'TechRetail', 'Quantum Dyn', 'Alpha Log', 'Nordic Oil', 'Sino Tech', 'Indo Power', 'Euro Mart']
     entities = ['1000 (US)', '2000 (EU)', '3000 (UK)']
     currencies = {'1000 (US)': 'USD', '2000 (EU)': 'EUR', '3000 (UK)': 'GBP'}
@@ -35,30 +31,36 @@ def load_institutional_data():
             'Status': 'Overdue' if due < datetime(2026, 1, 30) else 'Open',
             'Is_Disputed': False
         })
-    return pd.DataFrame(inv_data), pd.DataFrame([]) # Simplified for demo
+    st.session_state.ledger = pd.DataFrame(inv_data)
 
-if 'ledger' not in st.session_state:
-    st.session_state.ledger, _ = load_institutional_data()
-
-# --- 3. EXECUTIVE THEME ---
+# --- 2. EXECUTIVE THEME ---
 st.set_page_config(page_title="SmartCash AI | C-Suite", page_icon="🏛️", layout="wide")
 st.markdown("""
     <style>
     .stApp { background-color: #0d1117; color: #c9d1d9; }
-    [data-testid="stMetricValue"] { font-size: 32px; color: #58a6ff; font-weight: 800; }
-    .stMetric { background: linear-gradient(135deg, #161b22 0%, #0d1117 100%); border: 1px solid #30363d; border-radius: 12px; }
+    [data-testid="stMetricValue"] { font-size: 28px; color: #58a6ff; font-weight: 800; }
+    .stMetric { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 10px; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 4. TOP NAVIGATION & AUTO-SUGGEST ---
-st.title("🏛️ SmartCash AI | Executive Treasury Dashboard")
+# --- 3. SIDEBAR & MACRO TOGGLES ---
+with st.sidebar:
+    st.title("🛡️ Risk Controls")
+    # Interactive Toggles that affect metrics globally
+    bad_debt_provision = st.slider("Bad Debt Provision (%)", 0, 20, 5)
+    risk_weighting = st.toggle("Enable Risk-Weighted Valuation", value=True)
+    st.divider()
+    st.info(f"System Time: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+
+# --- 4. TOP NAVIGATION ---
+st.title("🏛️ Executive Treasury Intelligence")
 suggestion_list = ["Consolidated"] + sorted(st.session_state.ledger['Customer'].unique().tolist())
 
 h_col1, h_col2, h_col3 = st.columns([3, 2, 1])
 with h_col1:
     search_selection = st.selectbox("🎯 Strategic Entity Search", options=suggestion_list, index=0)
 with h_col2:
-    st.write(" ") # Spacer
+    st.write(" ") 
     mode = st.segmented_control("View Mode", ["Actuals", "AI Forecast", "Stress Test"], default="Actuals")
 with h_col3:
     st.write(" ")
@@ -66,82 +68,87 @@ with h_col3:
 
 st.divider()
 
-# --- 5. DATA FILTERING ---
+# --- 5. DATA FILTERING ENGINE ---
 view_df = st.session_state.ledger.copy()
 if search_selection != "Consolidated":
     view_df = view_df[view_df['Customer'] == search_selection]
 
-# --- 6. INTELLIGENT TOGGLES (SIDEBAR) ---
-with st.sidebar:
-    st.header("🛠️ Macro Toggles")
-    ai_confidence = st.select_slider("AI Confidence Interval", options=[80, 90, 95, 99], value=95)
-    bad_debt_provision = st.toggle("Apply Bad Debt Provision", value=True)
-    fx_hedging = st.toggle("Enable FX Hedge Overlay", value=False)
-    st.divider()
-    st.info(f"System Time: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+# --- 6. C-SUITE METRICS (REPLACED BoA LIQUIDITY TIER) ---
+# Logic for Risk-Adjusted Liquidity
+weights = {'AAA':0.98, 'AA':0.95, 'A':0.90, 'B':0.80, 'C':0.60, 'D':0.40}
+total_val = view_df['Amount_Remaining'].sum()
 
-# --- 7. C-SUITE METRICS (BoA Level 1) ---
+# Meaningful C-Suite Metric calculation
+if risk_weighting:
+    net_collectible = (view_df['Amount_Remaining'] * view_df['ESG_Score'].map(weights)).sum()
+else:
+    net_collectible = total_val * (1 - (bad_debt_provision/100))
+
 m1, m2, m3, m4 = st.columns(4)
-m1.metric("BoA Liquidity Tier", "Level 1 (Strong)", "0.02% Var")
-m2.metric("Working Capital Pool", f"${(view_df['Amount_Remaining'].sum()/1e6):.1f}M")
-m3.metric("Weighted DSO", f"{38} Days", "-2.4% vs LY")
-m4.metric("Risk-at-Value (95%)", f"${(view_df['Amount_Remaining'].sum()*0.08/1e6):.1f}M", "Critical")
+m1.metric("Risk-Adjusted Net Liquidity", f"${(net_collectible/1e6):.2f}M", help="Projected cash after applying risk weights and bad debt provisions.")
+m2.metric("Working Capital Pool", f"${(total_val/1e6):.1f}M")
+m3.metric("Weighted DSO", "38 Days", "-2.4% vs LY")
+m4.metric("Capital at Risk", f"${((total_val - net_collectible)/1e6):.2f}M", delta="High Risk", delta_color="inverse")
 
 st.divider()
 
-# --- 8. GRAPHICAL INTELLIGENCE ---
-c1, c2 = st.columns([2, 1])
+# --- 7. GRAPHICAL INTELLIGENCE ---
+tab_charts, tab_stress = st.tabs(["📊 Exposure Analytics", "🔥 Stress Matrix"])
 
-with c1:
-    # THE OVERDUE AGEING CHART (AS REQUESTED)
-    st.subheader("⏳ Institutional Ageing (DPD Buckets)")
-    ov = view_df[view_df['Status'] == 'Overdue'].copy()
-    if not ov.empty:
+with tab_charts:
+    c1, c2 = st.columns([2, 1])
+    with c1:
+        st.subheader("🛡️ Strategic Risk Radar")
+        # Optimized Sunburst with 4-decimal precision for small Millions values
+        view_df['Amount_M'] = view_df['Amount_Remaining'] / 1_000_000
+        fig_s = px.sunburst(
+            view_df,
+            path=['Company_Code', 'ESG_Score', 'Customer'],
+            values='Amount_Remaining',
+            color='ESG_Score',
+            color_discrete_map={'AAA':'#238636', 'AA':'#2ea043', 'A':'#d29922', 'B':'#db6d28', 'C':'#f85149', 'D':'#b62323'},
+            hover_data=['Amount_M']
+        )
+        fig_s.update_traces(
+            hovertemplate="<b>%{label}</b><br>Total Value: $%{customdata[0]:,.4f}M<br>Share: %{percentParent:.1%}<extra></extra>"
+        )
+        fig_s.update_layout(template="plotly_dark", height=500, margin=dict(t=10, b=10, l=10, r=10))
+        st.plotly_chart(fig_s, use_container_width=True)
+
+    with c2:
+        st.subheader("⏳ Institutional Ageing")
         def get_bucket(d):
             days = (datetime(2026, 1, 30) - datetime.strptime(d, '%Y-%m-%d')).days
-            for b in [15, 30, 60, 90, 120, 180, 360, 540]:
-                if days <= b: return f"0-{b}" if b==15 else f"{prev+1}-{b}"
-                prev = b
-            return "540+"
+            if days <= 30: return "0-30"
+            elif days <= 60: return "31-60"
+            elif days <= 90: return "61-90"
+            else: return "90+"
         
-        ov['Bucket'] = ov['Due_Date'].apply(get_bucket)
-        order = ["0-15", "16-30", "31-60", "61-90", "91-120", "121-180", "181-360", "361-540"]
-        age_data = ov.groupby('Bucket')['Amount_Remaining'].sum().reindex(order, fill_value=0).reset_index()
-        
-        fig_age = px.bar(age_data, x='Bucket', y='Amount_Remaining', text_auto='.2s',
-                         color='Amount_Remaining', color_continuous_scale='Reds')
-        fig_age.update_layout(template="plotly_dark", height=400, xaxis_title="Days Past Due", yaxis_title="Balance ($)")
-        st.plotly_chart(fig_age, use_container_width=True)
-        
+        ov = view_df[view_df['Status'] == 'Overdue'].copy()
+        if not ov.empty:
+            ov['Bucket'] = ov['Due_Date'].apply(get_bucket)
+            age_data = ov.groupby('Bucket')['Amount_Remaining'].sum().reset_index()
+            fig_age = px.bar(age_data, x='Bucket', y='Amount_Remaining', color='Bucket',
+                             color_discrete_sequence=px.colors.sequential.Reds_r)
+            fig_age.update_layout(template="plotly_dark", height=500, showlegend=False)
+            st.plotly_chart(fig_age, use_container_width=True)
 
-with c2:
-    # CONCENTRATION RISK
-    st.subheader("⚠️ Concentration Risk (Top 5)")
-    conc_data = view_df.groupby('Customer')['Amount_Remaining'].sum().nlargest(5).reset_index()
-    fig_pie = px.pie(conc_data, values='Amount_Remaining', names='Customer', hole=.6,
-                     color_discrete_sequence=px.colors.sequential.Blues_r)
-    fig_pie.update_layout(template="plotly_dark", height=400, showlegend=False)
-    st.plotly_chart(fig_pie, use_container_width=True)
-    
+with tab_stress:
+    st.subheader("Strategic Liquidity Stress Matrix (FX Volatility vs. Hedging)")
+    fx_range = np.array([-10, -5, 0, 5, 10])
+    hedge_range = np.array([0, 25, 50, 75, 100])
+    base_liq = net_collectible / 1e6
 
-st.divider()
+    z_data = [[round(base_liq * (1 + (fx/100) * (1 - (h/100))), 2) for h in hedge_range] for fx in fx_range]
 
-# --- 9. THE INTERACTIVE STRESS MATRIX ---
-st.subheader("🔥 Strategic Liquidity Stress Matrix (FX Volatility vs. Hedging)")
-fx_range = np.array([-10, -5, 0, 5, 10])
-hedge_range = np.array([0, 25, 50, 75, 100])
-base_liq = view_df['Amount_Remaining'].sum() / 1e6
+    fig_h = go.Figure(data=go.Heatmap(
+        z=z_data, x=[f"{h}% Hedge" for h in hedge_range], y=[f"{fx}% FX Vol" for fx in fx_range],
+        colorscale='RdYlGn', text=z_data, texttemplate="$%{text}M"
+    ))
+    fig_h.update_layout(template="plotly_dark", height=450)
+    st.plotly_chart(fig_h, use_container_width=True)
 
-z_data = [[round(base_liq * (1 + (fx/100) * (1 - (h/100))), 2) for h in hedge_range] for fx in fx_range]
-
-fig_h = go.Figure(data=go.Heatmap(
-    z=z_data, x=[f"{h}% Hedge" for h in hedge_range], y=[f"{fx}% FX Vol" for fx in fx_range],
-    colorscale='RdYlGn', text=z_data, texttemplate="$%{text}M", hoverinfo="z"
-))
-fig_h.update_layout(template="plotly_dark", height=400, margin=dict(t=20, b=20, l=20, r=20))
-st.plotly_chart(fig_h, use_container_width=True)
-
-# --- 10. EXECUTIVE ACTION PANEL ---
+# --- 8. EXECUTIVE ACTION PANEL ---
 st.subheader("⚡ Executive Action Thresholds")
 cols = st.columns(3)
 with cols[0]:
@@ -149,7 +156,7 @@ with cols[0]:
         st.toast("Discounting Facility Activated for High-Risk Buckets")
 with cols[1]:
     if st.button("🛡️ Trigger FX Hedge", use_container_width=True):
-        st.toast("Hedge Ratio increased to 75% for GBP/USD")
+        st.toast("Hedge Ratio increased to 75% for Active Portfolio")
 with cols[2]:
     if st.button("📩 Escalated Board Report", use_container_width=True):
-        st.toast("Executive Summary PDF generated.")
+        st.toast("Executive Summary PDF generated and sent.")
