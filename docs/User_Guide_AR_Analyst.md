@@ -1,81 +1,78 @@
-# 📘 AR Analyst User Guide: SmartCash AI
-
-**System Role:** Accounts Receivable / Treasury Operations  
-**Platform:** SmartCash AI - Institutional Treasury Command  
-**Version:** 1.0.0  
+# 📘 User Guide: AR Analyst Workbench
+> **Product:** SmartCash AI  
+> **Module:** Treasury Automation & Cash Application  
+> **Version:** 1.0.0
 
 ---
 
 ## 1. Introduction
-Welcome to **SmartCash AI**. This platform is designed to act as your "AI Co-Pilot," automating the repetitive data-entry tasks of bank reconciliation and allowing you to focus on high-value exception management and customer relations.
+Welcome to **SmartCash AI**. This platform is designed to act as your "Digital Assistant," handling the repetitive manual matching of bank statements to invoices so you can focus on high-value exception management and financial strategy.
 
 ---
 
-## 2. Navigating the Analyst Workbench
-The **Analyst Workbench** is where you will spend most of your time. It is designed to handle transactions that require a "human-in-the-loop" review.
+## 2. Getting Started
+### 2.1 Accessing the Dashboard
+1.  Navigate to the [SmartCash AI Live Link](https://smartcash-ai-cgumahyfurnnel8ocgbya5.streamlit.app/).
+2.  Ensure your **Dark Mode** is enabled in browser settings for the optimal "Command Center" experience.
 
-### 2.1 Step 1: Selecting a Transaction
-The system automatically pulls the latest intraday bank feed. 
-1. Navigate to **Analyst Workbench** via the sidebar.
-2. View the **Bank Feed Table** to see incoming credits.
-3. Use the **Focus Item** dropdown to select a specific transaction for review.
-
-### 2.2 Step 2: Running the Match Engine
-Once a transaction is selected, click **"Run Multi-Factor Match Engine"**. The system will compare the bank data against open invoices using three logic gates:
-
-| Match Type | Confidence | System Action |
-| :--- | :--- | :--- |
-| **Exact Match** | 100% | Auto-posts and triggers success balloons. |
-| **Fuzzy Match** | 90% - 99% | Asks for analyst confirmation. |
-| **Exception** | < 90% | Triggers the GenAI Dispute Agent. |
-
-
+### 2.2 Data Ingestion
+To start a reconciliation cycle, upload your latest data files via the sidebar:
+* **Invoices (A/R Ledger):** Upload your `invoices.csv` containing open balances.
+* **Bank Feed (MT942/CAMT):** Upload the daily bank credit statement.
 
 ---
 
-## 3. Managing Exceptions & Disputes
-When the system cannot find a high-confidence match (due to missing Invoice IDs or "short-pays"), it enters **Exception Mode**.
+## 3. Interpreting the "Risk Radar"
+The **Sunburst Chart** on the main dashboard represents your global liquidity risk.
 
-### 3.1 AI Remittance Request
-If a match is below 90% confidence:
-1. The system will display a **Warning** message.
-2. The **GenAI Assistant** will automatically draft an email tailored to that specific customer.
-3. **Action:** Review the draft, copy it, and send it to the customer's AP department to request a remittance advice.
 
-### 3.2 Handling Short-Payments
-If the `Amount_Received` is less than the `Invoice_Amount`, the system will flag the variance. You can then use the dashboard metrics to determine if the difference is a bank fee or a formal dispute.
+
+* **Inner Ring (Currency):** Shows concentration of cash (USD, EUR, etc.).
+* **Middle Ring (Customer):** Identifies which accounts hold the most open debt.
+* **Outer Ring (ESG):** Visualizes the ESG risk score of your payers—critical for institutional compliance.
 
 ---
 
-## 4. Monitoring Risk & DSO
-Analysts are responsible for maintaining the health of the A/R aging. 
+## 4. The Matching Workflow
+The engine automatically categorizes every transaction into three buckets:
 
-* **Check the Executive Dashboard:** Monitor the **Adjusted DSO**. If it increases, it means collections are slowing down.
-* **Review the Risk Radar:** Use the Sunburst chart to identify which currencies or customers (with low ESG scores) are causing the highest liquidity concentration.
+### ✅ Bucket A: Auto-Matched (STP)
+* **Status:** Green
+* **Action:** None required. The system found a 95%+ match. These are queued for automatic ERP upload.
 
+### ⚠️ Bucket B: AI Suggestions (Manual Review)
+* **Status:** Amber
+* **Action:** Review the **Confidence Score**. 
+    * If the Payer Name is slightly misspelled (e.g., "Saurabh Srivastav Inc" vs "S. Srivastav"), click **"Confirm Match."**
+    * The system uses `thefuzz` logic to highlight exactly where the strings differ.
 
-
----
-
-## 5. Compliance & The Audit Ledger
-Every action you take—whether confirming an AI suggestion or clearing a transaction—is logged in the **Audit Ledger**.
-
-1. Navigate to **Audit Ledger**.
-2. Verify your recent postings.
-3. Note the **Hash_ID**: This is a unique digital fingerprint used for SOC2 compliance audits; you do not need to edit this.
-
----
-
-## 6. Pro-Tips for Peak Efficiency
-* **Sidebar Controls:** Use the **Collection Latency** slider during team meetings to show the "What-If" impact of payment delays.
-* **Ballon Confirmation:** When you see balloons, the transaction has been successfully logged to the vault and is ready for ERP upload.
-* **Refresh Regularly:** Use the browser refresh to pull the latest data if the `invoices.csv` file has been updated by the IT team.
+### ❌ Bucket C: Exceptions (GenAI Required)
+* **Status:** Red
+* **Action:** Click the **"Generate Remittance Request"** button.
+    * The **GenAIAssistant** will read the transaction details and draft an email to the client asking for missing invoice numbers.
+    * Review the draft and click **"Send Email."**
 
 ---
 
-## 7. Troubleshooting
-* **Missing Invoices:** If an invoice isn't appearing, ensure the `Status` in the source data is set to 'Open'.
-* **Broken Images:** If you see a broken icon, check your internet connection; the system includes a failover, but high-latency networks may occasionally block the visual assets.
+## 5. Liquidity Stress Testing
+As an analyst, you can model "What-If" scenarios for the CFO:
+1.  Locate the **Collection Latency Slider**.
+2.  Adjust the days (e.g., move from 0 to 30 days).
+3.  Observe the **Waterfall Chart** to see how delayed payments impact the company's "Free Cash Flow" in real-time.
 
 ---
-**Need Support?** Contact the Treasury IT Helpdesk or refer to the [Technical Documentation](../docs/PRD.md).
+
+## 6. Audit & Compliance
+Every action you take (including manual overrides) is logged.
+* To view the audit trail, go to the **Audit Ledger** tab.
+* Each entry has a unique **Hash_ID**, ensuring that no one can alter the record of who matched which invoice and when.
+
+---
+
+## 7. Troubleshooting & FAQ
+**Q: Why is my CSV not uploading?** A: Ensure the file is `UTF-8` encoded and contains the mandatory columns: `Invoice_ID`, `Amount`, and `Customer_Name`.
+
+**Q: The AI suggestion is wrong. What do I do?** A: Click **"Reject Match."** This prevents the transaction from being cleared and moves it to the manual investigation queue.
+
+---
+**Support:** For technical issues, please open a ticket in the [GitHub Issues](https://github.com/saurabhsrivastav-in/SmartCash-AI/issues) repository.
