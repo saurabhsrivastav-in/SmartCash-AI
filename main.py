@@ -85,7 +85,12 @@ with st.sidebar:
     menu = st.radio("Workspace", ["📈 Dashboard", "🛡️ Risk Radar", "⚡ Workbench", "📜 Audit"])
     latency = st.slider("Collection Latency (Days)", 0, 90, 15)
     if 'Company_Code' in st.session_state.ledger.columns:
-    entities = ["Consolidated"] + list(st.session_state.ledger['Company_Code'].unique())
+   entities = ["Consolidated"] + list(st.session_state.ledger['Company_Code'].unique())
+    ent_f = st.selectbox("Company Entity", entities)
+else:
+    # This block also needs to be indented
+    st.warning("⚠️ 'Company_Code' column not found. Defaulting to Consolidated.")
+    ent_f = "Consolidated"
     ent_f = st.selectbox("Company Entity", entities)
 else:
     st.warning("⚠️ 'Company_Code' column not found in the uploaded ledger. Defaulting to Consolidated.")
