@@ -253,16 +253,41 @@ with tab_entity:
             size_max=60 
         )
         
+   # --- CALCULATE DYNAMIC TOP MARGIN ---
+        # We find the largest single bubble to ensure the axis fits it perfectly
+        max_bubble_value = entity_analysis['Amount_Remaining'].max()
+
         fig_bubble.update_layout(
             height=650, 
             margin=dict(l=20, r=20, t=40, b=20),
-            xaxis=dict(gridcolor="#30363d"),
-            yaxis=dict(gridcolor="#30363d")
+            xaxis=dict(
+                gridcolor="#30363d",
+                title="Avg Days Overdue",
+                range=[-5, 100] # Keeps the 30D line and 90D+ data in frame
+            ),
+            yaxis=dict(
+                gridcolor="#30363d",
+                title="Exposure ($)",
+                # FIX: Set the axis to just above the highest bubble (~35M) 
+                # instead of the total portfolio ($250M)
+                range=[0, max_bubble_value * 1.2] 
+            ),
+            template="plotly_dark"
         )
         
+        # 30D Vertical Threshold
         fig_bubble.add_vline(x=30, line_dash="dash", line_color="#f85149", annotation_text="30D Threshold")
-        fig_bubble.add_hrect(y0=total_val*0.1, y1=entity_analysis['Amount_Remaining'].max()*1.2, 
-                             fillcolor="red", opacity=0.05, annotation_text="CONCENTRATION LIMIT")
+        
+        # Strategic Concentration Limit 
+        # y0 remains total_val * 0.1 (e.g., 25M) to show when an entity is too large
+        fig_bubble.add_hrect(
+            y0=total_val * 0.1, 
+            y1=max_bubble_value * 1.15, 
+            fillcolor="red", 
+            opacity=0.05, 
+            annotation_text="CONCENTRATION LIMIT",
+            annotation_position="top left"
+        )
         
         st.plotly_chart(fig_bubble, use_container_width=True, key="entity_bubble_enlarged")
 
