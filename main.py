@@ -144,7 +144,7 @@ if menu == "📈 Dashboard":
     )
     st.plotly_chart(fig_trend, use_container_width=True)
     
-st.divider()
+    st.divider()
 
     st.subheader("⏳ Accounts Receivable Ageing Analysis")
     ov = view_df[view_df['Status'] == 'Overdue'].copy()
