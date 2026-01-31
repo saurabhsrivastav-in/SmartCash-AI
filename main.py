@@ -289,7 +289,7 @@ Treasury Operations Team"""
             if not upcoming.empty:
                 st.dataframe(upcoming[['Customer', 'Due_Date', 'Amount_Remaining']], use_container_width=True)
                 
- with t3:
+with t3:
         c_flag, c_res = st.columns(2)
         with c_flag:
             to_freeze = st.selectbox("Invoice to Freeze", view_df[~view_df['Is_Disputed']]['Invoice_ID'])
