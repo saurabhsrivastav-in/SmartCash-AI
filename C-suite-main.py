@@ -86,7 +86,7 @@ if 'ledger' not in st.session_state:
     ratings = ['AAA', 'AA', 'A', 'B', 'C', 'D']
     
     inv_data = []
-    for i in range(300):
+    for i in range(416):
         ent = np.random.choice(entities)
         
         # --- STRATEGIC DATA SCALING ---
