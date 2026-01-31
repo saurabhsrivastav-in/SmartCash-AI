@@ -20,22 +20,32 @@ def load_institutional_data():
         inv_df = pd.read_csv("data/invoices.csv")
         bank_df = pd.read_csv("data/bank_feed.csv")
         
-        # 1. Strip hidden spaces from column names
-        inv_df.columns = inv_df.columns.str.strip()
+        # 1. Standardize Bank Feed Columns
         bank_df.columns = bank_df.columns.str.strip()
+        bank_df = bank_df.rename(columns={
+            'Payer_Name': 'Customer', 
+            'Amount_Received': 'Amount'
+        })
 
-        # 2. Rename common variations to 'Amount_Remaining'
-        rename_map = {
+        # 2. Standardize Invoice Columns
+        inv_df.columns = inv_df.columns.str.strip()
+        inv_df = inv_df.rename(columns={
             'Amount': 'Amount_Remaining',
-            'Balance': 'Amount_Remaining',
-            'Total': 'Amount_Remaining',
-            'Outstanding': 'Amount_Remaining'
-        }
-        inv_df = inv_df.rename(columns=rename_map)
-
-        # 3. Create 'Is_Disputed' column if it's missing (to prevent the next KeyError)
+            'Balance': 'Amount_Remaining'
+        })
+        
+        # 3. Create 'Is_Disputed' if it doesn't exist
         if 'Is_Disputed' not in inv_df.columns:
             inv_df['Is_Disputed'] = False
+
+        # 4. Convert Dates
+        inv_df['Due_Date'] = pd.to_datetime(inv_df['Due_Date'])
+        bank_df['Date'] = pd.to_datetime(bank_df['Date'])
+        
+        return inv_df, bank_df
+    except Exception as e:
+        st.error(f"⚠️ Error mapping columns: {e}")
+        return pd.DataFrame(), pd.DataFrame()
 
         # 4. Standardize 'Customer' for the AI Matcher
         bank_df = bank_df.rename(columns={'Payer': 'Customer', 'Sender': 'Customer', 'Description': 'Customer'})
