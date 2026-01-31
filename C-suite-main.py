@@ -233,20 +233,25 @@ with tab_entity:
     risk_colors = {'AAA':'#238636', 'AA':'#2ea043', 'A':'#d29922', 'B':'#db6d28', 'C':'#f85149', 'D':'#b62323'}
     
     # Process Grouped Data
+   # 1. Prepare the data
     e_stats = view_df.copy()
     e_stats['Due_DT'] = pd.to_datetime(e_stats['Due_Date'])
     e_stats['Days_Late'] = (pd.to_datetime('2026-01-31') - e_stats['Due_DT']).dt.days.clip(lower=0)
     
-    entity_analysis = e_stats.groupby(['Customer', 'ESG_Score']).agg({
+    # 2. Group data (CRITICAL: Added 'Company_Code' here)
+    entity_analysis = e_stats.groupby(['Customer', 'ESG_Score', 'Company_Code']).agg({
         'Amount_Remaining': 'sum',
         'Days_Late': 'mean'
     }).reset_index()
 
-    # --- NEW: Top N per Category Filtering Logic ---
+    # 3. Apply the "Top N" Executive Filter
     if view_limit:
+        # Sort by Rating then by the largest Exposure
         entity_analysis = entity_analysis.sort_values(['ESG_Score', 'Amount_Remaining'], ascending=[True, False])
+        # Isolate the top performers per rating category
         entity_analysis = entity_analysis.groupby('ESG_Score').head(top_n).reset_index(drop=True)
 
+    # 4. Create the Layout
     col_matrix, col_cards = st.columns([3, 1])
 
     with col_matrix:
