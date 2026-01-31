@@ -258,7 +258,7 @@ elif menu == "⚡ Workbench":
         st.info("AI Matcher identified high-confidence links between receipts and open receivables.")
 
     with t2:
-        # Filter for overdue items
+        # 1. Filter for items marked as Overdue
         ov = view_df[view_df['Status'] == 'Overdue']
         
         if not ov.empty:
@@ -282,8 +282,9 @@ Treasury Operations Team"""
             if st.button("📤 Dispatch Professional Notice"):
                 st.session_state.audit.insert(0, {"Time": datetime.now().strftime("%H:%M"), "Action": "DUNNING", "ID": inv['Invoice_ID'], "Detail": f"Sent to {target}"})
                 st.success("Notice dispatched.")
+        
         else: 
-            # This is where your requested update lives:
+            # 2. Fallback logic when no overdue items exist
             total_pending = view_df['Amount_Remaining'].sum()
             st.info(f"✅ No overdue items found for the current selection.")
             st.metric("Total Outstanding (Current)", f"${total_pending:,.2f}")
@@ -292,6 +293,9 @@ Treasury Operations Team"""
             upcoming = view_df[view_df['Status'] != 'Overdue'].sort_values('Due_Date').head(5)
             if not upcoming.empty:
                 st.dataframe(upcoming[['Customer', 'Due_Date', 'Amount_Remaining']], use_container_width=True)
+            else:
+                st.write("No upcoming invoices found.")
+                
     with t3:
         c_flag, c_res = st.columns(2)
         with c_flag:
