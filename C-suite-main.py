@@ -68,29 +68,46 @@ with h_col3:
 
 st.divider()
 
-# --- 5. DATA FILTERING ENGINE ---
+# --- 5. DATA FILTERING & SCENARIO ENGINE ---
 view_df = st.session_state.ledger.copy()
+
+# Filter by Customer
 if search_selection != "Consolidated":
     view_df = view_df[view_df['Customer'] == search_selection]
 
-# --- 6. C-SUITE METRICS (REPLACED BoA LIQUIDITY TIER) ---
-# Logic for Risk-Adjusted Liquidity
-weights = {'AAA':0.98, 'AA':0.95, 'A':0.90, 'B':0.80, 'C':0.60, 'D':0.40}
+# View Mode Logic (THE FIX)
+if mode == "AI Forecast":
+    # Simulate AI predicting faster collections (reducing DSO) 
+    # and identifying hidden risks in 'Open' invoices
+    view_df['Amount_Remaining'] = view_df['Amount_Remaining'] * 0.98 # Expected haircut
+    st.sidebar.warning("🤖 AI Mode: Adjusting for predicted defaults.")
+
+elif mode == "Stress Test":
+    # Simulate a market downturn: ESG scores B-D are weighted much more heavily
+    weights = {'AAA':0.90, 'AA':0.80, 'A':0.70, 'B':0.40, 'C':0.20, 'D':0.05}
+    st.sidebar.error("🔥 Stress Test: 20% Market Downturn applied.")
+else:
+    # Standard Weights for "Actuals"
+    weights = {'AAA':0.98, 'AA':0.95, 'A':0.90, 'B':0.80, 'C':0.60, 'D':0.40}
+
+# --- 6. C-SUITE METRICS (Dynamic Calculations) ---
 total_val = view_df['Amount_Remaining'].sum()
 
-# Meaningful C-Suite Metric calculation
-if risk_weighting:
+if mode == "Stress Test" or risk_weighting:
+    # Calculate liquidity based on scenario-specific weights
     net_collectible = (view_df['Amount_Remaining'] * view_df['ESG_Score'].map(weights)).sum()
 else:
     net_collectible = total_val * (1 - (bad_debt_provision/100))
 
+# Update Metrics
 m1, m2, m3, m4 = st.columns(4)
-m1.metric("Risk-Adjusted Net Liquidity", f"${(net_collectible/1e6):.2f}M", help="Projected cash after applying risk weights and bad debt provisions.")
+m1.metric("Risk-Adjusted Net Liquidity", f"${(net_collectible/1e6):.2f}M", 
+          delta=f"{(net_collectible/total_val*100):.1f}% Realizable")
 m2.metric("Working Capital Pool", f"${(total_val/1e6):.1f}M")
-m3.metric("Weighted DSO", "38 Days", "-2.4% vs LY")
-m4.metric("Capital at Risk", f"${((total_val - net_collectible)/1e6):.2f}M", delta="High Risk", delta_color="inverse")
-
-st.divider()
+m3.metric("Weighted DSO", "34 Days" if mode == "AI Forecast" else "38 Days", 
+          delta="-4 Days" if mode == "AI Forecast" else "Flat")
+m4.metric("Capital at Risk", f"${((total_val - net_collectible)/1e6):.2f}M", 
+          delta="Increased" if mode == "Stress Test" else "Stable", delta_color="inverse")
 
 # --- 7. GRAPHICAL INTELLIGENCE ---
 tab_charts, tab_stress = st.tabs(["📊 Exposure Analytics", "🔥 Stress Matrix"])
