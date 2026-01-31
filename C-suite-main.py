@@ -232,23 +232,21 @@ with tab_entity:
 
     risk_colors = {'AAA':'#238636', 'AA':'#2ea043', 'A':'#d29922', 'B':'#db6d28', 'C':'#f85149', 'D':'#b62323'}
     
-    # Process Grouped Data
-   # 1. Prepare the data
+ # 1. Prepare raw data
     e_stats = view_df.copy()
     e_stats['Due_DT'] = pd.to_datetime(e_stats['Due_Date'])
     e_stats['Days_Late'] = (pd.to_datetime('2026-01-31') - e_stats['Due_DT']).dt.days.clip(lower=0)
     
-    # 2. Group data (CRITICAL: Added 'Company_Code' here)
+    # 2. Group data (CRITICAL: Added 'Invoice_ID' to agg)
     entity_analysis = e_stats.groupby(['Customer', 'ESG_Score', 'Company_Code']).agg({
         'Amount_Remaining': 'sum',
-        'Days_Late': 'mean'
+        'Days_Late': 'mean',
+        'Invoice_ID': 'count'  # <--- THIS FIXES THE PIE CHART ERROR
     }).reset_index()
 
     # 3. Apply the "Top N" Executive Filter
     if view_limit:
-        # Sort by Rating then by the largest Exposure
         entity_analysis = entity_analysis.sort_values(['ESG_Score', 'Amount_Remaining'], ascending=[True, False])
-        # Isolate the top performers per rating category
         entity_analysis = entity_analysis.groupby('ESG_Score').head(top_n).reset_index(drop=True)
 
     # 4. Create the Layout
