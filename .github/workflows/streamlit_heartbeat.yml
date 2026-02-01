@@ -1,0 +1,21 @@
+name: SmartCash AI Heartbeat
+on:
+  schedule:
+    - cron: '0 */10 * * *' # Wakes up every 10 hours
+  workflow_dispatch:      # Allows you to click "Run" manually for testing
+
+jobs:
+  heartbeat:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: GitHub Push Action
+        run: |
+          git config --global user.name "SmartCash-Bot"
+          git config --global user.email "bot@smartcash.ai"
+          git commit --allow-empty -m "💓 Heartbeat: Keeping Streamlit App Warm"
+          git push
