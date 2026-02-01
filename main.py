@@ -199,7 +199,7 @@ else:
 
 st.divider()
 
-    st.subheader("🔥 Interactive Stress Matrix (FX vs Hedge)")
+st.subheader("🔥 Interactive Stress Matrix (FX vs Hedge)")
     fx_range = np.array([-15, -10, -5, -2, 0, 5, 10])
     hedge_range = np.array([0, 25, 50, 75, 100])
     multiplier = 0.85 if stress_test else 1.0
