@@ -207,36 +207,39 @@ if menu == "📈 Dashboard":
     st.plotly_chart(fig_h, use_container_width=True)
 
 elif menu == "🛡️ Risk Radar":
-    weights = {'AAA':0.05, 'AA':0.1, 'A':0.2, 'B':0.4, 'C':0.6, 'D':0.9}
-    
-    for col in ['Company_Code', 'Currency', 'ESG_Score', 'Customer']:
-        view_df[col] = view_df[col].astype(str).replace('nan', 'Unknown')
-    
-    view_df['Amount_Remaining'] = pd.to_numeric(view_df['Amount_Remaining'], errors='coerce').fillna(0)
-    
-    view_df['Exposure'] = view_df['Amount_Remaining'] * view_df['ESG_Score'].map(weights).fillna(0)
-    view_df['Amount_M'] = view_df['Amount_Remaining'] / 1_000_000
+    if not view_df.empty:
+        weights = {'AAA':0.05, 'AA':0.1, 'A':0.2, 'B':0.4, 'C':0.6, 'D':0.9}
+        
+        for col in ['Company_Code', 'Currency', 'ESG_Score', 'Customer']:
+            view_df[col] = view_df[col].astype(str).replace('nan', 'Unknown')
+        
+        view_df['Amount_Remaining'] = pd.to_numeric(view_df['Amount_Remaining'], errors='coerce').fillna(0)
+        
+        view_df['Exposure'] = view_df['Amount_Remaining'] * view_df['ESG_Score'].map(weights).fillna(0)
+        view_df['Amount_M'] = view_df['Amount_Remaining'] / 1_000_000
 
-    fig_s = px.sunburst(
-        view_df, 
-        path=['Company_Code', 'Currency', 'ESG_Score', 'Customer'], 
-        values='Exposure', 
-        color='ESG_Score',
-        color_discrete_map={
-            'AAA':'#238636', 'AA':'#2ea043', 'A':'#d29922', 
-            'B':'#db6d28', 'C':'#f85149', 'D':'#b62323'
-        },
-        hover_data=['Amount_M']
-    )
-    
-    fig_s.update_traces(
-        hovertemplate="<b>%{label}</b><br>" + 
-                      "Total Value: $%{customdata[0]:,.4f}M<br>" + 
-                      "Risk Exposure: $%{value:,.2f}<extra></extra>"
-    )
+        fig_s = px.sunburst(
+            view_df, 
+            path=['Company_Code', 'Currency', 'ESG_Score', 'Customer'], 
+            values='Exposure', 
+            color='ESG_Score',
+            color_discrete_map={
+                'AAA':'#238636', 'AA':'#2ea043', 'A':'#d29922', 
+                'B':'#db6d28', 'C':'#f85149', 'D':'#b62323'
+            },
+            hover_data=['Amount_M']
+        )
+        
+        fig_s.update_traces(
+            hovertemplate="<b>%{label}</b><br>" + 
+                          "Total Value: $%{customdata[0]:,.4f}M<br>" + 
+                          "Risk Exposure: $%{value:,.2f}<extra></extra>"
+        )
 
-    fig_s.update_layout(height=700, template="plotly_dark")
-    st.plotly_chart(fig_s, use_container_width=True)
+        fig_s.update_layout(height=700, template="plotly_dark")
+        st.plotly_chart(fig_s, use_container_width=True)
+    else:
+        st.info("Please ensure data is loaded to view Risk Radar.")
 
 elif menu == "⚡ Workbench":
     st.subheader("⚡ Operational Command")
