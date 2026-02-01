@@ -200,17 +200,17 @@ else:
 st.divider()
 
 st.subheader("🔥 Interactive Stress Matrix (FX vs Hedge)")
-    fx_range = np.array([-15, -10, -5, -2, 0, 5, 10])
-    hedge_range = np.array([0, 25, 50, 75, 100])
-    multiplier = 0.85 if stress_test else 1.0
-    z_data = [[round(liq_pool * multiplier * (1 + (fx/100) * (1 - (h/100))), 2) for h in hedge_range] for fx in fx_range]
+fx_range = np.array([-15, -10, -5, -2, 0, 5, 10])
+hedge_range = np.array([0, 25, 50, 75, 100])
+multiplier = 0.85 if stress_test else 1.0
+z_data = [[round(liq_pool * multiplier * (1 + (fx/100) * (1 - (h/100))), 2) for h in hedge_range] for fx in fx_range]
 
-    fig_h = go.Figure(data=go.Heatmap(
-        z=z_data, x=[f"{h}% Hedge" for h in hedge_range], y=[f"{fx}% Vol" for fx in fx_range],
-        colorscale='RdYlGn', text=z_data, texttemplate="$%{text}M", hoverinfo="z"
-    ))
-    fig_h.update_layout(template="plotly_dark", height=400, xaxis_title="Hedge Coverage", yaxis_title="FX Volatility (%)")
-    st.plotly_chart(fig_h, use_container_width=True)
+fig_h = go.Figure(data=go.Heatmap(
+z=z_data, x=[f"{h}% Hedge" for h in hedge_range], y=[f"{fx}% Vol" for fx in fx_range],
+colorscale='RdYlGn', text=z_data, texttemplate="$%{text}M", hoverinfo="z"
+))
+fig_h.update_layout(template="plotly_dark", height=400, xaxis_title="Hedge Coverage", yaxis_title="FX Volatility (%)")
+st.plotly_chart(fig_h, use_container_width=True)
 
 elif menu == "🛡️ Risk Radar":
     weights = {'AAA':0.05, 'AA':0.1, 'A':0.2, 'B':0.4, 'C':0.6, 'D':0.9}
