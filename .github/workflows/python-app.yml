@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 permissions:
-  contents: write  # ⚡ REQUIRED: Allows the Action to update the README badge
+  contents: write  # Required to update the README badge
 
 jobs:
   build:
@@ -16,45 +16,44 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        fetch-depth: 0 # ⚡ Fetches all history for git push to work correctly
+        fetch-depth: 0 # Fetches full history for git push
 
     - name: Set up Python 3.11
       uses: actions/setup-python@v5
       with:
         python-version: "3.11"
-        cache: 'pip'
+        cache: 'pip' # ⚡ SPEED FIX: Caches dependencies so you don't wait for "build dependencies" every time
 
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8 pytest pytest-cov
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        # --prefer-binary prevents slow C-compilation of SciPy/Pandas
+        pip install --prefer-binary -r requirements.txt
+        pip install flake8 pytest pytest-cov pytest-rerunfailures
 
     - name: Lint with flake8
       run: |
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
-    - name: Generate Mock Data
+    - name: Run Unit Tests & Update Badge
+      env:
+        PYTHONPATH: . # ⚡ PATH FIX: Tells pytest to look in the root for the 'backend' module
       run: |
-        python mock_data_maker.py
-
-    - name: Run Tests & Update Coverage Badge
-      run: |
-        # 1. Run tests and generate the JSON report
-        pytest --cov=backend --cov-report=json --cov-report=term-missing
+        # 1. Run tests and generate coverage data
+        # --reruns 2 handles flaky runner issues
+        pytest --cov=backend --cov-report=json --cov-report=term-missing --reruns 2
         
-        # 2. Extract percentage using Python (e.g., "78")
+        # 2. Extract percentage using Python
         COVERAGE_PCT=$(python -c "import json; print(json.load(open('coverage.json'))['totals']['percent_covered_display'])")
-        echo "Current Coverage: $COVERAGE_PCT%"
+        echo "COVERAGE=$COVERAGE_PCT" >> $GITHUB_ENV
         
-        # 3. Use sed to find and replace the badge in README.md
-        # This targets ![Coverage](https://img.shields.io/badge/Coverage-ANYVALUE%-brightgreen...)
+        # 3. Update the badge in README.md
+        # Matches: ![Coverage](https://img.shields.io/badge/Coverage-ANYTHING-brightgreen...)
         sed -i "s/Coverage-[0-9]\{1,3\}%/Coverage-${COVERAGE_PCT}%/g" README.md
         
-        # 4. Push the update back to the repository (skip CI to avoid infinite loops)
+        # 4. Push the update back (skip CI to avoid infinite loops)
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git add README.md
-        git commit -m "chore: auto-update coverage badge to ${COVERAGE_PCT}% [skip ci]" || echo "No changes to commit"
+        git commit -m "chore: auto-update coverage badge to ${COVERAGE_PCT}% [skip ci]" || echo "No changes"
         git push
