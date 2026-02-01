@@ -1,48 +1,47 @@
 <div align="center">
 
 [![SmartCash AI CI](https://github.com/saurabhsrivastav-in/SmartCash-AI/actions/workflows/python-app.yml/badge.svg)](https://github.com/saurabhsrivastav-in/SmartCash-AI/actions/workflows/python-app.yml)
+![Coverage](https://img.shields.io/badge/Coverage-54%25-brightgreen?style=flat-square)
+![Python](https://img.shields.io/badge/Python-3.11+-blue?style=flat-square&logo=python)
 
-# 🏦 SmartCash AI: Institutional Treasury Orchestration
-### **Autonomous Order-to-Cash (O2C) & Liquidity Forecasting Engine**
+# 🏦 SmartCash AI
+### **Autonomous Institutional Treasury Orchestration & Liquidity Forecasting**
 
-![Status](https://img.shields.io/badge/Status-Enterprise--Ready-success?style=for-the-badge)
-![Tier](https://img.shields.io/badge/Tier-Tier--1--Treasury-blue?style=for-the-badge)
-![Compliance](https://img.shields.io/badge/Compliance-SOC2%20%7C%20ESG%20%7C%20BASEL--III-orange?style=for-the-badge)
+[📊 Live Command Center](https://smartcash-ai-csjcpzt5x3lbimlnuwbnvp.streamlit.app/) • [🖥️ C-Suite Executive View](https://smartcash-ai-yfd8pn3nqnmanfkxhevxuc.streamlit.app/) • [🤝 LinkedIn](https://www.linkedin.com/in/saurabh-srivastav-in/)
 
-**SmartCash AI** is a high-performance orchestration engine designed to eliminate fragmented liquidity. By bridging the gap between global bank feeds and ERP subledgers, the platform achieves a **94.2% Straight-Through Processing (STP) rate**, transforming Accounts Receivable from a reactive cost center into a proactive liquidity asset.
+**SmartCash AI** is an enterprise-grade orchestration engine designed to eliminate fragmented liquidity. By bridging global bank feeds (ISO 20022) and ERP subledgers, the platform achieves a **94.2% STP (Straight-Through Processing) rate**, transforming Accounts Receivable from a reactive cost center into a proactive liquidity asset.
 
 ---
-
-### 🌐 Enterprise Deployment
-**[📊 Access Live Command Center](https://smartcash-ai-csjcpzt5x3lbimlnuwbnvp.streamlit.app/)** | **[🖥️ C-Suite Executive View](https://smartcash-ai-yfd8pn3nqnmanfkxhevxuc.streamlit.app/)**
-
 </div>
-
----
 
 ## 💎 Institutional Value Proposition
 
 | **Core Pillar** | **Strategic Capability** | **Technical Leverage** |
 | :--- | :--- | :--- |
-| **Liquidity Velocity** | Automated reconciliation of multi-currency payments (USD/EUR/GBP) to reduce unapplied cash. | Weighted fuzzy heuristics via `thefuzz` and `Pandas`. |
-| **Macro-Stress Control** | Real-time simulations modeling the impact of collection latency (DSO) on operational buffers. | `NumPy`-driven Monte Carlo simulations for FX/Hedge sensitivity. |
-| **Cognitive Dunning** | GenAI agents that identify "Short-Pays" and draft professional dispute resolutions. | `GPT-4` integration for context-aware customer communication. |
-| **ESG Risk Radar** | Dynamic exposure tracking based on counterparty ESG ratings (AAA-D). | Multi-dimensional `Plotly` Sunburst visualization. |
+| **Liquidity Velocity** | Automated reconciliation of multi-currency payments to reduce unapplied cash. | `TheFuzz` heuristics & `Pandas` vectorization. |
+| **Macro-Stress Control** | Real-time simulations modeling the impact of collection latency (DSO) on buffers. | `NumPy` Monte Carlo & FX sensitivity logic. |
+| **Cognitive Dunning** | GenAI agents identify "Short-Pays" and draft professional dispute resolutions. | `LLM` integration for context-aware comms. |
+| **ESG Risk Radar** | Dynamic exposure tracking based on counterparty ESG ratings (AAA-D). | `Plotly` multi-dimensional Sunburst visuals. |
+
+---
+
+## 🚀 Engineering Excellence (CI/CD)
+The core logic is protected by a rigorous automated testing suite ensuring financial accuracy and compliance.
+
+* **Smart Matching Engine:** 81% code coverage for high-confidence invoice reconciliation.
+* **Compliance & Analytics:** Automated unit testing for SANCTIONS screening and CER (Collection Efficiency) metrics.
+* **Robust Pipeline:** Integrated `GitHub Actions` with `pytest-cov` for continuous reliability.
+
+
 
 ---
 
 ## 📊 Executive Dashboard Preview
 * **Multi-Year Trend Analysis:** Historical bank inflow tracking (2023–2025) with AI-projected 2026 forecast.
 * **AR Ageing (DPD):** Real-time "Bucket Analysis" (0-30, 31-60, 91+ days) to identify capital lock-up.
-* **Operational Workbench:** Intelligent "AI Matcher" linking bank transactions to open invoices with 98% confidence scores.
+* **Operational Workbench:** Intelligent "AI Matcher" linking transactions to open invoices with 98% confidence scores.
 
----
 
-## 🛠️ Tech Stack & Engineering
-* **Frontend:** `Streamlit` (Enterprise Finance UI Framework)
-* **Data Science:** `Pandas`, `NumPy`, `Plotly`
-* **Automation:** `GitHub Actions` (CI/CD), `Python-Dotenv`
-* **Security:** Role-Based Access Control logic simulation (RBAC)
 
 ---
 
@@ -52,7 +51,6 @@
 * **[🎯 Strategic Pitch Deck](./Project_Pitch_Deck.md)** — ROI analysis and C-Suite value drivers.
 * **[📝 Business Requirements (BRD)](./docs/BRD.md)** — Functional mapping of the O2C lifecycle.
 * **[⚙️ Product Requirements (PRD)](./docs/PRD.md)** — Technical specifications and API logic.
-* **[✅ UAT & Quality Assurance](./UAT_Plan.md)** — Stakeholder validation and testing protocols.
 * **[📖 AR Analyst User Guide](./User_Guide_AR_Analyst.md)** — End-user operational manual.
 
 ---
@@ -60,4 +58,4 @@
 ## 👨‍💻 Developed by Saurabh Srivastav
 **Business Analyst | Digital Transformation Specialist** Specializing in bridging the gap between **Complex Financial Requirements** and **Elite Technical Execution**.
 
-[LinkedIn](https://www.linkedin.com/in/saurabh-srivastav-in/) | [Portfolio](https://github.com/saurabhsrivastav-in/) | [Email](mailto:saurabhsrivastav.db@gmail.com)
+[Portfolio](https://github.com/saurabhsrivastav-in/) | [Email](mailto:saurabhsrivastav.db@gmail.com)
