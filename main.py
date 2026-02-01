@@ -293,11 +293,11 @@ elif menu == "⚡ Workbench":
             inv = ov[ov['Customer'] == target].iloc[0]
             st.markdown("### 📧 Professional Notice Draft")
             
-          # 1. First, create the safe ID variable
-inv_id = inv.get('Invoice_ID', inv.get('Invoice', 'N/A')) 
+# 1. Create the safe ID variable to prevent KeyError crashes
+            inv_id = inv.get('Invoice_ID', inv.get('Invoice', 'N/A')) 
 
-# 2. Use 'inv_id' everywhere inside the f-string (DO NOT use inv['Invoice_ID'])
-email_body = f"""Subject: URGENT: Payment Overdue for {inv['Customer']} ({inv_id})
+            # 2. Use 'inv_id' everywhere inside the f-string
+            email_body = f"""Subject: URGENT: Payment Overdue for {inv['Customer']} ({inv_id})
 
 Dear Accounts Payable Team,
 
@@ -315,7 +315,7 @@ Treasury Operations Team"""
                 st.session_state.audit.insert(0, {
                     "Time": datetime.now().strftime("%H:%M"), 
                     "Action": "DUNNING", 
-                    "ID": inv['Invoice_ID'], 
+                    "ID": inv_id, # Updated to safe variable
                     "Detail": f"Sent to {target}"
                 })
                 st.success("Notice dispatched.")
@@ -326,11 +326,13 @@ Treasury Operations Team"""
         c_flag, c_res = st.columns(2)
         if not view_df.empty:
             with c_flag:
+                # Ensuring logic uses safe key checks for filtering
+                id_col = 'Invoice_ID' if 'Invoice_ID' in view_df.columns else 'Invoice'
                 not_disputed = view_df[~view_df['Is_Disputed']]
                 if not not_disputed.empty:
-                    to_freeze = st.selectbox("Invoice to Freeze", not_disputed['Invoice_ID'])
+                    to_freeze = st.selectbox("Invoice to Freeze", not_disputed[id_col])
                     if st.button("🚩 Freeze Invoice"):
-                        idx = st.session_state.ledger.index[st.session_state.ledger['Invoice_ID'] == to_freeze][0]
+                        idx = st.session_state.ledger.index[st.session_state.ledger[id_col] == to_freeze][0]
                         st.session_state.ledger.at[idx, 'Is_Disputed'] = True
                         st.session_state.audit.insert(0, {"Time": datetime.now().strftime("%H:%M"), "Action": "DISPUTE_FLAG", "ID": to_freeze, "Detail": "Manual Dispute"})
                         st.rerun()
@@ -340,9 +342,9 @@ Treasury Operations Team"""
             with c_res:
                 disputed = view_df[view_df['Is_Disputed']]
                 if not disputed.empty:
-                    to_resolve = st.selectbox("Invoice to Unfreeze", disputed['Invoice_ID'])
+                    to_resolve = st.selectbox("Invoice to Unfreeze", disputed[id_col])
                     if st.button("✅ Resolve"):
-                        idx = st.session_state.ledger.index[st.session_state.ledger['Invoice_ID'] == to_resolve][0]
+                        idx = st.session_state.ledger.index[st.session_state.ledger[id_col] == to_resolve][0]
                         st.session_state.ledger.at[idx, 'Is_Disputed'] = False
                         st.session_state.audit.insert(0, {"Time": datetime.now().strftime("%H:%M"), "Action": "RESOLVED", "ID": to_resolve, "Detail": "Issue Settled"})
                         st.rerun()
