@@ -293,7 +293,7 @@ elif menu == "⚡ Workbench":
         match_df = st.session_state.bank.copy()
         ledger_ref = st.session_state.ledger
         
-      if not match_df.empty and 'Customer' in match_df.columns and 'Invoice_ID' in ledger_ref.columns:
+        if not match_df.empty and 'Customer' in match_df.columns and 'Invoice_ID' in ledger_ref.columns:
             # --- FIX STARTS HERE ---
             def get_invoice(row):
                 try:
