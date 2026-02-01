@@ -17,41 +17,48 @@ if 'chat_key' not in st.session_state:
 @st.cache_data
 def load_institutional_data():
     try:
-        # Load files from the data folder
         inv_df = pd.read_csv("data/invoices.csv")
         bank_df = pd.read_csv("data/bank_feed.csv")
         
-        # 1. Standardize Bank Feed Columns
-        bank_df.columns = bank_df.columns.str.strip()
-        bank_df = bank_df.rename(columns={
-            'Payer_Name': 'Customer', 
-            'Amount_Received': 'Amount',
-            'Payer': 'Customer', 
-            'Sender': 'Customer', 
-            'Description': 'Customer'
-        })
+        # 1. CLEAN HEADERS: Removes hidden spaces and standardizes format
+        inv_df.columns = [str(c).strip().replace(' ', '_').title() for c in inv_df.columns]
+        bank_df.columns = [str(c).strip().replace(' ', '_').title() for c in bank_df.columns]
 
-        # 2. Standardize Invoice Columns
-        inv_df.columns = inv_df.columns.str.strip()
+        # 2. FEATURE MAPPING: Forces various CSV names into the names the app expects
+        # This fixes Workbench (AI Matcher) and Risk Radar
         inv_df = inv_df.rename(columns={
-            'Amount': 'Amount_Remaining',
-            'Balance': 'Amount_Remaining'
+            'Amount': 'Amount_Remaining', 'Balance': 'Amount_Remaining',
+            'Customer_Name': 'Customer', 'Client_Name': 'Customer',
+            'Invoice_No': 'Invoice_ID', 'Inv_Id': 'Invoice_ID',
+            'Esg': 'Esg_Score'
         })
         
-        # 3. Create 'Is_Disputed' if it doesn't exist
-        if 'Is_Disputed' not in inv_df.columns:
-            inv_df['Is_Disputed'] = False
+        bank_df = bank_df.rename(columns={
+            'Payer_Name': 'Customer', 'Sender': 'Customer', 
+            'Amount_Received': 'Amount', 'Value': 'Amount'
+        })
 
-        # 4. Convert Dates
+        # 3. SAFETY DEFAULTS: Prevents "Column Unavailable" crashes
+        required_cols = {
+            'Is_Disputed': False,
+            'Status': 'Open',
+            'Esg_Score': 'A',
+            'Company_Code': 'Main_Entity',
+            'Currency': 'USD'
+        }
+        for col, default in required_cols.items():
+            if col not in inv_df.columns:
+                inv_df[col] = default
+
+        # 4. DATA TYPES
         inv_df['Due_Date'] = pd.to_datetime(inv_df['Due_Date'], errors='coerce')
-        bank_df['Date'] = pd.to_datetime(bank_df['Date'], errors='coerce')
+        bank_df['Date'] = pd.to_datetime(bank_df.get('Date'), errors='coerce')
         
         return inv_df, bank_df
     except Exception as e:
         st.error(f"⚠️ Initialization Error: {e}")
-        # Return empty DFs with expected columns to prevent downstream crashes
-        return pd.DataFrame(columns=['Customer', 'Invoice_ID', 'Amount_Remaining', 'Due_Date', 'Status', 'Company_Code', 'Is_Disputed']), pd.DataFrame()
-
+        # Returns empty dataframes with correct columns so features don't disappear
+        return pd.DataFrame(columns=['Customer', 'Invoice_ID', 'Amount_Remaining', 'Due_Date', 'Status', 'Company_Code', 'Esg_Score', 'Is_Disputed', 'Currency']), pd.DataFrame()
 if 'ledger' not in st.session_state or 'bank' not in st.session_state:
     ledger_df, bank_df = load_institutional_data()
     st.session_state.ledger = ledger_df
