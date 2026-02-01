@@ -1,33 +1,28 @@
 # --- CORE DATA & QUANTITATIVE ANALYTICS ---
-pandas>=2.2.0
-numpy>=1.26.0
-scipy>=1.12.0          # Sprint 8: Statistical Stress Testing & Liquidity Decay
-scikit-learn>=1.4.0    # Sprint 7/8: Behavioral Clustering & Risk Profiling
+pandas==2.2.0
+numpy==1.26.0
+scipy==1.12.0
+scikit-learn==1.4.0
 
 # --- MATCHING ENGINE & COGNITIVE AI ---
-fuzzywuzzy>=0.18.0     # Sprint 2: String Similarity Matching
-python-Levenshtein>=0.23.0 # Accelerates Fuzzy matching performance
-openai>=1.10.0         # Sprint 3/6: GenAI for Dunning & Exception Reasoning
-lxml>=5.1.0            # Sprint 11: High-performance ISO 20022 (camt.053) Parsing
+fuzzywuzzy==0.18.0
+python-Levenshtein==0.23.0
+openai==1.10.0
+lxml==5.1.0
 
 # --- UI FRAMEWORK & FINANCIAL VISUALIZATION ---
-streamlit>=1.31.0      # Command Center Web Framework
-plotly>=5.18.0         # Risk Radar (Sunburst) & Liquidity Bridge (Waterfall)
-st-annotated-text      # Token-level highlighting for Remittance mapping
+streamlit==1.31.0
+plotly==5.18.0
+st-annotated-text==0.0.7
+fpdf==1.7.2
+python-pptx==0.6.21
 
 # --- SECURITY, GOVERNANCE & COMPLIANCE ---
-# Note: hashlib is part of the Python Standard Library (no install needed)
-cryptography>=42.0.0   # Sprint 11: AES-256 & Quantum-Resistant Hardening
-python-dotenv>=1.0.0   # Management of Vault & API Credentials
-python-dateutil>=2.8.2 # ISO 8601 Timestamp parsing for global entities
+cryptography==42.0.0
+python-dotenv==1.0.0
+python-dateutil==2.8.2
 
-# --- ENTERPRISE TESTING & AUDIT ---
-pytest>=8.0.0          # UAT for Match Engine Logic
-pytest-cov>=4.1.0      # Code coverage reporting for SOC2 compliance
-
-streamlit
-pandas
-numpy
-plotly
-fpdf
-python-pptx
+# --- ENTERPRISE TESTING, AUDIT & UPTIME ---
+pytest==8.0.0
+pytest-cov==4.1.0
+pytest-rerunfailures==13.0  # Prevents CI failure from intermittent runner hiccups
