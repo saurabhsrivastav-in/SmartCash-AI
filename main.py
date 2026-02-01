@@ -91,10 +91,10 @@ view_df = st.session_state.ledger.copy()
 
 if search_term:
     view_df = view_df[view_df['Customer'].str.contains(search_term, case=False) | 
-                     view_df['Invoice_ID'].str.contains(search_term, case=False)]
+                      view_df['Invoice_ID'].str.contains(search_term, case=False)]
 elif chat_term:
     view_df = view_df[view_df['Customer'].str.contains(chat_term, case=False) | 
-                     view_df['Invoice_ID'].str.contains(chat_term, case=False)]
+                      view_df['Invoice_ID'].str.contains(chat_term, case=False)]
 
 with st.sidebar:
     st.header("⚙️ Controls")
@@ -117,7 +117,6 @@ if ent_f != "Consolidated":
 if 'Amount_Remaining' in view_df.columns:
     liq_pool = (view_df['Amount_Remaining'].sum() / 1e6) - (latency * 0.12)
 else:
-    # This helps you see what actually exists while you're debugging
     st.error(f"Critical Column Missing! Expected 'Amount_Remaining' but found: {list(view_df.columns)}")
     liq_pool = 0.0
 today = datetime(2026, 1, 30)
@@ -151,84 +150,73 @@ if menu == "📈 Dashboard":
     
     st.divider()
 
-st.subheader("⏳ Accounts Receivable Ageing Analysis")
+    st.subheader("⏳ Accounts Receivable Ageing Analysis")
 
-if 'Status' in view_df.columns:
-    # Everything inside the 'if' must be indented
-    ov = view_df[view_df['Status'] == 'Overdue'].copy()
-    
-    # Only try to convert dates if the dataframe isn't empty and the column exists
-    if not ov.empty and 'Due_Date' in ov.columns:
-        ov['Due_Date'] = pd.to_datetime(ov['Due_Date'])
+    if 'Status' in view_df.columns:
+        ov = view_df[view_df['Status'] == 'Overdue'].copy()
         
-        # Define function and logic inside the valid data block
-        def get_bucket(invoice_date):
-            diff = (today - invoice_date).days
-            if diff <= 15: return "0-15"
-            elif diff <= 30: return "16-30"
-            elif diff <= 60: return "31-60"
-            elif diff <= 90: return "61-90"
-            elif diff <= 120: return "91-120"
-            elif diff <= 180: return "121-180"
-            elif diff <= 360: return "181-360"
-            else: return "361+"
+        if not ov.empty and 'Due_Date' in ov.columns:
+            ov['Due_Date'] = pd.to_datetime(ov['Due_Date'])
+            
+            def get_bucket(invoice_date):
+                diff = (today - invoice_date).days
+                if diff <= 15: return "0-15"
+                elif diff <= 30: return "16-30"
+                elif diff <= 60: return "31-60"
+                elif diff <= 90: return "61-90"
+                elif diff <= 120: return "91-120"
+                elif diff <= 180: return "121-180"
+                elif diff <= 360: return "181-360"
+                else: return "361+"
 
-        ov['Bucket'] = ov['Due_Date'].apply(get_bucket)
-        order = ["0-15", "16-30", "31-60", "61-90", "91-120", "121-180", "181-360", "361+"]
-        age_data = ov.groupby('Bucket')['Amount_Remaining'].sum().reindex(order, fill_value=0).reset_index()
-        
-        fig_age = px.bar(age_data, x='Bucket', y='Amount_Remaining', 
-                         labels={'Bucket': 'Days Past Due (DPD)', 'Amount_Remaining': 'Balance ($)'},
-                         color='Amount_Remaining', color_continuous_scale='Turbo')
-        fig_age.update_layout(template="plotly_dark", height=450)
-        st.plotly_chart(fig_age, use_container_width=True)
-    else: 
-        # This handles the case where 'Status' exists but no rows are 'Overdue'
-        total_pending = view_df['Amount_Remaining'].sum()
-        st.info(f"✅ No overdue items found for the current selection.")
-        st.metric("Total Outstanding (Current)", f"${total_pending:,.2f}")
-        
-        st.write("📅 **Upcoming Receivables (Next 30 Days):**")
-        upcoming = view_df[view_df['Status'] != 'Overdue'].sort_values('Due_Date').head(5)
-        if not upcoming.empty:
-            st.dataframe(upcoming[['Customer', 'Due_Date', 'Amount_Remaining']], use_container_width=True)
-else:
-    # This handles the case where the 'Status' column is completely missing
-    st.warning("Column 'Status' not found. Creating an empty Overdue dataframe.")
-    ov = pd.DataFrame(columns=view_df.columns)
+            ov['Bucket'] = ov['Due_Date'].apply(get_bucket)
+            order = ["0-15", "16-30", "31-60", "61-90", "91-120", "121-180", "181-360", "361+"]
+            age_data = ov.groupby('Bucket')['Amount_Remaining'].sum().reindex(order, fill_value=0).reset_index()
+            
+            fig_age = px.bar(age_data, x='Bucket', y='Amount_Remaining', 
+                             labels={'Bucket': 'Days Past Due (DPD)', 'Amount_Remaining': 'Balance ($)'},
+                             color='Amount_Remaining', color_continuous_scale='Turbo')
+            fig_age.update_layout(template="plotly_dark", height=450)
+            st.plotly_chart(fig_age, use_container_width=True)
+        else: 
+            total_pending = view_df['Amount_Remaining'].sum()
+            st.info(f"✅ No overdue items found for the current selection.")
+            st.metric("Total Outstanding (Current)", f"${total_pending:,.2f}")
+            
+            st.write("📅 **Upcoming Receivables (Next 30 Days):**")
+            upcoming = view_df[view_df['Status'] != 'Overdue'].sort_values('Due_Date').head(5)
+            if not upcoming.empty:
+                st.dataframe(upcoming[['Customer', 'Due_Date', 'Amount_Remaining']], use_container_width=True)
+    else:
+        st.warning("Column 'Status' not found. Creating an empty Overdue dataframe.")
+        ov = pd.DataFrame(columns=view_df.columns)
 
-st.divider()
+    st.divider()
 
-# --- This block must be indented to stay inside the Dashboard menu ---
-        st.subheader("🔥 Interactive Stress Matrix (FX vs Hedge)")
-        fx_range = np.array([-15, -10, -5, -2, 0, 5, 10])
-        hedge_range = np.array([0, 25, 50, 75, 100])
-        multiplier = 0.85 if stress_test else 1.0
-        z_data = [[round(liq_pool * multiplier * (1 + (fx/100) * (1 - (h/100))), 2) for h in hedge_range] for fx in fx_range]
+    st.subheader("🔥 Interactive Stress Matrix (FX vs Hedge)")
+    fx_range = np.array([-15, -10, -5, -2, 0, 5, 10])
+    hedge_range = np.array([0, 25, 50, 75, 100])
+    multiplier = 0.85 if stress_test else 1.0
+    z_data = [[round(liq_pool * multiplier * (1 + (fx/100) * (1 - (h/100))), 2) for h in hedge_range] for fx in fx_range]
 
-        fig_h = go.Figure(data=go.Heatmap(
-            z=z_data, x=[f"{h}% Hedge" for h in hedge_range], y=[f"{fx}% Vol" for fx in fx_range],
-            colorscale='RdYlGn', text=z_data, texttemplate="$%{text}M", hoverinfo="z"
-        ))
-        fig_h.update_layout(template="plotly_dark", height=400, xaxis_title="Hedge Coverage", yaxis_title="FX Volatility (%)")
-        st.plotly_chart(fig_h, use_container_width=True)
+    fig_h = go.Figure(data=go.Heatmap(
+        z=z_data, x=[f"{h}% Hedge" for h in hedge_range], y=[f"{fx}% Vol" for fx in fx_range],
+        colorscale='RdYlGn', text=z_data, texttemplate="$%{text}M", hoverinfo="z"
+    ))
+    fig_h.update_layout(template="plotly_dark", height=400, xaxis_title="Hedge Coverage", yaxis_title="FX Volatility (%)")
+    st.plotly_chart(fig_h, use_container_width=True)
 
-# --- Now the menu chain can continue correctly ---
 elif menu == "🛡️ Risk Radar":
     weights = {'AAA':0.05, 'AA':0.1, 'A':0.2, 'B':0.4, 'C':0.6, 'D':0.9}
     
-    # 1. Data Hardening: Ensure Path columns have no NaNs
     for col in ['Company_Code', 'Currency', 'ESG_Score', 'Customer']:
         view_df[col] = view_df[col].astype(str).replace('nan', 'Unknown')
     
-    # 2. Ensure Amount is strictly numeric
     view_df['Amount_Remaining'] = pd.to_numeric(view_df['Amount_Remaining'], errors='coerce').fillna(0)
     
-    # 3. Calculate metrics
     view_df['Exposure'] = view_df['Amount_Remaining'] * view_df['ESG_Score'].map(weights).fillna(0)
     view_df['Amount_M'] = view_df['Amount_Remaining'] / 1_000_000
 
-    # 4. Create Sunburst
     fig_s = px.sunburst(
         view_df, 
         path=['Company_Code', 'Currency', 'ESG_Score', 'Customer'], 
@@ -268,8 +256,7 @@ elif menu == "⚡ Workbench":
             st.error("❌ Column mismatch: Ensure both files have a 'Customer' or 'Payer_Name' column.")
 
     with t2:
-        # Re-calculating 'ov' inside the tab scope to ensure it exists
-        ov = view_df[view_df['Status'] == 'Overdue']
+        ov = view_df[view_df['Status'] == 'Overdue'] if 'Status' in view_df.columns else pd.DataFrame()
         if not ov.empty:
             target = st.selectbox("Select Debtor", ov['Customer'].unique())
             inv = ov[ov['Customer'] == target].iloc[0]
@@ -302,9 +289,10 @@ Treasury Operations Team"""
             st.info(f"✅ No overdue items found for the current selection.")
             st.metric("Total Outstanding (Current)", f"${total_pending:,.2f}")
             st.write("📅 **Upcoming Receivables (Next 30 Days):**")
-            upcoming = view_df[view_df['Status'] != 'Overdue'].sort_values('Due_Date').head(5)
-            if not upcoming.empty:
-                st.dataframe(upcoming[['Customer', 'Due_Date', 'Amount_Remaining']], use_container_width=True)
+            if 'Status' in view_df.columns:
+                upcoming = view_df[view_df['Status'] != 'Overdue'].sort_values('Due_Date').head(5)
+                if not upcoming.empty:
+                    st.dataframe(upcoming[['Customer', 'Due_Date', 'Amount_Remaining']], use_container_width=True)
                 
     with t3:
         c_flag, c_res = st.columns(2)
