@@ -151,15 +151,19 @@ if menu == "📈 Dashboard":
     
     st.divider()
 
-    st.subheader("⏳ Accounts Receivable Ageing Analysis")
-    if 'Status' in view_df.columns:
+st.subheader("⏳ Accounts Receivable Ageing Analysis")
+
+if 'Status' in view_df.columns:
+    # Everything inside the 'if' must be indented
     ov = view_df[view_df['Status'] == 'Overdue'].copy()
-else:
-    st.warning("Column 'Status' not found. Creating an empty Overdue dataframe.")
-    # Create an empty dataframe with the same columns to prevent errors downstream
-    ov = pd.DataFrame(columns=view_df.columns)
-    if not ov.empty:
+    
+    # Only try to convert dates if the dataframe isn't empty and the column exists
+    if not ov.empty and 'Due_Date' in ov.columns:
         ov['Due_Date'] = pd.to_datetime(ov['Due_Date'])
+else:
+    # Everything inside the 'else' must be indented
+    st.warning("Column 'Status' not found. Creating an empty Overdue dataframe.")
+    ov = pd.DataFrame(columns=view_df.columns)
         
         def get_bucket(invoice_date):
             diff = (today - invoice_date).days
