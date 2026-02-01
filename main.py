@@ -319,7 +319,7 @@ with t1:
         else:
             st.warning("Cannot run Matcher. Ensure 'invoices.csv' has an 'Invoice_ID' column and both files have 'Customer'.")
             
-    with t2:
+with t2:
         ov = view_df[view_df['Status'] == 'Overdue'] if 'Status' in view_df.columns else pd.DataFrame()
         if not ov.empty:
             target = st.selectbox("Select Debtor", ov['Customer'].unique())
@@ -355,7 +355,7 @@ Treasury Operations Team"""
         else: 
             st.info(f"✅ No overdue items found for dunning.")
 
-    with t3:
+with t3:
         c_flag, c_res = st.columns(2)
         if not view_df.empty:
             with c_flag:
