@@ -288,7 +288,7 @@ elif menu == "⚡ Workbench":
     st.subheader("⚡ Operational Command")
     t1, t2, t3 = st.tabs(["🧩 AI Matcher", "📩 Dunning Center", "🛠️ Dispute Resolver"])
     
-    with t1:
+with t1:
         st.write("**Intelligent Bank Reconciliation**")
         match_df = st.session_state.bank.copy()
         ledger_ref = st.session_state.ledger
@@ -296,9 +296,9 @@ elif menu == "⚡ Workbench":
         # Check if necessary columns exist to prevent KeyError
         if not match_df.empty and 'Customer' in match_df.columns and 'Invoice_ID' in ledger_ref.columns:
             
-            # SAFER MATCHING LOGIC
-def get_invoice(row):
-                # Uses the AI Engine to match by amount, name, and currency
+            # --- FIXED INDENTATION START ---
+            def get_invoice(row):
+                """Uses the AI Engine to match by amount, name, and currency"""
                 results = matcher.run_match(
                     amount=row['Amount'], 
                     customer_name=row['Customer'], 
@@ -310,15 +310,15 @@ def get_invoice(row):
                     return f"{best['Invoice_ID']} ({int(best['confidence']*100)}%)"
                 return "No Match"
 
-            # Update the application line immediately below the function:
+            # Use .apply(axis=1) because the function needs the whole row (amount + name)
             match_df['Suggested_Invoice'] = match_df.apply(get_invoice, axis=1)
+            # --- FIXED INDENTATION END ---
 
-            match_df['Suggested_Invoice'] = match_df['Customer'].apply(get_invoice)
             st.dataframe(match_df, use_container_width=True)
             st.info("AI Matcher identified links between receipts and receivables.")
         else:
             st.warning("Cannot run Matcher. Ensure 'invoices.csv' has an 'Invoice_ID' column and both files have 'Customer'.")
-
+            
     with t2:
         ov = view_df[view_df['Status'] == 'Overdue'] if 'Status' in view_df.columns else pd.DataFrame()
         if not ov.empty:
