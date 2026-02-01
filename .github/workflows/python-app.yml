@@ -1,6 +1,3 @@
-# This workflow will install Python dependencies, run tests and lint with a single version of Python
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
-
 name: SmartCash AI CI
 
 on:
@@ -10,7 +7,7 @@ on:
     branches: [ "main" ]
 
 permissions:
-  contents: read
+  contents: write  # ⚡ REQUIRED: Allows the Action to update the README badge
 
 jobs:
   build:
@@ -18,12 +15,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    
+      with:
+        fetch-depth: 0 # ⚡ Fetches all history for git push to work correctly
+
     - name: Set up Python 3.11
       uses: actions/setup-python@v5
       with:
         python-version: "3.11"
-        cache: 'pip'                # ⚡ Eliminates the 45s lag by caching dependencies
+        cache: 'pip'
 
     - name: Install dependencies
       run: |
@@ -33,28 +32,29 @@ jobs:
 
     - name: Lint with flake8
       run: |
-        # Stop the build if there are Python syntax errors or undefined names
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings.
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
-    - name: Generate Mock Data for Testing
+    - name: Generate Mock Data
       run: |
         python mock_data_maker.py
 
-  - name: Run Unit Tests with Coverage
+    - name: Run Tests & Update Coverage Badge
       run: |
-        pytest --cov=backend --cov-report=json
-        # Extract percentage for the badge
-        export TOTAL=$(python -c "import json; print(json.load(open('coverage.json'))['totals']['percent_covered_display'])")
-        echo "COVERAGE=$TOTAL" >> $GITHUB_ENV
-
-    # Replace '54%' in README with actual value (Local Hack for Free Tier)
-    - name: Update Coverage Badge in README
-      run: |
-        sed -i "s/Coverage-[0-9]\{1,3\}%/Coverage-${{ env.COVERAGE }}%/g" README.md
+        # 1. Run tests and generate the JSON report
+        pytest --cov=backend --cov-report=json --cov-report=term-missing
+        
+        # 2. Extract percentage using Python (e.g., "78")
+        COVERAGE_PCT=$(python -c "import json; print(json.load(open('coverage.json'))['totals']['percent_covered_display'])")
+        echo "Current Coverage: $COVERAGE_PCT%"
+        
+        # 3. Use sed to find and replace the badge in README.md
+        # This targets ![Coverage](https://img.shields.io/badge/Coverage-ANYVALUE%-brightgreen...)
+        sed -i "s/Coverage-[0-9]\{1,3\}%/Coverage-${COVERAGE_PCT}%/g" README.md
+        
+        # 4. Push the update back to the repository (skip CI to avoid infinite loops)
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git add README.md
-        git commit -m "chore: update coverage badge [skip ci]" || echo "No changes to commit"
+        git commit -m "chore: auto-update coverage badge to ${COVERAGE_PCT}% [skip ci]" || echo "No changes to commit"
         git push
