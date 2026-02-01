@@ -293,18 +293,34 @@ elif menu == "⚡ Workbench":
         match_df = st.session_state.bank.copy()
         ledger_ref = st.session_state.ledger
         
-        if not match_df.empty and 'Customer' in match_df.columns and 'Invoice_ID' in ledger_ref.columns:
+      if not match_df.empty and 'Customer' in match_df.columns and 'Invoice_ID' in ledger_ref.columns:
+            # --- FIX STARTS HERE ---
             def get_invoice(row):
-                results = matcher.run_match(
-                    amount=row['Amount'], 
-                    customer_name=row['Customer'], 
-                    currency=row.get('Currency', 'USD'), 
-                    ledger_df=ledger_ref
-                )
-                if results:
-                    best = results[0]
-                    return f"{best['Invoice_ID']} ({int(best['confidence']*100)}%)"
-                return "No Match"
+                try:
+                    # Clean the data: Convert amount to number and name to string
+                    clean_amt = pd.to_numeric(row['Amount'], errors='coerce')
+                    clean_cust = str(row['Customer']) if pd.notnull(row['Customer']) else ""
+                    
+                    # If data is missing or invalid, skip matching for this row
+                    if not clean_cust or pd.isna(clean_amt):
+                        return "Invalid Data"
+
+                    results = matcher.run_match(
+                        amount=clean_amt, 
+                        customer_name=clean_cust, 
+                        currency=row.get('Currency', 'USD'), 
+                        ledger_df=ledger_ref
+                    )
+                    
+                    if results:
+                        best = results[0]
+                        conf = float(best.get('confidence', 0))
+                        return f"{best['Invoice_ID']} ({int(conf*100)}%)"
+                    return "No Match"
+                except:
+                    return "Matching Error"
+
+            # --- FIX ENDS HERE ---
 
             match_df['Suggested_Invoice'] = match_df.apply(get_invoice, axis=1)
             st.dataframe(match_df, use_container_width=True)
