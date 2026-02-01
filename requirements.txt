@@ -13,7 +13,7 @@ lxml==5.1.0
 # --- UI FRAMEWORK & FINANCIAL VISUALIZATION ---
 streamlit==1.31.0
 plotly==5.18.0
-st-annotated-text==0.0.7
+st-annotated-text>=4.0.0
 fpdf==1.7.2
 python-pptx==0.6.21
 
@@ -25,4 +25,4 @@ python-dateutil==2.8.2
 # --- ENTERPRISE TESTING, AUDIT & UPTIME ---
 pytest==8.0.0
 pytest-cov==4.1.0
-pytest-rerunfailures==13.0  # Prevents CI failure from intermittent runner hiccups
+pytest-rerunfailures==14.0  # Prevents CI failure from intermittent runner hiccups
