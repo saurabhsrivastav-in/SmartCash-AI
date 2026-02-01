@@ -23,7 +23,7 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: "3.11"
-        cache: 'pip'                # ⚡ Fixes the 45s lag by caching requirements
+        cache: 'pip'                # ⚡ Eliminates the 45s lag by caching dependencies
 
     - name: Install dependencies
       run: |
@@ -33,9 +33,9 @@ jobs:
 
     - name: Lint with flake8
       run: |
-        # stop the build if there are Python syntax errors or undefined names
+        # Stop the build if there are Python syntax errors or undefined names
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        # exit-zero treats all errors as warnings.
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
     - name: Generate Mock Data for Testing
@@ -43,7 +43,7 @@ jobs:
         python mock_data_maker.py
 
     - name: Run Unit Tests with Coverage
-      env:
-        PYTHONPATH: .               # ⚡ MANDATORY: Allows tests/ to find backend/
       run: |
-        pytest --cov=backend tests/
+        # 🚀 Pytest now automatically uses settings from pytest.ini
+        # This handles PYTHONPATH and --cov internally.
+        pytest
