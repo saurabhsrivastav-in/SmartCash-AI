@@ -297,9 +297,21 @@ elif menu == "⚡ Workbench":
         if not match_df.empty and 'Customer' in match_df.columns and 'Invoice_ID' in ledger_ref.columns:
             
             # SAFER MATCHING LOGIC
-            def get_invoice(customer_name):
-                match = ledger_ref[ledger_ref['Customer'] == customer_name]
-                return match['Invoice_ID'].values[0] if not match.empty else "No Match"
+def get_invoice(row):
+                # Uses the AI Engine to match by amount, name, and currency
+                results = matcher.run_match(
+                    amount=row['Amount'], 
+                    customer_name=row['Customer'], 
+                    currency=row.get('Currency', 'USD'), 
+                    ledger_df=ledger_ref
+                )
+                if results:
+                    best = results[0]
+                    return f"{best['Invoice_ID']} ({int(best['confidence']*100)}%)"
+                return "No Match"
+
+            # Update the application line immediately below the function:
+            match_df['Suggested_Invoice'] = match_df.apply(get_invoice, axis=1)
 
             match_df['Suggested_Invoice'] = match_df['Customer'].apply(get_invoice)
             st.dataframe(match_df, use_container_width=True)
