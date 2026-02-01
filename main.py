@@ -288,17 +288,13 @@ elif menu == "⚡ Workbench":
     st.subheader("⚡ Operational Command")
     t1, t2, t3 = st.tabs(["🧩 AI Matcher", "📩 Dunning Center", "🛠️ Dispute Resolver"])
     
-with t1:
+    with t1:
         st.write("**Intelligent Bank Reconciliation**")
         match_df = st.session_state.bank.copy()
         ledger_ref = st.session_state.ledger
         
-        # Check if necessary columns exist to prevent KeyError
         if not match_df.empty and 'Customer' in match_df.columns and 'Invoice_ID' in ledger_ref.columns:
-            
-            # --- FIXED INDENTATION START ---
             def get_invoice(row):
-                """Uses the AI Engine to match by amount, name, and currency"""
                 results = matcher.run_match(
                     amount=row['Amount'], 
                     customer_name=row['Customer'], 
@@ -310,26 +306,21 @@ with t1:
                     return f"{best['Invoice_ID']} ({int(best['confidence']*100)}%)"
                 return "No Match"
 
-            # Use .apply(axis=1) because the function needs the whole row (amount + name)
             match_df['Suggested_Invoice'] = match_df.apply(get_invoice, axis=1)
-            # --- FIXED INDENTATION END ---
-
             st.dataframe(match_df, use_container_width=True)
             st.info("AI Matcher identified links between receipts and receivables.")
         else:
             st.warning("Cannot run Matcher. Ensure 'invoices.csv' has an 'Invoice_ID' column and both files have 'Customer'.")
             
-with t2:
+    with t2:
         ov = view_df[view_df['Status'] == 'Overdue'] if 'Status' in view_df.columns else pd.DataFrame()
         if not ov.empty:
             target = st.selectbox("Select Debtor", ov['Customer'].unique())
             inv = ov[ov['Customer'] == target].iloc[0]
             st.markdown("### 📧 Professional Notice Draft")
             
-# 1. Create the safe ID variable to prevent KeyError crashes
             inv_id = inv.get('Invoice_ID', inv.get('Invoice', 'N/A')) 
 
-            # 2. Use 'inv_id' everywhere inside the f-string
             email_body = f"""Subject: URGENT: Payment Overdue for {inv['Customer']} ({inv_id})
 
 Dear Accounts Payable Team,
@@ -348,19 +339,18 @@ Treasury Operations Team"""
                 st.session_state.audit.insert(0, {
                     "Time": datetime.now().strftime("%H:%M"), 
                     "Action": "DUNNING", 
-                    "ID": inv_id, # Updated to safe variable
+                    "ID": inv_id, 
                     "Detail": f"Sent to {target}"
                 })
                 st.success("Notice dispatched.")
         else: 
             st.info(f"✅ No overdue items found for dunning.")
 
-with t3:
+    with t3:
         c_flag, c_res = st.columns(2)
         if not view_df.empty:
+            id_col = 'Invoice_ID' if 'Invoice_ID' in view_df.columns else 'Invoice'
             with c_flag:
-                # Ensuring logic uses safe key checks for filtering
-                id_col = 'Invoice_ID' if 'Invoice_ID' in view_df.columns else 'Invoice'
                 not_disputed = view_df[~view_df['Is_Disputed']]
                 if not not_disputed.empty:
                     to_freeze = st.selectbox("Invoice to Freeze", not_disputed[id_col])
@@ -383,12 +373,9 @@ with t3:
                         st.rerun()
                 else: 
                     st.info("No active disputes.")
-      
-    # --- End of Workbench Tabs ---
         else:
             st.info("Workbench requires active ledger data.")
 
-# This 'elif' must be at the same indentation level as 'if menu == "📈 Dashboard":'
 elif menu == "📜 Audit":
     st.write("### 📜 System Audit Log")
     if st.session_state.audit:
