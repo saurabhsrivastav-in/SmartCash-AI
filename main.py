@@ -4,6 +4,7 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime, timedelta
+from backend.engine import SmartMatchingEngine
 
 # --- 1. BOILERPLATE & STABILITY INITIALIZATION ---
 if 'audit' not in st.session_state:
@@ -14,6 +15,12 @@ if 'chat_key' not in st.session_state:
     st.session_state.chat_key = ""
 
 # --- 2. DATA ENGINE ---
+@st.cache_resource
+def get_matcher():
+    """Initializes the AI Matching Engine once and shares it across all sessions."""
+    return SmartMatchingEngine()
+
+matcher = get_matcher()
 @st.cache_data
 def load_institutional_data():
     try:
