@@ -152,7 +152,12 @@ if menu == "📈 Dashboard":
     st.divider()
 
     st.subheader("⏳ Accounts Receivable Ageing Analysis")
+    if 'Status' in view_df.columns:
     ov = view_df[view_df['Status'] == 'Overdue'].copy()
+else:
+    st.warning("Column 'Status' not found. Creating an empty Overdue dataframe.")
+    # Create an empty dataframe with the same columns to prevent errors downstream
+    ov = pd.DataFrame(columns=view_df.columns)
     if not ov.empty:
         ov['Due_Date'] = pd.to_datetime(ov['Due_Date'])
         
