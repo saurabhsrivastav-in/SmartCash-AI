@@ -40,7 +40,7 @@ The core logic is protected by a rigorous automated testing suite ensuring finan
 
 * **Multi-Year Trend Analysis:** Historical bank inflow tracking (2023–2025) with AI-projected 2026 forecast.
 * **AR Ageing (DPD):** Real-time "Bucket Analysis" (0-30, 31-60, 91+ days) to identify capital lock-up.
-* **Operational Workbench:** Intelligent "AI Matcher" linking transactions to open invoices with 98% confidence scores.
+* **Operational Workbench:** Intelligent "AI Matcher" linking transactions to open invoices with 99% confidence scores.
 
 ---
 
